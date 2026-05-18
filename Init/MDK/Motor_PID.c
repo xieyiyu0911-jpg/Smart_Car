@@ -10,6 +10,33 @@
 #define MOTOR_PWM_MAX          (5000)
 #define SPEED_TARGET_MAX       (1000)
 
+// 模糊 PID 参数：error 和 error_change 的最大范围
+#define FUZZY_E_MAX   90.0f
+#define FUZZY_EC_MAX  45.0f
+
+// 模糊查询表：ΔKp，由 error(E) 和 error_change(EC) 的离散等级索引
+// 行 = E(NB→PB)，列 = EC(NB→PB)，值 = Kp调整量 ∈ [-0.6, +0.6]
+float code fuzzy_delta_Kp[7][7] = {
+    { 0.6000f,  0.6000f,  0.4000f,  0.4000f,  0.2000f,  0.0000f,  0.0000f},
+    { 0.6000f,  0.6000f,  0.4000f,  0.2667f,  0.2000f, -0.0667f, -0.1333f},
+    { 0.4000f,  0.4000f,  0.4000f,  0.2000f,  0.0000f, -0.2000f, -0.2000f},
+    { 0.4000f,  0.4000f,  0.2000f,  0.0000f, -0.2000f, -0.4000f, -0.4000f},
+    { 0.2000f,  0.2000f,  0.0000f, -0.2000f, -0.4000f, -0.4000f, -0.4000f},
+    { 0.1333f,  0.0667f, -0.2667f, -0.4000f, -0.4667f, -0.6000f, -0.6000f},
+    { 0.0000f,  0.0000f, -0.4000f, -0.4000f, -0.6000f, -0.6000f, -0.6000f},
+};
+
+// 模糊查询表：ΔKd，调节范围 ∈ [-12, +12]
+float code fuzzy_delta_Kd[7][7] = {
+    { 4.0000f, -1.3333f,-12.0000f,-12.0000f,-12.0000f, -4.0000f,  4.0000f},
+    { 4.0000f, -1.3333f,-12.0000f, -9.3333f, -9.3333f, -2.4000f,  1.3333f},
+    { 0.0000f, -2.6667f, -8.0000f, -8.0000f, -4.0000f, -2.6667f,  0.0000f},
+    { 0.0000f, -2.6667f, -4.0000f, -4.0000f, -4.0000f, -2.6667f,  0.0000f},
+    { 0.0000f,  0.0000f,  0.0000f,  0.0000f,  0.0000f,  0.0000f,  0.0000f},
+    {12.0000f,  7.0000f,  5.3333f,  5.3333f,  4.0000f,  5.3333f,  8.0000f},
+    {12.0000f,  9.3333f,  8.0000f,  8.0000f,  4.0000f,  5.3333f,  8.0000f},
+};
+
 float Motor_L_output = 0;
 float Motor_output_R = 0;
 
@@ -103,6 +130,24 @@ uint16 Servo_Measure(int* inductance_array,int times)
         sum += inductance_array[i];
     }
     return ((sum - min - max) / (times - 2));
+}
+
+// 将连续值量化到 0~6 的离散等级 (NB=-3, NM=-2, NS=-1, ZO=0, PS=1, PM=2, PB=3)
+static uint8 quantize(float val, float vmax)
+{
+    float ratio = val / vmax;
+    if(ratio >  1.0f) ratio =  1.0f;
+    if(ratio < -1.0f) ratio = -1.0f;
+    return (uint8)(ratio * 3.0f + 3.0f + 0.5f);
+}
+
+// 模糊 PID 调整：输入 error 和 error_change，查表输出 ΔKp 和 ΔKd
+void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *delta_Kd)
+{
+    uint8 e_idx  = quantize(error,        FUZZY_E_MAX);
+    uint8 ec_idx = quantize(error_change, FUZZY_EC_MAX);
+    *delta_Kp = fuzzy_delta_Kp[e_idx][ec_idx];
+    *delta_Kd = fuzzy_delta_Kd[e_idx][ec_idx];
 }
 
 // 将电磁误差转换成差速转向命令，输出 turn_cmd，增量式
@@ -199,8 +244,24 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
     else if(GKD >= 0.1f) GKD = 0.1f;
 
     // 最终转向命令由比例、非线性比例、微分和陀螺仪阻尼共同组成
+    // 模糊 PID：根据 error 和 error_change 动态微调 P1 和 D
     error = (member1 / (denominator1 + 0.00001f)) * 90;
-    turn_cmd = error * Servo_P1 + Servo_P2 * fabs(error) * error + (error - error_last) * Servo_D + GKD * Yaw_Angular_Speed;
+
+    {
+        float error_change = error - error_last;
+        float delta_Kp = 0, delta_Kd = 0;
+        Fuzzy_PID_Adjust(error, error_change, &delta_Kp, &delta_Kd);
+
+        float fuzzy_P1 = Servo_P1 + delta_Kp;
+        float fuzzy_D  = Servo_D + delta_Kd;
+
+        if(fuzzy_P1 < 0.05f) fuzzy_P1 = 0.05f;
+        if(fuzzy_P1 > 3.0f)  fuzzy_P1 = 3.0f;
+        if(fuzzy_D  < 5.0f)  fuzzy_D  = 5.0f;
+        if(fuzzy_D  > 60.0f) fuzzy_D  = 60.0f;
+
+        turn_cmd = error * fuzzy_P1 + Servo_P2 * fabs(error) * error + error_change * fuzzy_D + GKD * Yaw_Angular_Speed;
+    }
     error_last = error;
 
     if(turn_cmd >= TURN_CMD_MAX) turn_cmd = TURN_CMD_MAX;
