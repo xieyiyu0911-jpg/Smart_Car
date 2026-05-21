@@ -10,7 +10,7 @@
  extern float Angle_Speed_Output1;
  extern float Turn_Output;
  extern float Angle_Speed_error1;
- extern float Turn_Cmd1;
+ extern float xdata Turn_Cmd1;
 
 void Uarts_Init()
 {

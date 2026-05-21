@@ -11,34 +11,41 @@
 #define SPEED_TARGET_MAX       (1000)
 
 // 模糊 PID 参数：error 和 error_change 的最大范围
+// error_change 单位 °/tick(10ms), 800°/s 实际角速度 → 8°/tick
 #define FUZZY_E_MAX   90.0f
-#define FUZZY_EC_MAX  45.0f
+#define FUZZY_EC_MAX  8.0f
 
-// 模糊查询表：ΔKp，由 error(E) 和 error_change(EC) 的离散等级索引
-// 行 = E(NB→PB)，列 = EC(NB→PB)，值 = Kp调整量 ∈ [-0.6, +0.6]
-float code fuzzy_delta_Kp[7][7] = {
-    { 0.6000f,  0.6000f,  0.4000f,  0.4000f,  0.2000f,  0.0000f,  0.0000f},
-    { 0.6000f,  0.6000f,  0.4000f,  0.2667f,  0.2000f, -0.0667f, -0.1333f},
-    { 0.4000f,  0.4000f,  0.4000f,  0.2000f,  0.0000f, -0.2000f, -0.2000f},
-    { 0.4000f,  0.4000f,  0.2000f,  0.0000f, -0.2000f, -0.4000f, -0.4000f},
-    { 0.2000f,  0.2000f,  0.0000f, -0.2000f, -0.4000f, -0.4000f, -0.4000f},
-    { 0.1333f,  0.0667f, -0.2667f, -0.4000f, -0.4667f, -0.6000f, -0.6000f},
-    { 0.0000f,  0.0000f, -0.4000f, -0.4000f, -0.6000f, -0.6000f, -0.6000f},
+// 模糊规则表：使用语言值 (-3=NB, -2=NM, -1=NS, 0=ZO, 1=PS, 2=PM, 3=PB)
+// 行 = E(NB→PB)，列 = EC(NB→PB)，比例因子将语言值映射为实际调整量
+//#define FUZZY_KP_SCALE 0.2f    // 语言值 ×0.2 = 实际 ΔKp,  范围 [-0.6, +0.6]
+//#define FUZZY_KD_SCALE 2.333f  // 语言值 ×2.333 = 实际 ΔKd, 范围 [-7, +7]
+
+// Kp 规则表：左上角(大偏差+恶化)大力纠正，右下角(大偏差+回正)减力防超调
+int8 code rule_Kp[7][7] = {
+    //  EC: NB  NM  NS  ZO  PS  PM  PB
+    { 3,  3,  2,  2,  1,  0,  0}, // E: NB
+    { 3,  3,  2,  1,  1,  0, -1}, // E: NM
+    { 2,  2,  2,  1,  0, -1, -1}, // E: NS
+    { 2,  2,  1,  0, -1, -2, -2}, // E: ZO
+    { 1,  1,  0, -1, -2, -2, -2}, // E: PS
+    { 1,  0, -1, -2, -2, -3, -3}, // E: PM
+    { 0,  0, -1, -2, -2, -3, -3}, // E: PB
 };
 
-// 模糊查询表：ΔKd，调节范围 ∈ [-12, +12]
-float code fuzzy_delta_Kd[7][7] = {
-    { 4.0000f, -1.3333f,-12.0000f,-12.0000f,-12.0000f, -4.0000f,  4.0000f},
-    { 4.0000f, -1.3333f,-12.0000f, -9.3333f, -9.3333f, -2.4000f,  1.3333f},
-    { 0.0000f, -2.6667f, -8.0000f, -8.0000f, -4.0000f, -2.6667f,  0.0000f},
-    { 0.0000f, -2.6667f, -4.0000f, -4.0000f, -4.0000f, -2.6667f,  0.0000f},
-    { 0.0000f,  0.0000f,  0.0000f,  0.0000f,  0.0000f,  0.0000f,  0.0000f},
-    {12.0000f,  7.0000f,  5.3333f,  5.3333f,  4.0000f,  5.3333f,  8.0000f},
-    {12.0000f,  9.3333f,  8.0000f,  8.0000f,  4.0000f,  5.3333f,  8.0000f},
+// Kd 规则表：同号(恶化)→负值减阻尼, 异号(回正)→正值加阻尼。反对称
+int8 code rule_Kd[7][7] = {
+    //  EC: NB   NM   NS   ZO   PS   PM   PB
+    {-2, -1,  0,  0,  1,  2,  3}, // E: NB
+    {-2, -1,  0,  0,  1,  1,  2}, // E: NM
+    {-1, -1,  0,  0,  0,  1,  1}, // E: NS
+    { 0,  0,  0,  0,  0,  0,  0}, // E: ZO
+    {-1, -1,  0,  0,  0,  1,  1}, // E: PS
+    {-2, -1, -1,  0,  0,  1,  2}, // E: PM
+    {-3, -2, -1,  0,  0,  1,  2}, // E: PB
 };
 
-float Motor_L_output = 0;
-float Motor_output_R = 0;
+float xdata Motor_L_output = 0;
+float xdata Motor_output_R = 0;
 
 uint32 xdata Left_Round_Config1 = 0;
 uint32 xdata Left_Round_Config2 = 0;
@@ -46,8 +53,8 @@ uint32 xdata Right_Round_Config1 = 0;
 uint32 xdata Right_Round_Config2 = 0;
 
 float xdata First_encoder_ave = 0, First_distance = 0;
-float Turn_Cmd1 = 0;
-float error1 = 0;
+float xdata Turn_Cmd1 = 0;
+float xdata error1 = 0;
 uint32 xdata Round_Config1 = 0;
 uint32 xdata Round_Config2 = 0;
 uint32 xdata Cross_Config = 0;
@@ -60,19 +67,44 @@ uint8 xdata circle_config = 0;
 
 
 
- extern volatile int16 motor_speed_L;
- extern volatile int16 motor_speed_R;
- extern uint8 xdata read_buff1[8];
- extern uint8 xdata read_buff2[4];
- extern float Angle_Speed_Output1;
- extern float Yaw_Angular_Speed;
- extern float xdata Yaw_Angle;
- extern float xdata Source;
- extern float xdata Second_distance;
- extern float xdata Second_encoder_ave;
- extern float SpeedTarget_L, Target_Right1;
- extern float SpeedMeasure_L, SpeedMeasure_R;
- extern float Turn_Output;
+extern volatile int16 motor_speed_L;
+extern volatile int16 motor_speed_R;
+extern uint8 xdata read_buff1[8];
+extern uint8 xdata read_buff2[4];
+extern float Angle_Speed_Output1;
+extern float Yaw_Angular_Speed;
+extern float xdata Yaw_Angle;
+extern float xdata Source;
+extern float xdata Second_distance;
+extern float xdata Second_encoder_ave;
+extern float SpeedTarget_L, Target_Right1;
+extern float SpeedMeasure_L, SpeedMeasure_R;
+extern float Turn_Output;
+ 
+float error_change = 0;
+float error = 0;
+
+// ========== 环岛处理变量 ==========
+  Round_State_TypeDef Round_State = ROUND_NONE;  // 环岛状态机
+  uint8 Round_Direction = 0;                      // 环岛方向：0=左环，1=右环
+
+  // 里程计数
+  float Round_Pre_Distance = 0;                  // 预处理阶段里程
+  float Round_Exit_Distance = 0;                 // 出环后里程
+
+  // 环岛参数配置
+  const Round_Config_TypeDef Round_Params = {
+      0,     // pre_adc_thres_L
+      100,     // pre_adc_thres_M
+      0,     // pre_adc_thres_R
+      95,     // entry_adc_thres
+      60,     // entry_angle_end
+      270,    // inside_angle_end
+      330,    // exit_angle_end
+      150,    // pre_distance_thres
+      100,   // exit_distance_thres
+      1.2     // entry_amplify
+  };
 
 // 电磁全丢线或上位机急停时，直接清零目标速度并关闭 PWM
 uint16 PID_Conservation(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Middle_M_R,uint16 Result_R)
@@ -132,35 +164,78 @@ uint16 Servo_Measure(int* inductance_array,int times)
     return ((sum - min - max) / (times - 2));
 }
 
-// 将连续值量化到 0~6 的离散等级 (NB=-3, NM=-2, NS=-1, ZO=0, PS=1, PM=2, PB=3)
-static uint8 quantize(float val, float vmax)
+// 将连续值量化，返回整数索引和用于插值的小数部分
+static uint8 quantize_frac(float val, float vmax, float *frac)
 {
-    float ratio = val / vmax;
+    static float xdata ratio, xdata idx_f;// ratio=归一化值, idx_f=连续索引
+    static uint8 xdata idx;// idx=整数索引(0-6)
+
+    ratio = val / vmax;//归一化，映射到[-1,1]
+	
+	//限幅
     if(ratio >  1.0f) ratio =  1.0f;
     if(ratio < -1.0f) ratio = -1.0f;
-    return (uint8)(ratio * 3.0f + 3.0f + 0.5f);
+	
+	//将归一化值映射到连续索引
+    idx_f = ratio * 3.0f + 3.0f;
+    idx = (uint8)idx_f;
+    if(idx > 5) idx = 5;
+    *frac = idx_f - (float)idx;//小数部分即隶属度
+    return idx;
 }
 
-// 模糊 PID 调整：输入 error 和 error_change，查表输出 ΔKp 和 ΔKd
+// 模糊 PID 调整：双线性插值 + 比例因子
 void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *delta_Kd)
 {
-    uint8 e_idx  = quantize(error,        FUZZY_E_MAX);
-    uint8 ec_idx = quantize(error_change, FUZZY_EC_MAX);
-    *delta_Kp = fuzzy_delta_Kp[e_idx][ec_idx];
-    *delta_Kd = fuzzy_delta_Kd[e_idx][ec_idx];
+    static float xdata frac_e, xdata frac_ec;
+    static uint8 xdata e_idx, xdata ec_idx, xdata e_next, xdata ec_next;
+    static float xdata v00, xdata v01, xdata v10, xdata v11, xdata v0, xdata v1;
+    float result;
+	float xdata FUZZY_KP_SCALE = 0.2;
+	float xdata FUZZY_KD_SCALE = 2.33;
+	
+	FUZZY_KP_SCALE = seekfree_assistant_parameter[0];
+	FUZZY_KD_SCALE = seekfree_assistant_parameter[1];
+
+    e_idx  = quantize_frac(error,        FUZZY_E_MAX, &frac_e);
+    ec_idx = quantize_frac(error_change, FUZZY_EC_MAX, &frac_ec);
+
+    e_next = (e_idx < 6) ? (uint8)(e_idx + 1) : e_idx;
+    ec_next = (ec_idx < 6) ? (uint8)(ec_idx + 1) : ec_idx;
+
+    // Kp：双线性插值语言值 → 乘比例因子
+    v00 = (float)rule_Kp[e_idx][ec_idx];
+    v01 = (float)rule_Kp[e_idx][ec_next];
+    v10 = (float)rule_Kp[e_next][ec_idx];
+    v11 = (float)rule_Kp[e_next][ec_next];
+    
+	v0 = v00 + (v01 - v00) * frac_ec;//误差
+    v1 = v10 + (v11 - v10) * frac_ec;//误差变化率
+    result = v0 + (v1 - v0) * frac_e;
+    *delta_Kp = result * FUZZY_KP_SCALE;
+
+    // Kd：双线性插值语言值 → 乘比例因子
+    v00 = (float)rule_Kd[e_idx][ec_idx];
+    v01 = (float)rule_Kd[e_idx][ec_next];
+    v10 = (float)rule_Kd[e_next][ec_idx];
+    v11 = (float)rule_Kd[e_next][ec_next];
+    
+	v0 = v00 + (v01 - v00) * frac_ec;
+    v1 = v10 + (v11 - v10) * frac_ec;
+    result = v0 + (v1 - v0) * frac_e;
+    *delta_Kd = result * FUZZY_KD_SCALE;
 }
 
 // 将电磁误差转换成差速转向命令，输出 turn_cmd，增量式
 float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Middle_M_R,uint16 Result_R,uint16 Result_Middle_M)
 {
-    float error = 0;
     float turn_cmd = 0;
+    static float delta_Kp = 0, delta_Kd = 0;
+    static float fuzzy_P1 = 0, fuzzy_D = 0;
     static float error_last = 0;
-    
-	float Servo_P1 = 1.5f;
-    float Servo_P2 = 0.0105f;
-    float Servo_D = 9.55f;
-    float GKD = 0.0075f;
+
+	float Servo_P1 = 1.3f;
+    float Servo_D = 10.0f;
 	
     float Result_Left = (float)Result_L;
     float Result_Right = (float)Result_R;
@@ -171,10 +246,10 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
     float Vertical_Weight = 0;//垂直分量
     float Denominator_Weight = 0;
 
-	 Servo_P1 = seekfree_assistant_parameter[0];
-     Servo_P2 = seekfree_assistant_parameter[1];
-     Servo_D = seekfree_assistant_parameter[2];
-     GKD = seekfree_assistant_parameter[3];
+	 Servo_P1 = seekfree_assistant_parameter[2];
+//     Servo_P2 = seekfree_assistant_parameter[1];
+     Servo_D = seekfree_assistant_parameter[3];
+//     GKD = seekfree_assistant_parameter[3];
 	 
     Cross_Config = 0;//过十字标志位
 	
@@ -209,59 +284,140 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
         Vertical_Weight = 0.2f;
         Servo_D += 5;//加阻尼
         if(Servo_D >= 42.5f) Servo_D = 42.5f;
-        GKD = 0;
-        Servo_P2 = 0;
         Servo_P1 = 0.1f;
         Cross_Config = 1;//十字标志位，主要用来让它过了十字之后减速，因为需要拐一个直角弯，容易过冲
     }
-    else if(Round_Config1 == 1)//入环在环内走的参数
-    {
-        Vertical_Weight = 0.85f;
-        Denominator_Weight = Vertical_Weight + 0.01f;
-		circle_config = 2;
-    }
-    else if(Round_Config2 == 1)//出环参数
-    {
-        Vertical_Weight = 0.6f;
-        Denominator_Weight = Vertical_Weight + 0.01f;
-        Servo_P2 = 0;
-        Servo_P1 = 0.1f;
-        GKD = 0;
-		circle_config = 3;
-    }
+	
+//    else if(Round_Config1 == 1)//入环在环内走的参数
+//    {
+//        Vertical_Weight = 0.85f;
+//        Denominator_Weight = Vertical_Weight + 0.01f;
+//		circle_config = 2;
+//    }
+//    else if(Round_Config2 == 1)//出环参数
+//    {
+//        Vertical_Weight = 0.6f;
+//        Denominator_Weight = Vertical_Weight + 0.01f;
+//        Servo_P2 = 0;
+//        Servo_P1 = 0.1f;
+//        GKD = 0;
+//		circle_config = 3;
+//    }
+	
+	// ========== 环岛六阶段处理 ==========
+	  else
+	  {
+		  // ① 预处理阶段检测：三路电感分别达到各自阈值
+		  uint8 all_inductance_high = (Result_L >= Round_Params.pre_adc_thres_L)
+									&& (Result_Middle_M >= Round_Params.pre_adc_thres_M)
+									&& (Result_R >= Round_Params.pre_adc_thres_R);
+
+		  // 正常循迹状态下检测到环岛特征
+		  if(Round_State == ROUND_NONE && all_inductance_high)
+		  {
+			  Round_State = ROUND_PRE;
+			  Round_Pre_Distance = 0;
+			  Buzzer_On();
+		  }
+
+		  // 预处理阶段：判断环岛方向
+		  else if(Round_State == ROUND_PRE)
+		  {
+			  // 如果左侧电感更强，判断为左环；否则为右环
+			  if(Result_L > Result_R)
+			  {
+				  Round_Direction = 0;  // 左环
+			  }
+			  else
+			  {
+				  Round_Direction = 1;  // 右环
+			  }
+			  Vertical_Weight = 0.75f;
+			  Denominator_Weight = Vertical_Weight + 0.01f;
+		  }
+		  // ② 入环阶段 0°~60°：电感值放大约两倍
+		  else if(Round_State == ROUND_ENTRY)
+		  {
+			  // 根据环岛方向放大对应侧电感
+			  if(Round_Direction == 0)  // 左环
+			  {
+				  Result_L = (uint16)(Result_L * Round_Params.entry_amplify);
+				  Result_Middle_M_L = (uint16)(Result_Middle_M_L * Round_Params.entry_amplify);
+				  if(Result_L > 100) Result_L = 100;
+				  if(Result_Middle_M_L > 100) Result_Middle_M_L = 100;
+			  }
+			  else  // 右环
+			  {
+				  Result_R = (uint16)(Result_R * Round_Params.entry_amplify);
+				  Result_Middle_M_R = (uint16)(Result_Middle_M_R * Round_Params.entry_amplify);
+				  if(Result_R > 100) Result_R = 100;
+				  if(Result_Middle_M_R > 100) Result_Middle_M_R = 100;
+			  }
+			  Vertical_Weight = 0.83f;
+			  Denominator_Weight = Vertical_Weight + 0.01f;
+			  circle_config = 2;
+		  }
+		  // ③ 环内阶段 60°~270°：常规循迹
+		  else if(Round_State == ROUND_INSIDE)
+		  {
+			  Vertical_Weight = 0.83f;
+			  Denominator_Weight = Vertical_Weight + 0.01f;
+			  circle_config = 2;
+		  }
+		  // ④ 出环阶段 270°~330°：特殊处理，保持直线出环
+		  else if(Round_State == ROUND_EXIT)
+		  {
+			  Vertical_Weight = 0.6f;
+			  Denominator_Weight = Vertical_Weight + 0.01f;
+			  Servo_P1 = 0.1f;
+			  circle_config = 3;
+		  }
+		  // ⑤ 出环后阶段 330°后：恢复正常循迹，避免再次进环
+		  else if(Round_State == ROUND_EXIT_AFTER)
+		  {
+			  Vertical_Weight = 0.75f;
+			  Denominator_Weight = Vertical_Weight + 0.01f;
+			  circle_config = 4;
+		  }
+	  }
 
     // member1 表示方向偏差，denominator1 用于归一化，避免不同强度下误差量级漂移
     member1 = ((1 - Vertical_Weight) * (Result_Left - Result_Right) + Vertical_Weight * (Result_Middle_M_Left - Result_Middle_M_Right));
     denominator1 = ((1 - Vertical_Weight) * (Result_Left + Result_Right) + Denominator_Weight * fabs(Result_Middle_M_Left - Result_Middle_M_Right));
 
-    if(Servo_P2 <= 0) Servo_P2 = 0;
-    else if(Servo_P2 >= 0.05f) Servo_P2 = 0.05f;
 
     if(Servo_D <= 15) Servo_D = 15;
     else if(Servo_D >= 50) Servo_D = 50;
 
-    if(GKD <= 0) GKD = 0;
-    else if(GKD >= 0.1f) GKD = 0.1f;
 
     // 最终转向命令由比例、非线性比例、微分和陀螺仪阻尼共同组成
     // 模糊 PID：根据 error 和 error_change 动态微调 P1 和 D
     error = (member1 / (denominator1 + 0.00001f)) * 90;
 
+    error_change = error - error_last;
+
+    // 特殊元素（十字、环岛）使用硬编码参数，跳过模糊调整
+    if(Cross_Config == 0 && Round_Config1 == 0 && Round_Config2 == 0)
     {
-        float error_change = error - error_last;
-        float delta_Kp = 0, delta_Kd = 0;
+        delta_Kp = 0;
+        delta_Kd = 0;
         Fuzzy_PID_Adjust(error, error_change, &delta_Kp, &delta_Kd);
 
-        float fuzzy_P1 = Servo_P1 + delta_Kp;
-        float fuzzy_D  = Servo_D + delta_Kd;
-
-        if(fuzzy_P1 < 0.05f) fuzzy_P1 = 0.05f;
-        if(fuzzy_P1 > 3.0f)  fuzzy_P1 = 3.0f;
-        if(fuzzy_D  < 5.0f)  fuzzy_D  = 5.0f;
-        if(fuzzy_D  > 60.0f) fuzzy_D  = 60.0f;
-
-        turn_cmd = error * fuzzy_P1 + Servo_P2 * fabs(error) * error + error_change * fuzzy_D + GKD * Yaw_Angular_Speed;
+        fuzzy_P1 = Servo_P1 + delta_Kp;
+        fuzzy_D  = Servo_D + delta_Kd;
     }
+    else
+    {
+        fuzzy_P1 = Servo_P1;
+        fuzzy_D  = Servo_D;
+    }
+
+    if(fuzzy_P1 < 0.8f) fuzzy_P1 = 0.8f;
+    if(fuzzy_P1 > 2.0f) fuzzy_P1 = 2.0f;
+    if(fuzzy_D  < 5.0f) fuzzy_D =  5.0f;
+    if(fuzzy_D  > 30.0f) fuzzy_D = 30.0f;
+
+    turn_cmd = error * fuzzy_P1 + error_change * fuzzy_D;
     error_last = error;
 
     if(turn_cmd >= TURN_CMD_MAX) turn_cmd = TURN_CMD_MAX;
@@ -269,8 +425,6 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 
     error1 = error;
     Turn_Cmd1 = turn_cmd;
-    Servo_PID_P2 = Servo_P2;
-    Servo_GKD = GKD;
     Servo_PID_D = Servo_D;
 
     return turn_cmd;

@@ -32,8 +32,8 @@ static  uint8            temp_uart_buffer[TEMP_BUFFER_SIZE];  // ´®¿ÚÁÙÊ±½ÓÊÕ»º³
  */
  
  extern float xdata Yaw_Angle;
- extern float error1;
- extern float Turn_Cmd1;
+ extern float xdata error1;
+ extern float xdata Turn_Cmd1;
  extern volatile int16 motor_speed_L ,motor_speed_R;
  extern float Motor_L_output;
  extern float Motor_output_R;
@@ -47,6 +47,9 @@ static  uint8            temp_uart_buffer[TEMP_BUFFER_SIZE];  // ´®¿ÚÁÙÊ±½ÓÊÕ»º³
  extern float Yaw_Angular_Speed;
  extern uint16 Result_L, Result_Middle_M_L, Result_Middle_M_R, Result_R;
  extern int  xdata array1[7] ,xdata array2[7] , xdata array3[7] ,xdata array4[7] ; //xdata array5[7]
+ 
+ extern float error_change;
+ extern float error;
 
 
 // ¸Ãº¯ÊýÔÚ isr.c µÄ UART1_Isr() ÖÐ¶Ï·þÎñº¯ÊýÖÐ±»»Øµ÷
@@ -105,9 +108,6 @@ volatile extern float xdata Second_distance;
 
 
 
-uint16 duty;
-
-
 
 
 static void send_inductor_to_assistant(void)
@@ -115,11 +115,11 @@ static void send_inductor_to_assistant(void)
     seekfree_assistant_oscilloscope_data.dat[0] = Result_L;
     seekfree_assistant_oscilloscope_data.dat[1] = Result_Middle_M_L;
     seekfree_assistant_oscilloscope_data.dat[2] = Result_Middle_M_R;
-    seekfree_assistant_oscilloscope_data.dat[3] = Result_R;
-	seekfree_assistant_oscilloscope_data.dat[4] = Result_Middle_M;
-    seekfree_assistant_oscilloscope_data.dat[5] = SpeedMeasure_L;
-	seekfree_assistant_oscilloscope_data.dat[6] =SpeedMeasure_R;
-	seekfree_assistant_oscilloscope_data.dat[7] = Second_distance;
+    seekfree_assistant_oscilloscope_data.dat[3] = Target_Right1;
+	seekfree_assistant_oscilloscope_data.dat[4] = SpeedTarget_L;
+    seekfree_assistant_oscilloscope_data.dat[5] = Yaw_Angular_Speed;
+	seekfree_assistant_oscilloscope_data.dat[6] = error;
+	seekfree_assistant_oscilloscope_data.dat[7] = error_change;
     seekfree_assistant_oscilloscope_data.channel_num = 8;
     seekfree_assistant_oscilloscope_send(&seekfree_assistant_oscilloscope_data);
 }
