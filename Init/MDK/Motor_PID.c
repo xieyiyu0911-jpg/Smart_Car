@@ -246,10 +246,8 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
     float Vertical_Weight = 0;//垂直分量
     float Denominator_Weight = 0;
 
-	 Servo_P1 = seekfree_assistant_parameter[2];
-//     Servo_P2 = seekfree_assistant_parameter[1];
-     Servo_D = seekfree_assistant_parameter[3];
-//     GKD = seekfree_assistant_parameter[3];
+	 Servo_P1 = seekfree_assistant_parameter[2];//3.5
+     Servo_D = seekfree_assistant_parameter[3];//5
 	 
     Cross_Config = 0;//过十字标志位
 	
@@ -278,8 +276,8 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 //    }
 	
 	//Result_Middle_M_Left >= 35 && Result_Middle_M_Right >= 20 && Result_Left >= 7 && Result_Right >= 7 && Result_Middle_M <= 85
-//    else if(Result_Middle_M_Left >= 40 && Result_Middle_M_Right >= 40 && Result_Left >= 10 && Result_Right >= 10 && Result_Middle_M <= 85)//ʮ��·���ص�Ϊ���ȶ�
-     if(Result_Middle_M_Left >= 40 && Result_Middle_M_Right >=0 && Result_Left >= 30 && Result_Right >= 15 && Result_Middle_M <= 85)//ʮ��·���ص�Ϊ���ȶ�
+//    else if(Result_Middle_M_Left >= 40 && Result_Middle_M_Right >= 40 && Result_Left >= 10 && Result_Right >= 10 && Result_Middle_M <= 85)//十字
+     if(Result_Middle_M_Left >= 40 && Result_Middle_M_Right >=40 && Result_Left >= 10 && Result_Right >= 10 && Result_Middle_M <= 85 && Round_State == ROUND_NONE)//十字
     {
         Vertical_Weight = 0.2f;
         Servo_D += 5;//加阻尼
@@ -318,6 +316,7 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 			  Round_State = ROUND_PRE;
 			  Round_Pre_Distance = 0;
 			  Buzzer_On();
+			  Round_Config1 = 0;
 		  }
 
 		  // 预处理阶段：判断环岛方向
@@ -397,7 +396,7 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
     error_change = error - error_last;
 
     // 特殊元素（十字、环岛）使用硬编码参数，跳过模糊调整
-    if(Cross_Config == 0 && Round_Config1 == 0 && Round_Config2 == 0)
+    if(Cross_Config == 0 && Round_State == ROUND_NONE)
     {
         delta_Kp = 0;
         delta_Kd = 0;

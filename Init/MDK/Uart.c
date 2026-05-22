@@ -14,13 +14,13 @@
 
 void Uarts_Init()
 {
-	uart_init(UART_2, UART2_RX_P10, UART2_TX_P11, 115200, TIM_2);
-    //uart_putstr(UART_2, "UART2 Hello,world");
+	uart_init(UART_4, UART4_RX_P02, UART4_TX_P03, 115200, TIM_2);
+    //uart_putstr(UART_4, "UART2 Hello,world");
 }
 
 void Uarts_Send()
 {
-    //uart_putstr(UART_2, "UART2 Hello,world");
+    //uart_putstr(UART_4, "UART2 Hello,world");
 }
 
 void SCI_Send_Datas(UARTN_enum uart_num)// 上位机查看波形和变量的函数

@@ -115,8 +115,8 @@ static void send_inductor_to_assistant(void)
     seekfree_assistant_oscilloscope_data.dat[0] = Result_L;
     seekfree_assistant_oscilloscope_data.dat[1] = Result_Middle_M_L;
     seekfree_assistant_oscilloscope_data.dat[2] = Result_Middle_M_R;
-    seekfree_assistant_oscilloscope_data.dat[3] = Target_Right1;
-	seekfree_assistant_oscilloscope_data.dat[4] = SpeedTarget_L;
+    seekfree_assistant_oscilloscope_data.dat[3] = Result_R;
+	seekfree_assistant_oscilloscope_data.dat[4] = Result_Middle_M;
     seekfree_assistant_oscilloscope_data.dat[5] = Yaw_Angular_Speed;
 	seekfree_assistant_oscilloscope_data.dat[6] = error;
 	seekfree_assistant_oscilloscope_data.dat[7] = error_change;

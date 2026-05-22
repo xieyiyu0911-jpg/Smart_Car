@@ -1,11 +1,11 @@
 #ifndef __MOTOR_PID_H_
 #define __MOTOR_PID_H_
 
-#define MOTOR_R_PWM_PIN  PWMA_CH2P_P62
-#define MOTOR_L_PWM_PIN  PWMA_CH4P_P66
+#define MOTOR_R_PWM_PIN  PWMA_CH2N_P13
+#define MOTOR_L_PWM_PIN  PWMA_CH4P_P26
 
-#define MOTOR_R_DIR_PIN P60
-#define MOTOR_L_DIR_PIN P64
+#define MOTOR_R_DIR_PIN P24
+#define MOTOR_L_DIR_PIN P10
 
 uint16 PID_Conservation(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Middle_M_R, uint16 Result_R);
 uint16 Uart_Stop(void);

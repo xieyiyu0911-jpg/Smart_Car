@@ -229,11 +229,11 @@ void car_control_timer_handler(void)
 			Motor_Speed_Left[i] = ctimer_count_read(CTIM0_P34);
 			Motor_Speed_Right[i] = ctimer_count_read(CTIM3_P04);
 			
-			array1[i] = adc_once(ADC_P15,ADC_8BIT); // 左侧电感
-            array2[i] = adc_once(ADC_P01,ADC_8BIT);// 左中电感
+			array1[i] = adc_once(ADC_P11,ADC_8BIT); // 左侧电感
+            array2[i] = adc_once(ADC_P00,ADC_8BIT);// 左中电感
             array3[i] = adc_once(ADC_P05,ADC_8BIT);// 右中电感
             array4[i] = adc_once(ADC_P06,ADC_8BIT);// 右侧电感
-			array5[i] = adc_once(ADC_P14,ADC_8BIT);// 中间电感
+			array5[i] = adc_once(ADC_P01,ADC_8BIT);// 中间电感
     }
 			
 		
@@ -313,8 +313,8 @@ void car_control_timer_handler(void)
 		  }
 		  else if(Round_State == ROUND_ENTRY)
 		  {
-			  Yaw_Angle += Yaw_Angular_Speed * 0.01;
-			  if(Yaw_Angle >= Round_Params.entry_angle_end)
+			  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
+			  if(fabs(Yaw_Angle) >= Round_Params.entry_angle_end)
 			  {
 				  Round_State = ROUND_INSIDE;
 				  Yaw_Angle = Round_Params.entry_angle_end;
@@ -323,8 +323,8 @@ void car_control_timer_handler(void)
 		  // 环内阶段 60°~270°
 		  else if(Round_State == ROUND_INSIDE)
 		  {
-			  Yaw_Angle += Yaw_Angular_Speed * 0.01;
-			  if(Yaw_Angle >= Round_Params.inside_angle_end)
+			  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
+			  if(fabs(Yaw_Angle) >= Round_Params.inside_angle_end)
 			  {
 				  Round_State = ROUND_EXIT;
 				  Yaw_Angle = Round_Params.inside_angle_end;
@@ -333,13 +333,12 @@ void car_control_timer_handler(void)
 		  // 出环阶段 270°~330°
 		  else if(Round_State == ROUND_EXIT)
 		  {
-			  Yaw_Angle += Yaw_Angular_Speed * 0.01;
-			  if(Yaw_Angle >= Round_Params.exit_angle_end)
+			  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
+			  if(fabs(Yaw_Angle) >= Round_Params.exit_angle_end)
 			  {
 				  Round_State = ROUND_EXIT_AFTER;
 				  Yaw_Angle = 0;
-						  Round_Exit_Distance = 0; 
-				  Buzzer_On();
+				  Round_Exit_Distance = 0; 
 			  }
 		  }
 
@@ -353,8 +352,6 @@ void car_control_timer_handler(void)
 				  // 里程超过10cm，彻底退出环岛状态
 				  Round_State = ROUND_NONE;
 				  Round_Exit_Distance = 0;
-				  Round_Config1 = 0;
-				  Round_Config2 = 0;
 				  Buzzer_Off();
 			  }
 		  }
@@ -369,7 +366,6 @@ void car_control_timer_handler(void)
 	
 			conservation = PID_Conservation(Result_L,Result_Middle_M_L,Result_Middle_M_R,Result_R);// 保护判断
 			
-//			conservation = Uart_Stop();// 上位机急停
 			
 			if(conservation == 0 && LCD_Config == 0)
 			{
