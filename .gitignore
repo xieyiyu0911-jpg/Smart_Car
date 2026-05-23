@@ -9,8 +9,6 @@ Out_File/
 
 # MDK 临时文件
 *.uvgui.*
-*.uvopt
-*.uvproj
 *.ini
 JLinkLog.txt
 *.dep
