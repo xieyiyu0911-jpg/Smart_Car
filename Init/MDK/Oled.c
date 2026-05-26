@@ -12,7 +12,6 @@
 
  extern float xdata First_distance;
  extern float Yaw_Angular_Speed;//Æ«º½½ÇÊý¾Ý
- extern float xdata Yaw_Angle;
  extern float xdata Servo_PID_P2;
 
  extern uint8 xdata read_buff1[8];

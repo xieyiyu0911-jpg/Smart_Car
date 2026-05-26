@@ -6,7 +6,6 @@
  extern float Yaw_Angular_Speed;
  extern uint16 Result_L, Result_Middle_M_L,Result_Middle_M_R,Result_R;// µÁ¥≈÷µ
  extern float Motor_L_output, Motor_output_R;
- extern float Yaw_Angle;
  extern float Angle_Speed_Output1;
  extern float Turn_Output;
  extern float Angle_Speed_error1;

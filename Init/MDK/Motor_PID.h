@@ -7,6 +7,23 @@
 #define MOTOR_R_DIR_PIN P24
 #define MOTOR_L_DIR_PIN P10
 
+
+#define Max1 66
+#define Max2 120
+#define Max3 226
+#define Max4 79
+#define Max5 137
+#define Times 7
+#define Left 1
+#define Right 0
+
+
+extern volatile int xdata Motor_Speed_Left[7];
+extern volatile int xdata Motor_Speed_Right[7];
+extern volatile float xdata Yaw_Angle;
+extern float xdata Second_distance;
+extern float xdata Second_encoder_ave;
+
 uint16 PID_Conservation(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Middle_M_R, uint16 Result_R);
 uint16 Uart_Stop(void);
 
@@ -66,7 +83,12 @@ typedef struct {
     float entry_amplify;         // 入环阶段电感放大倍数（如 2.0），使入环侧电感值增大引导小车
 } Round_Config_TypeDef;
 
-
+// ========== 环岛处理变量声明 ==========
+  extern Round_State_TypeDef Round_State;
+  extern uint8 Round_Direction;
+  extern float Round_Pre_Distance;
+  extern float Round_Exit_Distance;
+  extern const Round_Config_TypeDef Round_Params;
 //=========================================================================================================
 
 #endif

@@ -31,7 +31,6 @@ static  uint8            temp_uart_buffer[TEMP_BUFFER_SIZE];  // ´®¿ÚÁÙÊ±½ÓÊÕ»º³
  * Èç¹ûĞèÒª½« P54 ×÷ÎªÆÕÍ¨ IO Ê¹ÓÃ£¬ÇëÔÚ board.c µÄ board_init() ÖĞÉ¾³ı SET_P54_RESET ÅäÖÃ¡£
  */
  
- extern float xdata Yaw_Angle;
  extern float xdata error1;
  extern float xdata Turn_Cmd1;
  extern volatile int16 motor_speed_L ,motor_speed_R;
@@ -50,6 +49,16 @@ static  uint8            temp_uart_buffer[TEMP_BUFFER_SIZE];  // ´®¿ÚÁÙÊ±½ÓÊÕ»º³
  
  extern float error_change;
  extern float error;
+ 
+ extern volatile int xdata Motor_Speed_Left[7];    // ×óÂÖ±àÂëÆ÷Ô­Ê¼Êı×é
+ extern volatile int xdata Motor_Speed_Right[7];   // ÓÒÂÖ±àÂëÆ÷Ô­Ê¼Êı×é
+ extern volatile float xdata Yaw_Angle;            // »·µºÆ«º½½Ç»ı·Ö
+ extern volatile float xdata Turn_Output;          // ×ªÏòÊä³ö£¨ÏÔÊ¾ÓÃ£©
+ extern volatile uint16 xdata conservation;        // ±£»¤±êÖ¾
+ extern Round_State_TypeDef Round_State;           // »·µº×´Ì¬
+ extern uint8 Round_Direction;                     // »·µº·½Ïò
+ extern float Round_Pre_Distance;                  // Ô¤´¦ÀíÀï³Ì
+ extern float Round_Exit_Distance;                 // ³ö»·ºóÀï³Ì
 
 
 // ¸Ãº¯ÊıÔÚ isr.c µÄ UART1_Isr() ÖĞ¶Ï·şÎñº¯ÊıÖĞ±»»Øµ÷
@@ -103,13 +112,9 @@ static uint8 xdata uart_debug_cnt = 0;
 
 volatile extern uint8 xdata circle_config;
 
-volatile extern float xdata Second_distance;
+volatile extern float turn_cmd;
 
-#define Max1 66
-#define Max2 120
-#define Max3 226
-#define Max4 79
-#define Max5 137
+
 
 
 
@@ -186,18 +191,117 @@ void main()
 			{
 				Timer_Config = 0;
 				LCD_Config = 0;
-//				if(++uart_debug_cnt >= 50)
-//				{
-//					uart_debug_cnt = 0;
-//					//uart_putstr(UART_2, "UART2 Hello,world");
-//				}
-//				update_fan_control();
+
+			    motor_speed_L = (int16)Servo_Measure(Motor_Speed_Left, Times);
+			    motor_speed_R = (int16)Servo_Measure(Motor_Speed_Right, Times);
 				
-				Result_L = (uint16)(Servo_Measure(array1, 7)/(Max1 * 1.00) * 100);  // µç´ÅÖµÂË²¨
-				Result_Middle_M_L = (uint16)(Servo_Measure(array2, 7)/(Max2 * 1.00) * 100);
-				Result_Middle_M_R = (uint16)(Servo_Measure(array3, 7)/(Max4 * 1.00) * 100);
-				Result_R = (uint16)(Servo_Measure(array4, 7)/(Max5 * 1.00) * 100);
-				Result_Middle_M = (uint16)(Servo_Measure(array5, 7)/(Max3 * 1.00) * 100);
+			    SpeedMeasure_L = motor_speed_L;
+			    SpeedMeasure_R = motor_speed_R;
+				
+			    SpeedTarget_L = 300 + seekfree_assistant_parameter[4];
+			    Target_Right1 = SpeedTarget_L;
+				
+				Result_L = (uint16)(Servo_Measure(array1, Times)/(Max1 * 1.00) * 100);  // µç´ÅÖµÂË²¨
+				Result_Middle_M_L = (uint16)(Servo_Measure(array2, Times)/(Max2 * 1.00) * 100);
+				Result_Middle_M_R = (uint16)(Servo_Measure(array3, Times)/(Max4 * 1.00) * 100);
+				Result_R = (uint16)(Servo_Measure(array4, Times)/(Max5 * 1.00) * 100);
+				Result_Middle_M = (uint16)(Servo_Measure(array5, Times)/(Max3 * 1.00) * 100);
+				
+				Yaw_Angular_Speed = imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z);
+				
+				
+	          // ========== »·µºÀï³Ì¼ÆÊı´¦Àí ==========
+		      // Ô¤´¦Àí½×¶ÎÀï³Ì¼ÆÊı
+			  if(Round_State == ROUND_PRE)
+			  {
+				  Second_distance_calculate();
+				  Round_Pre_Distance += Second_encoder_ave;
+				  if(Round_Pre_Distance >= Round_Params.pre_distance_thres)
+				  {
+					  // Àï³Ì´ïµ½ãĞÖµ£¬¿ªÆôÆ«º½½Ç¶È»ı·Ö£¬½øÈëÈë»·½×¶Î
+					  Round_State = ROUND_ENTRY;
+					  Round_Pre_Distance = 0;
+					  Yaw_Angle = 0;
+					  Buzzer_On();
+				  }
+			  }
+			  else if(Round_State == ROUND_ENTRY)
+			  {
+				  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
+				  if(fabs(Yaw_Angle) >= Round_Params.entry_angle_end)
+				  {
+					  Round_State = ROUND_INSIDE;
+					  if(Round_Direction == 0)//×ó»·µº
+					  {
+						  Yaw_Angle = -Round_Params.entry_angle_end;
+					  }
+					  else//ÓÒ»·µº
+					  {
+						  Yaw_Angle = Round_Params.entry_angle_end;
+					  }
+				  }
+			  }
+			  // »·ÄÚ½×¶Î 60¡ã~270¡ã
+			  else if(Round_State == ROUND_INSIDE)
+			  {
+				  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
+				  if(fabs(Yaw_Angle) >= Round_Params.inside_angle_end)
+				  {
+					  Round_State = ROUND_EXIT;
+					  if(Round_Direction == 0)//×ó»·µº
+					  {
+						  Yaw_Angle = -Round_Params.inside_angle_end;
+					  }
+					  else//ÓÒ»·µº
+					  {
+						  Yaw_Angle = Round_Params.inside_angle_end;
+					  }
+				  }
+			  }
+			  // ³ö»·½×¶Î 270¡ã~330¡ã
+			  else if(Round_State == ROUND_EXIT)
+			  {
+				  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
+				  if(fabs(Yaw_Angle) >= Round_Params.exit_angle_end)
+				  {
+					  Round_State = ROUND_EXIT_AFTER;
+					  Yaw_Angle = 0;
+					  Round_Exit_Distance = 0; 
+				  }
+			  }
+
+			  // ³ö»·ºóÀï³Ì¼ÆÊı
+			  else if(Round_State == ROUND_EXIT_AFTER)
+			  {
+				  Second_distance_calculate();
+				  Round_Exit_Distance += Second_encoder_ave;
+				  if(Round_Exit_Distance >= Round_Params.exit_distance_thres)
+				  {
+					  // Àï³Ì³¬¹ı10cm£¬³¹µ×ÍË³ö»·µº×´Ì¬
+					  Round_State = ROUND_NONE;
+					  Round_Exit_Distance = 0;
+					  Buzzer_Off();
+				  }
+			  }
+			  
+			turn_cmd = Turn_Control_PID(Result_L,Result_Middle_M_L,Result_Middle_M_R,Result_R,Result_Middle_M);
+			Turn_Output = turn_cmd;		
+			
+			Differential_Speed_Control(Turn_Output);// ²îËÙ·ÖÅä
+			
+			Motor_PID(SpeedTarget_L,motor_speed_L,1.4,0.8,0,Left);// ×óÂÖËÙ¶È»·PID //5,2.5,1.25/1.4,0.8,0/3,1.5,0.3
+			Motor_PID(Target_Right1,motor_speed_R,1.7,0.6,0,Right);// ÓÒÂÖËÙ¶È»·PID //4.8,2.4,1.25/1.7,0.6,0/2.5,0.8,0.2
+	
+			conservation = PID_Conservation(Result_L,Result_Middle_M_L,Result_Middle_M_R,Result_R);// ±£»¤ÅĞ¶Ï
+			
+			
+			if(conservation == 0 && LCD_Config == 0)
+			{
+				Motor_PWM_set_L();// Êä³ö×óÂÖPWM
+				Motor_PWM_set_R();// Êä³öÓÒÂÖPWM
+			}//PID	
+			  
+			  
 
 				if(LCD_Config == 0)
 			{											 // ½âÎöÉÏÎ»»úÊÕµ½µÄÊı¾İ

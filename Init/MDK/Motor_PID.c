@@ -73,7 +73,6 @@ extern uint8 xdata read_buff1[8];
 extern uint8 xdata read_buff2[4];
 extern float Angle_Speed_Output1;
 extern float Yaw_Angular_Speed;
-extern float xdata Yaw_Angle;
 extern float xdata Source;
 extern float xdata Second_distance;
 extern float xdata Second_encoder_ave;
