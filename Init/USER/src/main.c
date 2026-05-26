@@ -46,7 +46,7 @@ static  uint8            temp_uart_buffer[TEMP_BUFFER_SIZE];  // ´®¿ÚÁÙÊ±½ÓÊÕ»º³
  extern float xdata Source;
  extern float Yaw_Angular_Speed;
  extern uint16 Result_L, Result_Middle_M_L, Result_Middle_M_R, Result_R;
- extern int  xdata array1[7] ,xdata array2[7] , xdata array3[7] ,xdata array4[7] ; //xdata array5[7]
+ extern int  xdata array1[7] ,xdata array2[7] , xdata array3[7] ,xdata array4[7] , xdata array5[7];
  
  extern float error_change;
  extern float error;
@@ -105,7 +105,11 @@ volatile extern uint8 xdata circle_config;
 
 volatile extern float xdata Second_distance;
 
-
+#define Max1 66
+#define Max2 120
+#define Max3 226
+#define Max4 79
+#define Max5 137
 
 
 
@@ -188,6 +192,12 @@ void main()
 //					//uart_putstr(UART_2, "UART2 Hello,world");
 //				}
 //				update_fan_control();
+				
+				Result_L = (uint16)(Servo_Measure(array1, 7)/(Max1 * 1.00) * 100);  // µç´ÅÖµÂË²¨
+				Result_Middle_M_L = (uint16)(Servo_Measure(array2, 7)/(Max2 * 1.00) * 100);
+				Result_Middle_M_R = (uint16)(Servo_Measure(array3, 7)/(Max4 * 1.00) * 100);
+				Result_R = (uint16)(Servo_Measure(array4, 7)/(Max5 * 1.00) * 100);
+				Result_Middle_M = (uint16)(Servo_Measure(array5, 7)/(Max3 * 1.00) * 100);
 
 				if(LCD_Config == 0)
 			{											 // ½âÎöÉÏÎ»»úÊÕµ½µÄÊı¾İ

@@ -101,9 +101,9 @@ float error = 0;
       60,     // entry_angle_end
       270,    // inside_angle_end
       330,    // exit_angle_end
-      150,    // pre_distance_thres
-      100,   // exit_distance_thres
-      1.2     // entry_amplify
+      1500,    // pre_distance_thres
+      5000,   // exit_distance_thres
+      1.5     // entry_amplify
   };
 
 // 电磁全丢线或上位机急停时，直接清零目标速度并关闭 PWM
@@ -246,8 +246,8 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
     float Vertical_Weight = 0;//垂直分量
     float Denominator_Weight = 0;
 
-	 Servo_P1 = seekfree_assistant_parameter[2];//3.5
-     Servo_D = seekfree_assistant_parameter[3];//5
+	 Servo_P1 = seekfree_assistant_parameter[2];
+     Servo_D = seekfree_assistant_parameter[3];
 	 
     Cross_Config = 0;//过十字标志位
 	
@@ -315,7 +315,6 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 		  {
 			  Round_State = ROUND_PRE;
 			  Round_Pre_Distance = 0;
-			  Buzzer_On();
 			  Round_Config1 = 0;
 		  }
 

@@ -263,11 +263,11 @@ void car_control_timer_handler(void)
 			SpeedMeasure_L = motor_speed_L;
 			SpeedMeasure_R = motor_speed_R;
 			
-			Result_L = Servo_Measure(array1, Times);  // 电磁值滤波
-			Result_Middle_M_L = Servo_Measure(array2, Times);
-			Result_Middle_M_R = Servo_Measure(array3, Times);
-			Result_R = Servo_Measure(array4, Times);
-			Result_Middle_M = Servo_Measure(array5, Times);
+//			Result_L = Servo_Measure(array1, Times);  // 电磁值滤波
+//			Result_Middle_M_L = Servo_Measure(array2, Times);
+//			Result_Middle_M_R = Servo_Measure(array3, Times);
+//			Result_R = Servo_Measure(array4, Times);
+//			Result_Middle_M = Servo_Measure(array5, Times);
 			
 //			Result_L = Servo[0];
 //			Result_Middle_M_L = Servo[1];
@@ -317,7 +317,14 @@ void car_control_timer_handler(void)
 			  if(fabs(Yaw_Angle) >= Round_Params.entry_angle_end)
 			  {
 				  Round_State = ROUND_INSIDE;
-				  Yaw_Angle = Round_Params.entry_angle_end;
+				  if(Round_Direction == 0)//左环岛
+				  {
+					  Yaw_Angle = -Round_Params.entry_angle_end;
+				  }
+				  else//右环岛
+				  {
+					  Yaw_Angle = Round_Params.entry_angle_end;
+				  }
 			  }
 		  }
 		  // 环内阶段 60°~270°
@@ -327,7 +334,14 @@ void car_control_timer_handler(void)
 			  if(fabs(Yaw_Angle) >= Round_Params.inside_angle_end)
 			  {
 				  Round_State = ROUND_EXIT;
-				  Yaw_Angle = Round_Params.inside_angle_end;
+				  if(Round_Direction == 0)//左环岛
+				  {
+					  Yaw_Angle = -Round_Params.inside_angle_end;
+				  }
+				  else//右环岛
+				  {
+					  Yaw_Angle = Round_Params.inside_angle_end;
+				  }
 			  }
 		  }
 		  // 出环阶段 270°~330°
