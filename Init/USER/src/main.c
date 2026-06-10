@@ -34,8 +34,8 @@ static  uint8            temp_uart_buffer[TEMP_BUFFER_SIZE];  // ´®¿ÚÁÙÊ±½ÓÊÕ»º³
  extern float xdata error1;
  extern float xdata Turn_Cmd1;
  extern volatile int16 motor_speed_L ,motor_speed_R;
- extern float Motor_L_output;
- extern float Motor_output_R;
+ extern float xdata Motor_L_output;
+ extern float xdata Motor_output_R;
  extern float SpeedMeasure_L;
  extern float SpeedMeasure_R;// ÓÒÂÖÊµ¼ÊËÙ¶È
  extern float SpeedTarget_L;
@@ -59,6 +59,8 @@ static  uint8            temp_uart_buffer[TEMP_BUFFER_SIZE];  // ´®¿ÚÁÙÊ±½ÓÊÕ»º³
  extern uint8 Round_Direction;                     // »·µº·½Ïò
  extern float Round_Pre_Distance;                  // Ô¤´¦ÀíÀï³Ì
  extern float Round_Exit_Distance;                 // ³ö»·ºóÀï³Ì
+ 
+ extern volatile float xdata Pitch_Angle;
 
 
 // ¸Ãº¯ÊıÔÚ isr.c µÄ UART1_Isr() ÖĞ¶Ï·şÎñº¯ÊıÖĞ±»»Øµ÷
@@ -115,22 +117,39 @@ volatile extern uint8 xdata circle_config;
 volatile extern float turn_cmd;
 
 
+extern uint8 xdata Fuzzy_Config;
 
+
+extern uint8 xdata Tiaocan_Config;
 
 
 
 static void send_inductor_to_assistant(void)
 {
-    seekfree_assistant_oscilloscope_data.dat[0] = Result_L;
+//	if(Tiaocan_Config == 1 || Tiaocan_Config == 0)
+//	{
+//    seekfree_assistant_oscilloscope_data.dat[0] = SpeedTarget_L;
+//    seekfree_assistant_oscilloscope_data.dat[1] = SpeedMeasure_L;
+//    seekfree_assistant_oscilloscope_data.dat[2] = Target_Right1;
+//    seekfree_assistant_oscilloscope_data.dat[3] = SpeedMeasure_R;
+//    seekfree_assistant_oscilloscope_data.channel_num = 4;
+//    seekfree_assistant_oscilloscope_send(&seekfree_assistant_oscilloscope_data);
+//	}
+	
+//	if(Tiaocan_Config == 2)
+//	{
+	  seekfree_assistant_oscilloscope_data.dat[0] = Result_L;
     seekfree_assistant_oscilloscope_data.dat[1] = Result_Middle_M_L;
-    seekfree_assistant_oscilloscope_data.dat[2] = Result_Middle_M_R;
-    seekfree_assistant_oscilloscope_data.dat[3] = Result_R;
-	seekfree_assistant_oscilloscope_data.dat[4] = Result_Middle_M;
-    seekfree_assistant_oscilloscope_data.dat[5] = Yaw_Angular_Speed;
-	seekfree_assistant_oscilloscope_data.dat[6] = error;
-	seekfree_assistant_oscilloscope_data.dat[7] = error_change;
+    seekfree_assistant_oscilloscope_data.dat[2] = Result_Middle_M;
+    seekfree_assistant_oscilloscope_data.dat[3] = SpeedTarget_L;
+		seekfree_assistant_oscilloscope_data.dat[4] = SpeedMeasure_L;
+		seekfree_assistant_oscilloscope_data.dat[5] = Target_Right1;
+    seekfree_assistant_oscilloscope_data.dat[6] = SpeedMeasure_R;
+    seekfree_assistant_oscilloscope_data.dat[7] = 0;
     seekfree_assistant_oscilloscope_data.channel_num = 8;
     seekfree_assistant_oscilloscope_send(&seekfree_assistant_oscilloscope_data);
+//	}
+	
 }
 
 
@@ -140,7 +159,8 @@ void main()
 	
 //	IP3 |= 0x02;
 //	IP3H |= 0x02;
-	Uarts_Init();
+//	Uarts_Init();
+	wireless_uart_init();
 
 //	iap_init();				// ³õÊ¼»¯ EEPROM
 	Buzzer_Init();
@@ -156,28 +176,28 @@ void main()
 	// ·çÉÈ
 	//fan_init();
 	
+//		// ×¢²áÉÏÎ»»ú·¢ËÍ»Øµ÷
+//	seekfree_assistant_transfer = seekfree_assistant_transfer_callback;// »Øµ÷º¯Êı
+//	
+//		// ×¢²áÉÏÎ»»ú½ÓÊÕ»Øµ÷
+//	seekfree_assistant_receive = seekfree_assistant_receive_callback;// »Øµ÷º¯Êı
+
+		//ÎŞÏß×ª´®¿Ú
 		// ×¢²áÉÏÎ»»ú·¢ËÍ»Øµ÷
-	seekfree_assistant_transfer = seekfree_assistant_transfer_callback;// »Øµ÷º¯Êı
+	seekfree_assistant_transfer = wireless_uart_send_buff;// »Øµ÷º¯Êı
 	
 		// ×¢²áÉÏÎ»»ú½ÓÊÕ»Øµ÷
-	seekfree_assistant_receive = seekfree_assistant_receive_callback;// »Øµ÷º¯Êı
+	seekfree_assistant_receive = wireless_uart_read_buff;// »Øµ÷º¯Êı
 	
 	seekfree_assistant_init();
 	
-	// ³õÊ¼»¯ FIFO
-	fifo_init(&temp_uart_fifo, FIFO_DATA_8BIT, temp_uart_buffer, TEMP_BUFFER_SIZE);
+//	// ³õÊ¼»¯ FIFO
+//	fifo_init(&temp_uart_fifo, FIFO_DATA_8BIT, temp_uart_buffer, TEMP_BUFFER_SIZE);
 
-//	// ÉèÖÃÄ¬ÈÏ PID ²ÎÊı
-//	seekfree_assistant_parameter[0] = 2.3f;    // ×óÂÖP2.3
-//	seekfree_assistant_parameter[1] = 0.28f;    // ×óÂÖI0.28
-//	seekfree_assistant_parameter[2] = 0.03f;   // ×óÂÖD0.03
-//	seekfree_assistant_parameter[3] = 1.5f;    // ÓÒÂÖP1.5
-//	seekfree_assistant_parameter[4] = 0.24f;    // ÓÒÂÖI0.24
-//	seekfree_assistant_parameter[5] = 0.08;   // ÓÒÂÖD0.08
-//	seekfree_assistant_parameter[6] = 0.0f;    // ¶îÔİÊ±»¹Ã»ÓÃµ½
-//	seekfree_assistant_parameter[7] = 0.0f;    // Í£³µ±£»¤£¬1¾ÍÍ£³µ
 	
 	Time_Pulse_Init();// ±àÂëÆ÷¼ÆÊıÆ÷³õÊ¼»¯
+	
+//	pwm_init(PWMB_CH1_P20, 50, 600);
 	
    
 	    // Ö÷Ñ­»·¸ºÔğ´¦ÀíÉÏÎ»»ú¡¢ÏÔÊ¾ºÍ¿ØÖÆ×´Ì¬
@@ -191,117 +211,13 @@ void main()
 			{
 				Timer_Config = 0;
 				LCD_Config = 0;
+				
 
-			    motor_speed_L = (int16)Servo_Measure(Motor_Speed_Left, Times);
-			    motor_speed_R = (int16)Servo_Measure(Motor_Speed_Right, Times);
-				
-			    SpeedMeasure_L = motor_speed_L;
-			    SpeedMeasure_R = motor_speed_R;
-				
-			    SpeedTarget_L = 300 + seekfree_assistant_parameter[4];
-			    Target_Right1 = SpeedTarget_L;
-				
-				Result_L = (uint16)(Servo_Measure(array1, Times)/(Max1 * 1.00) * 100);  // µç´ÅÖµÂË²¨
-				Result_Middle_M_L = (uint16)(Servo_Measure(array2, Times)/(Max2 * 1.00) * 100);
-				Result_Middle_M_R = (uint16)(Servo_Measure(array3, Times)/(Max4 * 1.00) * 100);
-				Result_R = (uint16)(Servo_Measure(array4, Times)/(Max5 * 1.00) * 100);
-				Result_Middle_M = (uint16)(Servo_Measure(array5, Times)/(Max3 * 1.00) * 100);
-				
-				Yaw_Angular_Speed = imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z);
-				
-				
-	          // ========== »·µºÀï³Ì¼ÆÊı´¦Àí ==========
-		      // Ô¤´¦Àí½×¶ÎÀï³Ì¼ÆÊı
-			  if(Round_State == ROUND_PRE)
-			  {
-				  Second_distance_calculate();
-				  Round_Pre_Distance += Second_encoder_ave;
-				  if(Round_Pre_Distance >= Round_Params.pre_distance_thres)
-				  {
-					  // Àï³Ì´ïµ½ãĞÖµ£¬¿ªÆôÆ«º½½Ç¶È»ı·Ö£¬½øÈëÈë»·½×¶Î
-					  Round_State = ROUND_ENTRY;
-					  Round_Pre_Distance = 0;
-					  Yaw_Angle = 0;
-					  Buzzer_On();
-				  }
-			  }
-			  else if(Round_State == ROUND_ENTRY)
-			  {
-				  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
-				  if(fabs(Yaw_Angle) >= Round_Params.entry_angle_end)
-				  {
-					  Round_State = ROUND_INSIDE;
-					  if(Round_Direction == 0)//×ó»·µº
-					  {
-						  Yaw_Angle = -Round_Params.entry_angle_end;
-					  }
-					  else//ÓÒ»·µº
-					  {
-						  Yaw_Angle = Round_Params.entry_angle_end;
-					  }
-				  }
-			  }
-			  // »·ÄÚ½×¶Î 60¡ã~270¡ã
-			  else if(Round_State == ROUND_INSIDE)
-			  {
-				  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
-				  if(fabs(Yaw_Angle) >= Round_Params.inside_angle_end)
-				  {
-					  Round_State = ROUND_EXIT;
-					  if(Round_Direction == 0)//×ó»·µº
-					  {
-						  Yaw_Angle = -Round_Params.inside_angle_end;
-					  }
-					  else//ÓÒ»·µº
-					  {
-						  Yaw_Angle = Round_Params.inside_angle_end;
-					  }
-				  }
-			  }
-			  // ³ö»·½×¶Î 270¡ã~330¡ã
-			  else if(Round_State == ROUND_EXIT)
-			  {
-				  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
-				  if(fabs(Yaw_Angle) >= Round_Params.exit_angle_end)
-				  {
-					  Round_State = ROUND_EXIT_AFTER;
-					  Yaw_Angle = 0;
-					  Round_Exit_Distance = 0; 
-				  }
-			  }
 
-			  // ³ö»·ºóÀï³Ì¼ÆÊı
-			  else if(Round_State == ROUND_EXIT_AFTER)
-			  {
-				  Second_distance_calculate();
-				  Round_Exit_Distance += Second_encoder_ave;
-				  if(Round_Exit_Distance >= Round_Params.exit_distance_thres)
-				  {
-					  // Àï³Ì³¬¹ı10cm£¬³¹µ×ÍË³ö»·µº×´Ì¬
-					  Round_State = ROUND_NONE;
-					  Round_Exit_Distance = 0;
-					  Buzzer_Off();
-				  }
-			  }
-			  
-			turn_cmd = Turn_Control_PID(Result_L,Result_Middle_M_L,Result_Middle_M_R,Result_R,Result_Middle_M);
-			Turn_Output = turn_cmd;		
-			
-			Differential_Speed_Control(Turn_Output);// ²îËÙ·ÖÅä
-			
-			Motor_PID(SpeedTarget_L,motor_speed_L,1.4,0.8,0,Left);// ×óÂÖËÙ¶È»·PID //5,2.5,1.25/1.4,0.8,0/3,1.5,0.3
-			Motor_PID(Target_Right1,motor_speed_R,1.7,0.6,0,Right);// ÓÒÂÖËÙ¶È»·PID //4.8,2.4,1.25/1.7,0.6,0/2.5,0.8,0.2
-	
-			conservation = PID_Conservation(Result_L,Result_Middle_M_L,Result_Middle_M_R,Result_R);// ±£»¤ÅĞ¶Ï
-			
-			
-			if(conservation == 0 && LCD_Config == 0)
-			{
-				Motor_PWM_set_L();// Êä³ö×óÂÖPWM
-				Motor_PWM_set_R();// Êä³öÓÒÂÖPWM
-			}//PID	
-			  
-			  
+				
+				
+				
+				
 
 				if(LCD_Config == 0)
 			{											 // ½âÎöÉÏÎ»»úÊÕµ½µÄÊı¾İ
@@ -322,6 +238,8 @@ void main()
 		        }
 				// ²ÎÊı¸üĞÂºóÍ¨¹ı´®¿Ú´òÓ¡µ±Ç°Öµ
 				send_inductor_to_assistant();
+				
+				
 //				OLED_LCD_Show();    
 			}
 			}

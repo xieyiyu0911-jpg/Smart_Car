@@ -10,17 +10,19 @@
 #define MOTOR_PWM_MAX          (5000)
 #define SPEED_TARGET_MAX       (1000)
 
-// æ¨¡ç³Š PID å‚æ•°ï¼šerror å’Œ error_change çš„æœ€å¤§èŒƒå›´
-// error_change å•ä½ Â°/tick(10ms), 800Â°/s å®é™…è§’é€Ÿåº¦ â†’ 8Â°/tick
+
+	
+// Ä£ºı PID ²ÎÊı£ºerror ºÍ error_change µÄ×î´ó·¶Î§
+// error_change µ¥Î» ¡ã/tick(10ms), 800¡ã/s Êµ¼Ê½ÇËÙ¶È ¡ú 8¡ã/tick
 #define FUZZY_E_MAX   90.0f
 #define FUZZY_EC_MAX  8.0f
 
-// æ¨¡ç³Šè§„åˆ™è¡¨ï¼šä½¿ç”¨è¯­è¨€å€¼ (-3=NB, -2=NM, -1=NS, 0=ZO, 1=PS, 2=PM, 3=PB)
-// è¡Œ = E(NBâ†’PB)ï¼Œåˆ— = EC(NBâ†’PB)ï¼Œæ¯”ä¾‹å› å­å°†è¯­è¨€å€¼æ˜ å°„ä¸ºå®é™…è°ƒæ•´é‡
-//#define FUZZY_KP_SCALE 0.2f    // è¯­è¨€å€¼ Ã—0.2 = å®é™… Î”Kp,  èŒƒå›´ [-0.6, +0.6]
-//#define FUZZY_KD_SCALE 2.333f  // è¯­è¨€å€¼ Ã—2.333 = å®é™… Î”Kd, èŒƒå›´ [-7, +7]
+// Ä£ºı¹æÔò±í£ºÊ¹ÓÃÓïÑÔÖµ (-3=NB, -2=NM, -1=NS, 0=ZO, 1=PS, 2=PM, 3=PB)
+// ĞĞ = E(NB¡úPB)£¬ÁĞ = EC(NB¡úPB)£¬±ÈÀıÒò×Ó½«ÓïÑÔÖµÓ³ÉäÎªÊµ¼Êµ÷ÕûÁ¿
+//#define FUZZY_KP_SCALE 0.2f    // ÓïÑÔÖµ ¡Á0.2 = Êµ¼Ê ¦¤Kp,  ·¶Î§ [-0.6, +0.6]
+//#define FUZZY_KD_SCALE 2.333f  // ÓïÑÔÖµ ¡Á2.333 = Êµ¼Ê ¦¤Kd, ·¶Î§ [-7, +7]
 
-// Kp è§„åˆ™è¡¨ï¼šå·¦ä¸Šè§’(å¤§åå·®+æ¶åŒ–)å¤§åŠ›çº æ­£ï¼Œå³ä¸‹è§’(å¤§åå·®+å›æ­£)å‡åŠ›é˜²è¶…è°ƒ
+// Kp ¹æÔò±í£º×óÉÏ½Ç(´óÆ«²î+¶ñ»¯)´óÁ¦¾ÀÕı£¬ÓÒÏÂ½Ç(´óÆ«²î+»ØÕı)¼õÁ¦·À³¬µ÷
 int8 code rule_Kp[7][7] = {
     //  EC: NB  NM  NS  ZO  PS  PM  PB
     { 3,  3,  2,  2,  1,  0,  0}, // E: NB
@@ -32,10 +34,23 @@ int8 code rule_Kp[7][7] = {
     { 0,  0, -1, -2, -2, -3, -3}, // E: PB
 };
 
-// Kd è§„åˆ™è¡¨ï¼šåŒå·(æ¶åŒ–)â†’è´Ÿå€¼å‡é˜»å°¼, å¼‚å·(å›æ­£)â†’æ­£å€¼åŠ é˜»å°¼ã€‚åå¯¹ç§°
+// Kp2 ¶ş´ÎÏîÔöÒæ¹æÔò¡£Ö÷ÒªÓÉ |E| ·ùÖµÇı¶¯£¬EC ÒÀÀµ½Ï Kp Èõ£¬±ÜÃâÓë P1 ²úÉúÇ¿Ö¸¿¹¡£
+// ´óÎó²îÊ±Ìá¹©·ÇÏßĞÔ boost Ó¦¶Ô¼±Íä£¬Ğ¡Îó²îÊ±¹éÁã£¨¶ş´ÎÏî×ÔÉíÒÑËæÎó²îËõĞ¡¶øË¥¼õ£©¡£
+int8 code rule_Kp2[7][7] = {
+    //  EC: NB  NM  NS  ZO  PS  PM  PB
+    {  2,  2,  1,  1,  0,  0,  0}, // E: NB
+    {  1,  1,  1,  0,  0,  0,  0}, // E: NM
+    {  0,  0,  0,  0,  0,  0,  0}, // E: NS
+    {  0,  0,  0,  0,  0,  0,  0}, // E: ZO
+    {  0,  0,  0,  0,  0,  0,  0}, // E: PS
+    {  0,  0,  0,  0,  1,  1,  1}, // E: PM
+    {  0,  0,  0,  1,  1,  2,  2}, // E: PB
+};
+
+// Kd ¹æÔò±í£ºÍ¬ºÅ(¶ñ»¯)¡ú¸ºÖµ¼õ×èÄá, ÒìºÅ(»ØÕı)¡úÕıÖµ¼Ó×èÄá¡£·´¶Ô³Æ
 int8 code rule_Kd[7][7] = {
     //  EC: NB   NM   NS   ZO   PS   PM   PB
-    {-2, -1,  0,  0,  1,  2,  3}, // E: NB
+    {-3, -1,  0,  0,  1,  2,  3}, // E: NB
     {-2, -1,  0,  0,  1,  1,  2}, // E: NM
     {-1, -1,  0,  0,  0,  1,  1}, // E: NS
     { 0,  0,  0,  0,  0,  0,  0}, // E: ZO
@@ -65,6 +80,8 @@ float xdata Servo_PID_D = 0;
 
 uint8 xdata circle_config = 0;
 
+uint8 xdata Fuzzy_Config = 0;
+extern uint8 xdata Tiaocan_Config;
 
 
 extern volatile int16 motor_speed_L;
@@ -83,15 +100,15 @@ extern float Turn_Output;
 float error_change = 0;
 float error = 0;
 
-// ========== ç¯å²›å¤„ç†å˜é‡ ==========
-  Round_State_TypeDef Round_State = ROUND_NONE;  // ç¯å²›çŠ¶æ€æœº
-  uint8 Round_Direction = 0;                      // ç¯å²›æ–¹å‘ï¼š0=å·¦ç¯ï¼Œ1=å³ç¯
+// ========== »·µº´¦Àí±äÁ¿ ==========
+  Round_State_TypeDef Round_State = ROUND_NONE;  // »·µº×´Ì¬»ú
+  uint8 Round_Direction = 0;                      // »·µº·½Ïò£º0=×ó»·£¬1=ÓÒ»·
 
-  // é‡Œç¨‹è®¡æ•°
-  float Round_Pre_Distance = 0;                  // é¢„å¤„ç†é˜¶æ®µé‡Œç¨‹
-  float Round_Exit_Distance = 0;                 // å‡ºç¯åé‡Œç¨‹
+  // Àï³Ì¼ÆÊı
+  float Round_Pre_Distance = 0;                  // Ô¤´¦Àí½×¶ÎÀï³Ì
+  float Round_Exit_Distance = 0;                 // ³ö»·ºóÀï³Ì
 
-  // ç¯å²›å‚æ•°é…ç½®
+  // »·µº²ÎÊıÅäÖÃ
   const Round_Config_TypeDef Round_Params = {
       0,     // pre_adc_thres_L
       100,     // pre_adc_thres_M
@@ -105,7 +122,7 @@ float error = 0;
       1.5     // entry_amplify
   };
 
-// ç”µç£å…¨ä¸¢çº¿æˆ–ä¸Šä½æœºæ€¥åœæ—¶ï¼Œç›´æ¥æ¸…é›¶ç›®æ ‡é€Ÿåº¦å¹¶å…³é—­ PWM
+// µç´ÅÈ«¶ªÏß»òÉÏÎ»»ú¼±Í£Ê±£¬Ö±½ÓÇåÁãÄ¿±êËÙ¶È²¢¹Ø±Õ PWM
 uint16 PID_Conservation(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Middle_M_R,uint16 Result_R)
 {
     if ((Result_L <= 5 && Result_Middle_M_L <= 5 && Result_Middle_M_R <= 5 && Result_R <= 5) || (seekfree_assistant_parameter[7] == 1))
@@ -146,7 +163,7 @@ void Second_distance_calculate(void)
     Second_distance += Second_encoder_ave;
 }
 
-// ä¸­ä½å€¼å¹³å‡æ»¤æ³¢
+// ÖĞÎ»ÖµÆ½¾ùÂË²¨
 uint16 Servo_Measure(int* inductance_array,int times)
 {
     int i = 0, min = 0, max = 0, sum = 0;
@@ -163,28 +180,54 @@ uint16 Servo_Measure(int* inductance_array,int times)
     return ((sum - min - max) / (times - 2));
 }
 
-// å°†è¿ç»­å€¼é‡åŒ–ï¼Œè¿”å›æ•´æ•°ç´¢å¼•å’Œç”¨äºæ’å€¼çš„å°æ•°éƒ¨åˆ†
+// ½«Á¬ĞøÖµÁ¿»¯£¬·µ»ØÕûÊıË÷ÒıºÍÓÃÓÚ²åÖµµÄĞ¡Êı²¿·Ö
 static uint8 quantize_frac(float val, float vmax, float *frac)
 {
-    static float xdata ratio, xdata idx_f;// ratio=å½’ä¸€åŒ–å€¼, idx_f=è¿ç»­ç´¢å¼•
-    static uint8 xdata idx;// idx=æ•´æ•°ç´¢å¼•(0-6)
+    static float xdata ratio, xdata idx_f;// ratio=¹éÒ»»¯Öµ, idx_f=Á¬ĞøË÷Òı
+    static uint8 xdata idx;// idx=ÕûÊıË÷Òı(0-6)
 
-    ratio = val / vmax;//å½’ä¸€åŒ–ï¼Œæ˜ å°„åˆ°[-1,1]
+    ratio = val / vmax;//¹éÒ»»¯£¬Ó³Éäµ½[-1,1]
 	
-	//é™å¹…
+	//ÏŞ·ù
     if(ratio >  1.0f) ratio =  1.0f;
     if(ratio < -1.0f) ratio = -1.0f;
 	
-	//å°†å½’ä¸€åŒ–å€¼æ˜ å°„åˆ°è¿ç»­ç´¢å¼•
+	//½«¹éÒ»»¯ÖµÓ³Éäµ½Á¬ĞøË÷Òı
     idx_f = ratio * 3.0f + 3.0f;
     idx = (uint8)idx_f;
     if(idx > 5) idx = 5;
-    *frac = idx_f - (float)idx;//å°æ•°éƒ¨åˆ†å³éš¶å±åº¦
+    *frac = idx_f - (float)idx;//Ğ¡Êı²¿·Ö¼´Á¥Êô¶È
     return idx;
 }
 
-// æ¨¡ç³Š PID è°ƒæ•´ï¼šåŒçº¿æ€§æ’å€¼ + æ¯”ä¾‹å› å­
-void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *delta_Kd)
+
+//  fuzzy_P1 = Servo_P1 + delta_Kp
+//           = [2] + result_Kp ¡Á [0]
+//  - result_Kp£¨Ë«ÏßĞÔ²åÖµÊä³ö£©£º[-3, 3]
+//  - FUZZY_KP_SCALE = [0]£¬Ä¬ÈÏ 0.2 ¡ú delta_Kp ¡Ê [-0.6, +0.6]
+//  - ¼ÙÉè Servo_P1 = 1.3£¬Ôò fuzzy µ÷½Úºó£º[0.7, 1.9]
+//  - ´úÂëÓ²ÏŞ·ù£º[0.8, 4.0]
+
+//  fuzzy_D
+
+//  fuzzy_D = Servo_D + delta_Kd
+//          = [3] + result_Kd ¡Á [1]
+//  - result_Kd£¨Ë«ÏßĞÔ²åÖµÊä³ö£©£º[-3, 3]
+//  - FUZZY_KD_SCALE = [1]£¬Ä¬ÈÏ 2.33 ¡ú delta_Kd ¡Ê [-6.99, +6.99]
+//  - ¼ÙÉè Servo_D = 10.0£¬Ôò fuzzy µ÷½Úºó£º[3.0, 17.0]
+//  - ´úÂëÓ²ÏŞ·ù£º[5.0, 25.0]
+
+//  fuzzy_P2
+
+//  fuzzy_P2 = Servo_P2 + delta_Kp2
+//           = [4] + result_Kp2 ¡Á [6]
+//  - result_Kp2£¨Ë«ÏßĞÔ²åÖµÊä³ö£©£º[0, 2]£¨¹æÔò±íÀïÃ»ÓĞ¸ºÖµ£©
+//  - FUZZY_KP2_SCALE = [6]£¬Ä¬ÈÏ 0.001 ¡ú delta_Kp2 ¡Ê [0, +0.002]
+//  - ¼ÙÉè Servo_P2 = 0.004£¬Ôò fuzzy µ÷½Úºó£º[0.004, 0.006]
+//  - ´úÂëÓ²ÏŞ·ù£º[0.0, 0.012]
+
+// Ä£ºı PID µ÷Õû£ºË«ÏßĞÔ²åÖµ + ±ÈÀıÒò×Ó
+void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *delta_Kd, float *delta_Kp2)
 {
     static float xdata frac_e, xdata frac_ec;
     static uint8 xdata e_idx, xdata ec_idx, xdata e_next, xdata ec_next;
@@ -192,28 +235,32 @@ void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *d
     float result;
 	float xdata FUZZY_KP_SCALE = 0.2;
 	float xdata FUZZY_KD_SCALE = 2.33;
+	float xdata FUZZY_KP2_SCALE = 0.001;
 	
-	FUZZY_KP_SCALE = seekfree_assistant_parameter[0];
-	FUZZY_KD_SCALE = seekfree_assistant_parameter[1];
-
+//	if(Tiaocan_Config  == 0)
+//	{
+//		FUZZY_KP_SCALE = seekfree_assistant_parameter[0];
+//		FUZZY_KD_SCALE = seekfree_assistant_parameter[1];
+//		FUZZY_KP2_SCALE = seekfree_assistant_parameter[2];
+//	}
     e_idx  = quantize_frac(error,        FUZZY_E_MAX, &frac_e);
     ec_idx = quantize_frac(error_change, FUZZY_EC_MAX, &frac_ec);
 
     e_next = (e_idx < 6) ? (uint8)(e_idx + 1) : e_idx;
     ec_next = (ec_idx < 6) ? (uint8)(ec_idx + 1) : ec_idx;
 
-    // Kpï¼šåŒçº¿æ€§æ’å€¼è¯­è¨€å€¼ â†’ ä¹˜æ¯”ä¾‹å› å­
+    // Kp£ºË«ÏßĞÔ²åÖµÓïÑÔÖµ ¡ú ³Ë±ÈÀıÒò×Ó
     v00 = (float)rule_Kp[e_idx][ec_idx];
     v01 = (float)rule_Kp[e_idx][ec_next];
     v10 = (float)rule_Kp[e_next][ec_idx];
     v11 = (float)rule_Kp[e_next][ec_next];
     
-	v0 = v00 + (v01 - v00) * frac_ec;//è¯¯å·®
-    v1 = v10 + (v11 - v10) * frac_ec;//è¯¯å·®å˜åŒ–ç‡
+	v0 = v00 + (v01 - v00) * frac_ec;//Îó²î
+    v1 = v10 + (v11 - v10) * frac_ec;//Îó²î±ä»¯ÂÊ
     result = v0 + (v1 - v0) * frac_e;
     *delta_Kp = result * FUZZY_KP_SCALE;
 
-    // Kdï¼šåŒçº¿æ€§æ’å€¼è¯­è¨€å€¼ â†’ ä¹˜æ¯”ä¾‹å› å­
+    // Kd£ºË«ÏßĞÔ²åÖµÓïÑÔÖµ ¡ú ³Ë±ÈÀıÒò×Ó
     v00 = (float)rule_Kd[e_idx][ec_idx];
     v01 = (float)rule_Kd[e_idx][ec_next];
     v10 = (float)rule_Kd[e_next][ec_idx];
@@ -223,18 +270,30 @@ void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *d
     v1 = v10 + (v11 - v10) * frac_ec;
     result = v0 + (v1 - v0) * frac_e;
     *delta_Kd = result * FUZZY_KD_SCALE;
+
+    // Kp2 Ë«ÏßĞÔ²åÖµ + ±ÈÀıÒò×Ó
+    v00 = (float)rule_Kp2[e_idx][ec_idx];
+    v01 = (float)rule_Kp2[e_idx][ec_next];
+    v10 = (float)rule_Kp2[e_next][ec_idx];
+    v11 = (float)rule_Kp2[e_next][ec_next];
+
+    v0 = v00 + (v01 - v00) * frac_ec;
+    v1 = v10 + (v11 - v10) * frac_ec;
+    result = v0 + (v1 - v0) * frac_e;
+    *delta_Kp2 = result * FUZZY_KP2_SCALE;
 }
 
-// å°†ç”µç£è¯¯å·®è½¬æ¢æˆå·®é€Ÿè½¬å‘å‘½ä»¤ï¼Œè¾“å‡º turn_cmdï¼Œå¢é‡å¼
+// ½«µç´ÅÎó²î×ª»»³É²îËÙ×ªÏòÃüÁî£¬Êä³ö turn_cmd£¬ÔöÁ¿Ê½
 float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Middle_M_R,uint16 Result_R,uint16 Result_Middle_M)
 {
     float turn_cmd = 0;
-    static float delta_Kp = 0, delta_Kd = 0;
-    static float fuzzy_P1 = 0, fuzzy_D = 0;
+    static float delta_Kp = 0, delta_Kd = 0, delta_Kp2 = 0;
+    static float fuzzy_P1 = 0, fuzzy_D = 0, fuzzy_P2 = 0;
     static float error_last = 0;
 
-	float Servo_P1 = 1.3f;
-    float Servo_D = 10.0f;
+	float Servo_P1 = 0.9f;//1.3f
+    float Servo_D =17.0f; //10.0f;
+    float Servo_P2 = 0.009f;
 	
     float Result_Left = (float)Result_L;
     float Result_Right = (float)Result_R;
@@ -242,56 +301,59 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
     float Result_Middle_M_Left = (float)Result_Middle_M_L;
     float member1 = 0;
     float denominator1 = 0;
-    float Vertical_Weight = 0;//å‚ç›´åˆ†é‡
+    float Vertical_Weight = 0;//´¹Ö±·ÖÁ¿
     float Denominator_Weight = 0;
 
-	 Servo_P1 = seekfree_assistant_parameter[2];
-     Servo_D = seekfree_assistant_parameter[3];
-	 
-    Cross_Config = 0;//è¿‡åå­—æ ‡å¿—ä½
+//	if(Tiaocan_Config == 0)
+//	{
+//	   Servo_P1 = seekfree_assistant_parameter[3];
+//     Servo_D = seekfree_assistant_parameter[4];
+//     Servo_P2 = seekfree_assistant_parameter[5];
+//	}
+    Cross_Config = 0;//¹ıÊ®×Ö±êÖ¾Î»
 	
 	circle_config = 0;
 	
-    // ç›´é“å’Œç‰¹æ®Šå…ƒç´ å¯¹ä¸­é—´ç”µæ„Ÿçš„ä¾èµ–ä¸åŒï¼Œè¿™é‡ŒåŠ¨æ€è°ƒæ•´å·¦å³/ä¸­é—´æƒé‡
+    // Ö±µÀºÍÌØÊâÔªËØ¶ÔÖĞ¼äµç¸ĞµÄÒÀÀµ²»Í¬£¬ÕâÀï¶¯Ì¬µ÷Õû×óÓÒ/ÖĞ¼äÈ¨ÖØ
     if(Result_Middle_M <= 75)
     {
-        Vertical_Weight = 0.75f;
+        Vertical_Weight = 0.75;//0.75
         Denominator_Weight = Vertical_Weight + 0.01f;
     }
-    else//é è¿‘ç¯å²›çš„å‚æ•°ï¼Œéšç€ä¸­é—´ç”µæ„Ÿçº¿æ€§å¢å¤§
+    else//¿¿½ü»·µºµÄ²ÎÊı£¬Ëæ×ÅÖĞ¼äµç¸ĞÏßĞÔÔö´ó
     {
         //Vertical_Weight = ((0.85f - 0.66f) / 25.0f) * Result_Middle_M + 4 * 0.66f - 2.55f;
-		Vertical_Weight = 0.75f;
+		Vertical_Weight = 0.75;//0.75
         Denominator_Weight = Vertical_Weight + 0.01f;
     }
 
 
-//	if(Result_Middle_M >= 99 && Round_Config2 == 0)//ç¯å²›
+//	if(Result_Middle_M >= 99 && Round_Config2 == 0)//»·µº
 //    {
-//        Round_Config1 = 1;//è¿›ç¯æ ‡å¿—ä½
+//        Round_Config1 = 1;//½ø»·±êÖ¾Î»
 //        circle_config = 1;    
 //		Second_distance = 0;
 //		Buzzer_On();
 //    }
 	
 	//Result_Middle_M_Left >= 35 && Result_Middle_M_Right >= 20 && Result_Left >= 7 && Result_Right >= 7 && Result_Middle_M <= 85
-//    else if(Result_Middle_M_Left >= 40 && Result_Middle_M_Right >= 40 && Result_Left >= 10 && Result_Right >= 10 && Result_Middle_M <= 85)//åå­—
-     if(Result_Middle_M_Left >= 40 && Result_Middle_M_Right >=40 && Result_Left >= 10 && Result_Right >= 10 && Result_Middle_M <= 85 && Round_State == ROUND_NONE)//åå­—
+//    else if(Result_Middle_M_Left >= 40 && Result_Middle_M_Right >= 40 && Result_Left >= 10 && Result_Right >= 10 && Result_Middle_M <= 85)//Ê®×Ö
+     if(Result_Middle_M_Left >= 40 && Result_Middle_M_Right >=40 && Result_Left >= 10 && Result_Right >= 10 && Result_Middle_M <= 85 && Round_State == ROUND_NONE)//Ê®×Ö
     {
         Vertical_Weight = 0.2f;
-        Servo_D += 5;//åŠ é˜»å°¼
+        Servo_D += 5;//¼Ó×èÄá
         if(Servo_D >= 42.5f) Servo_D = 42.5f;
         Servo_P1 = 0.1f;
-        Cross_Config = 1;//åå­—æ ‡å¿—ä½ï¼Œä¸»è¦ç”¨æ¥è®©å®ƒè¿‡äº†åå­—ä¹‹åå‡é€Ÿï¼Œå› ä¸ºéœ€è¦æ‹ä¸€ä¸ªç›´è§’å¼¯ï¼Œå®¹æ˜“è¿‡å†²
+        Cross_Config = 1;//Ê®×Ö±êÖ¾Î»£¬Ö÷ÒªÓÃÀ´ÈÃËü¹ıÁËÊ®×ÖÖ®ºó¼õËÙ£¬ÒòÎªĞèÒª¹ÕÒ»¸öÖ±½ÇÍä£¬ÈİÒ×¹ı³å
     }
 	
-//    else if(Round_Config1 == 1)//å…¥ç¯åœ¨ç¯å†…èµ°çš„å‚æ•°
+//    else if(Round_Config1 == 1)//Èë»·ÔÚ»·ÄÚ×ßµÄ²ÎÊı
 //    {
 //        Vertical_Weight = 0.85f;
 //        Denominator_Weight = Vertical_Weight + 0.01f;
 //		circle_config = 2;
 //    }
-//    else if(Round_Config2 == 1)//å‡ºç¯å‚æ•°
+//    else if(Round_Config2 == 1)//³ö»·²ÎÊı
 //    {
 //        Vertical_Weight = 0.6f;
 //        Denominator_Weight = Vertical_Weight + 0.01f;
@@ -301,120 +363,126 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 //		circle_config = 3;
 //    }
 	
-	// ========== ç¯å²›å…­é˜¶æ®µå¤„ç† ==========
-	  else
-	  {
-		  // â‘  é¢„å¤„ç†é˜¶æ®µæ£€æµ‹ï¼šä¸‰è·¯ç”µæ„Ÿåˆ†åˆ«è¾¾åˆ°å„è‡ªé˜ˆå€¼
-		  uint8 all_inductance_high = (Result_L >= Round_Params.pre_adc_thres_L)
-									&& (Result_Middle_M >= Round_Params.pre_adc_thres_M)
-									&& (Result_R >= Round_Params.pre_adc_thres_R);
+//	// ========== »·µºÁù½×¶Î´¦Àí ==========
+//	  else
+//	  {
+//		  // ¢Ù Ô¤´¦Àí½×¶Î¼ì²â£ºÈıÂ·µç¸Ğ·Ö±ğ´ïµ½¸÷×ÔãĞÖµ
+//		  uint8 all_inductance_high = (Result_L >= Round_Params.pre_adc_thres_L)
+//									&& (Result_Middle_M >= Round_Params.pre_adc_thres_M)
+//									&& (Result_R >= Round_Params.pre_adc_thres_R);
 
-		  // æ­£å¸¸å¾ªè¿¹çŠ¶æ€ä¸‹æ£€æµ‹åˆ°ç¯å²›ç‰¹å¾
-		  if(Round_State == ROUND_NONE && all_inductance_high)
-		  {
-			  Round_State = ROUND_PRE;
-			  Round_Pre_Distance = 0;
-			  Round_Config1 = 0;
-		  }
+//		  // Õı³£Ñ­¼£×´Ì¬ÏÂ¼ì²âµ½»·µºÌØÕ÷
+//		  if(Round_State == ROUND_NONE && all_inductance_high)
+//		  {
+//			  Round_State = ROUND_PRE;
+//			  Round_Pre_Distance = 0;
+//			  Round_Config1 = 0;
+//		  }
 
-		  // é¢„å¤„ç†é˜¶æ®µï¼šåˆ¤æ–­ç¯å²›æ–¹å‘
-		  else if(Round_State == ROUND_PRE)
-		  {
-			  // å¦‚æœå·¦ä¾§ç”µæ„Ÿæ›´å¼ºï¼Œåˆ¤æ–­ä¸ºå·¦ç¯ï¼›å¦åˆ™ä¸ºå³ç¯
-			  if(Result_L > Result_R)
-			  {
-				  Round_Direction = 0;  // å·¦ç¯
-			  }
-			  else
-			  {
-				  Round_Direction = 1;  // å³ç¯
-			  }
-			  Vertical_Weight = 0.75f;
-			  Denominator_Weight = Vertical_Weight + 0.01f;
-		  }
-		  // â‘¡ å…¥ç¯é˜¶æ®µ 0Â°~60Â°ï¼šç”µæ„Ÿå€¼æ”¾å¤§çº¦ä¸¤å€
-		  else if(Round_State == ROUND_ENTRY)
-		  {
-			  // æ ¹æ®ç¯å²›æ–¹å‘æ”¾å¤§å¯¹åº”ä¾§ç”µæ„Ÿ
-			  if(Round_Direction == 0)  // å·¦ç¯
-			  {
-				  Result_L = (uint16)(Result_L * Round_Params.entry_amplify);
-				  Result_Middle_M_L = (uint16)(Result_Middle_M_L * Round_Params.entry_amplify);
-				  if(Result_L > 100) Result_L = 100;
-				  if(Result_Middle_M_L > 100) Result_Middle_M_L = 100;
-			  }
-			  else  // å³ç¯
-			  {
-				  Result_R = (uint16)(Result_R * Round_Params.entry_amplify);
-				  Result_Middle_M_R = (uint16)(Result_Middle_M_R * Round_Params.entry_amplify);
-				  if(Result_R > 100) Result_R = 100;
-				  if(Result_Middle_M_R > 100) Result_Middle_M_R = 100;
-			  }
-			  Vertical_Weight = 0.83f;
-			  Denominator_Weight = Vertical_Weight + 0.01f;
-			  circle_config = 2;
-		  }
-		  // â‘¢ ç¯å†…é˜¶æ®µ 60Â°~270Â°ï¼šå¸¸è§„å¾ªè¿¹
-		  else if(Round_State == ROUND_INSIDE)
-		  {
-			  Vertical_Weight = 0.83f;
-			  Denominator_Weight = Vertical_Weight + 0.01f;
-			  circle_config = 2;
-		  }
-		  // â‘£ å‡ºç¯é˜¶æ®µ 270Â°~330Â°ï¼šç‰¹æ®Šå¤„ç†ï¼Œä¿æŒç›´çº¿å‡ºç¯
-		  else if(Round_State == ROUND_EXIT)
-		  {
-			  Vertical_Weight = 0.6f;
-			  Denominator_Weight = Vertical_Weight + 0.01f;
-			  Servo_P1 = 0.1f;
-			  circle_config = 3;
-		  }
-		  // â‘¤ å‡ºç¯åé˜¶æ®µ 330Â°åï¼šæ¢å¤æ­£å¸¸å¾ªè¿¹ï¼Œé¿å…å†æ¬¡è¿›ç¯
-		  else if(Round_State == ROUND_EXIT_AFTER)
-		  {
-			  Vertical_Weight = 0.75f;
-			  Denominator_Weight = Vertical_Weight + 0.01f;
-			  circle_config = 4;
-		  }
-	  }
+//		  // Ô¤´¦Àí½×¶Î£ºÅĞ¶Ï»·µº·½Ïò
+//		  else if(Round_State == ROUND_PRE)
+//		  {
+//			  // Èç¹û×ó²àµç¸Ğ¸üÇ¿£¬ÅĞ¶ÏÎª×ó»·£»·ñÔòÎªÓÒ»·
+//			  if(Result_L > Result_R)
+//			  {
+//				  Round_Direction = 0;  // ×ó»·
+//			  }
+//			  else
+//			  {
+//				  Round_Direction = 1;  // ÓÒ»·
+//			  }
+//			  Vertical_Weight = 0.75f;
+//			  Denominator_Weight = Vertical_Weight + 0.01f;
+//		  }
+//		  // ¢Ú Èë»·½×¶Î 0¡ã~60¡ã£ºµç¸ĞÖµ·Å´óÔ¼Á½±¶
+//		  else if(Round_State == ROUND_ENTRY)
+//		  {
+//			  // ¸ù¾İ»·µº·½Ïò·Å´ó¶ÔÓ¦²àµç¸Ğ
+//			  if(Round_Direction == 0)  // ×ó»·
+//			  {
+//				  Result_L = (uint16)(Result_L * Round_Params.entry_amplify);
+//				  Result_Middle_M_L = (uint16)(Result_Middle_M_L * Round_Params.entry_amplify);
+//				  if(Result_L > 100) Result_L = 100;
+//				  if(Result_Middle_M_L > 100) Result_Middle_M_L = 100;
+//			  }
+//			  else  // ÓÒ»·
+//			  {
+//				  Result_R = (uint16)(Result_R * Round_Params.entry_amplify);
+//				  Result_Middle_M_R = (uint16)(Result_Middle_M_R * Round_Params.entry_amplify);
+//				  if(Result_R > 100) Result_R = 100;
+//				  if(Result_Middle_M_R > 100) Result_Middle_M_R = 100;
+//			  }
+//			  Vertical_Weight = 0.83f;
+//			  Denominator_Weight = Vertical_Weight + 0.01f;
+//			  circle_config = 2;
+//		  }
+//		  // ¢Û »·ÄÚ½×¶Î 60¡ã~270¡ã£º³£¹æÑ­¼£
+//		  else if(Round_State == ROUND_INSIDE)
+//		  {
+//			  Vertical_Weight = 0.83f;
+//			  Denominator_Weight = Vertical_Weight + 0.01f;
+//			  circle_config = 2;
+//		  }
+//		  // ¢Ü ³ö»·½×¶Î 270¡ã~330¡ã£ºÌØÊâ´¦Àí£¬±£³ÖÖ±Ïß³ö»·
+//		  else if(Round_State == ROUND_EXIT)
+//		  {
+//			  Vertical_Weight = 0.6f;
+//			  Denominator_Weight = Vertical_Weight + 0.01f;
+//			  Servo_P1 = 0.1f;
+//			  circle_config = 3;
+//		  }
+//		  // ¢İ ³ö»·ºó½×¶Î 330¡ãºó£º»Ö¸´Õı³£Ñ­¼££¬±ÜÃâÔÙ´Î½ø»·
+//		  else if(Round_State == ROUND_EXIT_AFTER)
+//		  {
+//			  Vertical_Weight = 0.75f;
+//			  Denominator_Weight = Vertical_Weight + 0.01f;
+//			  circle_config = 4;
+//		  }
+//	  }
 
-    // member1 è¡¨ç¤ºæ–¹å‘åå·®ï¼Œdenominator1 ç”¨äºå½’ä¸€åŒ–ï¼Œé¿å…ä¸åŒå¼ºåº¦ä¸‹è¯¯å·®é‡çº§æ¼‚ç§»
+    // member1 ±íÊ¾·½ÏòÆ«²î£¬denominator1 ÓÃÓÚ¹éÒ»»¯£¬±ÜÃâ²»Í¬Ç¿¶ÈÏÂÎó²îÁ¿¼¶Æ¯ÒÆ
     member1 = ((1 - Vertical_Weight) * (Result_Left - Result_Right) + Vertical_Weight * (Result_Middle_M_Left - Result_Middle_M_Right));
     denominator1 = ((1 - Vertical_Weight) * (Result_Left + Result_Right) + Denominator_Weight * fabs(Result_Middle_M_Left - Result_Middle_M_Right));
 
 
-    if(Servo_D <= 15) Servo_D = 15;
-    else if(Servo_D >= 50) Servo_D = 50;
+//    if(Servo_D <= 15) Servo_D = 15;
+//    else if(Servo_D >= 50) Servo_D = 50;
 
 
-    // æœ€ç»ˆè½¬å‘å‘½ä»¤ç”±æ¯”ä¾‹ã€éçº¿æ€§æ¯”ä¾‹ã€å¾®åˆ†å’Œé™€èºä»ªé˜»å°¼å…±åŒç»„æˆ
-    // æ¨¡ç³Š PIDï¼šæ ¹æ® error å’Œ error_change åŠ¨æ€å¾®è°ƒ P1 å’Œ D
+    // ×îÖÕ×ªÏòÃüÁîÓÉ±ÈÀı¡¢·ÇÏßĞÔ±ÈÀı¡¢Î¢·ÖºÍÍÓÂİÒÇ×èÄá¹²Í¬×é³É
+    // Ä£ºı PID£º¸ù¾İ error ºÍ error_change ¶¯Ì¬Î¢µ÷ P1 ºÍ D
     error = (member1 / (denominator1 + 0.00001f)) * 90;
 
     error_change = error - error_last;
 
-    // ç‰¹æ®Šå…ƒç´ ï¼ˆåå­—ã€ç¯å²›ï¼‰ä½¿ç”¨ç¡¬ç¼–ç å‚æ•°ï¼Œè·³è¿‡æ¨¡ç³Šè°ƒæ•´
+    // ÌØÊâÔªËØ£¨Ê®×Ö¡¢»·µº£©Ê¹ÓÃÓ²±àÂë²ÎÊı£¬Ìø¹ıÄ£ºıµ÷Õû
     if(Cross_Config == 0 && Round_State == ROUND_NONE)
     {
-        delta_Kp = 0;
-        delta_Kd = 0;
-        Fuzzy_PID_Adjust(error, error_change, &delta_Kp, &delta_Kd);
+        Fuzzy_PID_Adjust(error, error_change, &delta_Kp, &delta_Kd, &delta_Kp2);
 
         fuzzy_P1 = Servo_P1 + delta_Kp;
         fuzzy_D  = Servo_D + delta_Kd;
+        fuzzy_P2 = Servo_P2 + delta_Kp2;
     }
     else
     {
         fuzzy_P1 = Servo_P1;
         fuzzy_D  = Servo_D;
+        fuzzy_P2 = Servo_P2;
     }
-
-    if(fuzzy_P1 < 0.8f) fuzzy_P1 = 0.8f;
-    if(fuzzy_P1 > 2.0f) fuzzy_P1 = 2.0f;
-    if(fuzzy_D  < 5.0f) fuzzy_D =  5.0f;
-    if(fuzzy_D  > 30.0f) fuzzy_D = 30.0f;
-
-    turn_cmd = error * fuzzy_P1 + error_change * fuzzy_D;
+		
+		if(seekfree_assistant_parameter[0] == 0 && seekfree_assistant_parameter[1] == 0 && seekfree_assistant_parameter[2] == 0) Fuzzy_Config = 1;
+			
+		if(Fuzzy_Config == 0)
+		{
+				if(fuzzy_P1 < 0.6f) fuzzy_P1 = 0.6f;
+				if(fuzzy_P1 > 2.5f) fuzzy_P1 = 2.5f;
+				if(fuzzy_D  < 5.0f) fuzzy_D =  5.0f;
+				if(fuzzy_D  > 28.0f) fuzzy_D = 28.0f;
+				if(fuzzy_P2 < 0.0f) fuzzy_P2 = 0.0f;
+				if(fuzzy_P2 > 0.01f) fuzzy_P2 = 0.01f;
+		}
+    turn_cmd = error * fuzzy_P1 + fuzzy_P2 * fabs(error) * error + error_change * fuzzy_D;
     error_last = error;
 
     if(turn_cmd >= TURN_CMD_MAX) turn_cmd = TURN_CMD_MAX;
@@ -423,6 +491,7 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
     error1 = error;
     Turn_Cmd1 = turn_cmd;
     Servo_PID_D = Servo_D;
+    Servo_PID_P2 = Servo_P2;
 
     return turn_cmd;
 }
@@ -456,27 +525,27 @@ void Angle_PID_Control(float Angle_error,float Angle_P,float Angle_I,float Angle
     }
 }
 
-// æŠŠè½¬å‘å‘½ä»¤åˆ†é…ä¸ºå·¦å³è½®ç›®æ ‡é€Ÿåº¦å·®ï¼Œå®ç°å·®é€Ÿè½¬å‘
+// °Ñ×ªÏòÃüÁî·ÖÅäÎª×óÓÒÂÖÄ¿±êËÙ¶È²î£¬ÊµÏÖ²îËÙ×ªÏò
 void Differential_Speed_Control(float turn_cmd)
 {
     float base_speed = 0;
     float diff_ratio = 0;
     float diff_output = 0;
+	float q = 0.4;
 
-    // å…ˆå–åŸºç¡€é€Ÿåº¦ï¼Œå†æŒ‰ turn_cmd æ¯”ä¾‹æ‹‰å¼€å·¦å³è½®é€Ÿåº¦å·®
-    base_speed = (SpeedTarget_L + Target_Right1) / 2.0f;
+
     diff_ratio = turn_cmd / ANGLE_SPEED_OUTPUT_MAX;
-    diff_output = diff_ratio * base_speed;
+
 
 	if(diff_ratio >= 0)
 	{
-		SpeedTarget_L = base_speed - diff_output;
-		Target_Right1 = base_speed + diff_output * 0.4;
+		SpeedTarget_L = (1-diff_ratio) * SpeedTarget_L;
+		Target_Right1 = (diff_ratio * q + 1) * Target_Right1;
 	}
 	if(diff_ratio < 0)
 	{
-		SpeedTarget_L = base_speed - diff_output * 0.4;
-		Target_Right1 = base_speed + diff_output;
+		SpeedTarget_L = ( - diff_ratio * q + 1) * SpeedTarget_L;
+		Target_Right1 = (1 + diff_ratio) * Target_Right1;
 	}
 	
     if(SpeedTarget_L < 0) SpeedTarget_L = 0;
@@ -486,21 +555,21 @@ void Differential_Speed_Control(float turn_cmd)
     if(Target_Right1 > SPEED_TARGET_MAX) Target_Right1 = SPEED_TARGET_MAX;
 }
 
-// å·¦å³è½®å„è‡ªåšé€Ÿåº¦é—­ç¯ï¼Œç›®æ ‡é€Ÿåº¦æ¥è‡ªå·®é€Ÿåˆ†é…ç»“æœ
-void Motor_PID(float SpeedTarget,int16 motor_speed,float Motor_P,float Motor_I,float Motor_D,int16 Config)
+// ×óÓÒÂÖ¸÷×Ô×öËÙ¶È±Õ»·£¬Ä¿±êËÙ¶ÈÀ´×Ô²îËÙ·ÖÅä½á¹û
+void Motor_PID(float SpeedTarget,int16 motor_speed,float Motor_P,float Motor_I,float Motor_D,int16 Config,float turn_cmd)
 {
     static float I_count_L = 0, I_count_R = 0;
     static float error_last_L = 0, error_last_R = 0;
     float speed_error = 0;
     float P_data = 0, I_data = 0, D_data = 0;
-    int I_Count_Max = 2500;
+    float I_Count_Max = 2500;
 
-//    // è½¬å‘è¶Šæ¿€çƒˆï¼Œç§¯åˆ†ä¸Šé™è¶Šå°ï¼Œé¿å…å¼¯é“ä¸­ç§¯åˆ†å †ç§¯å¯¼è‡´å‡ºå¼¯è¿‡å†²
-//    I_Count_Max = -fabs(turn_cmd) * (10.0f / 3.0f) + 100 + seekfree_assistant_parameter[0];
+//    // ×ªÏòÔ½¼¤ÁÒ£¬»ı·ÖÉÏÏŞÔ½Ğ¡£¬±ÜÃâÍäµÀÖĞ»ı·Ö¶Ñ»ıµ¼ÖÂ³öÍä¹ı³å
+//    I_Count_Max = -fabs(turn_cmd) * (10.0f / 3.0f) + 100 + 2400;
 
 //    if(Cross_Config == 1) I_Count_Max = 150;
 	
-//    if(I_Count_Max >= 2500) I_Count_Max = 1500;
+//    if(I_Count_Max >= 2500) I_Count_Max = 2500;
 //    else if(I_Count_Max <= 0) I_Count_Max = 0;
 
     speed_error = SpeedTarget - (float)motor_speed;
@@ -540,14 +609,14 @@ void Motor_PWM_set_L(void)
 
     if(Motor_L_output >= 0)
     {
-        MOTOR_L_DIR_PIN = 1;//æ­£è½¬
+        MOTOR_L_DIR_PIN = 1;//Õı×ª
 	    pwm_duty(MOTOR_L_PWM_PIN,(uint32)Motor_L_output);
     }
 	
     else if(Motor_L_output < 0)
     {
         Motor_L_output = -Motor_L_output;
-        MOTOR_L_DIR_PIN = 0;//åè½¬
+        MOTOR_L_DIR_PIN = 0;//·´×ª
         pwm_duty(MOTOR_L_PWM_PIN,(uint32)Motor_L_output);
     }
 }
@@ -561,13 +630,13 @@ void Motor_PWM_set_R(void)
 
        if(Motor_output_R >= 0)
        {
-				MOTOR_R_DIR_PIN = 1;//æ­£è½¬
+				MOTOR_R_DIR_PIN = 1;//Õı×ª
 				pwm_duty(MOTOR_R_PWM_PIN,(uint32)Motor_output_R);
        }
        else if(Motor_output_R < 0)
        {
           Motor_output_R =  -Motor_output_R;
-					MOTOR_R_DIR_PIN = 0;//åè½¬
+					MOTOR_R_DIR_PIN = 0;//·´×ª
           pwm_duty(MOTOR_R_PWM_PIN,(uint32)Motor_output_R);
        }
 }

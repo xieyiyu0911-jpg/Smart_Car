@@ -178,27 +178,40 @@ Quaternion get_quaternion(void)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// 函数简介     四元数转欧拉角函数，仅计算偏航角
+// 函数简介     四元数转欧拉角函数
 // 参数说明     q: 输入的四元数
 // 返回参数     EulerAngle: 计算得到的欧拉角（仅偏航角有效）
 // 使用示例     EulerAngle angles = quaternion_to_euler(current_q);
 //-------------------------------------------------------------------------------------------------------------------
 EulerAngle quaternion_to_euler(Quaternion q) 
 {
+    float sinr_cosp, cosr_cosp;
+    float sinp;
     float siny_cosp, cosy_cosp;
-    
-    /* 初始化其他角度为0 */
-    euler.roll = 0.0f;
-    euler.pitch = 0.0f;
     
     /* 计算偏航角 (Yaw) */
     siny_cosp = 2.0f * (q.w * q.z + q.x * q.y);
     cosy_cosp = 1.0f - 2.0f * (q.y * q.y + q.z * q.z);
 	
     euler.yaw = custom_atan2(siny_cosp, cosy_cosp);
+	
+	/* 计算俯仰角 (Pitch) */
+	sinp = 2.0f * (q.w * q.y - q.z * q.x);
+    if(sinp > 1.0f) sinp = 1.0f;
+    else if(sinp < -1.0f) sinp = -1.0f;
+    
+	euler.pitch = asin(sinp);
+	
+	/* 计算滚转角 (Roll) */
+	sinr_cosp = 2.0f * (q.w * q.x + q.y * q.z);
+    cosr_cosp = 1.0f - 2.0f * (q.x * q.x + q.y * q.y);
+    
+	euler.roll = custom_atan2(sinr_cosp, cosr_cosp);
     
     /* 转换为角度 */
-    euler.yaw = euler.yaw * 180.0f / PI;
+    euler.yaw = - euler.yaw * 180.0f / PI;
+	euler.roll = euler.roll * 180.0f / PI;
+	euler.pitch = - euler.pitch * 180.0f / PI;
     
     return euler;
 }

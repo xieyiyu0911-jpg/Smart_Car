@@ -525,6 +525,11 @@
               <FilePath>..\..\Libraries\seekfree_peripheral\SEEKFREE_CONFIG.LIB</FilePath>
             </File>
             <File>
+              <FileName>STC32G_MDU32.LIB</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\..\Libraries\STC32G_LIB\lib\STC32G_MDU32.LIB</FilePath>
+            </File>
+            <File>
               <FileName>SEEKFREE_CONFIG.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\Libraries\seekfree_peripheral\SEEKFREE_CONFIG.h</FilePath>
@@ -710,11 +715,6 @@
               <FilePath>.\Motor_PID.c</FilePath>
             </File>
             <File>
-              <FileName>isr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USER\src\isr.c</FilePath>
-            </File>
-            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\USER\src\main.c</FilePath>
@@ -728,6 +728,11 @@
               <FileName>Button.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Button.c</FilePath>
+            </File>
+            <File>
+              <FileName>isr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\src\isr.c</FilePath>
             </File>
             <File>
               <FileName>Oled.c</FileName>

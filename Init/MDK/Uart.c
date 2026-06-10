@@ -13,7 +13,7 @@
 
 void Uarts_Init()
 {
-	uart_init(UART_4, UART4_RX_P02, UART4_TX_P03, 115200, TIM_2);
+	uart_init(UART_4, UART4_TX_P03, UART4_RX_P02, 115200, TIM_2);
     //uart_putstr(UART_4, "UART2 Hello,world");
 }
 

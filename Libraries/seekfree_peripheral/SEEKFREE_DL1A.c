@@ -1,29 +1,29 @@
 /*********************************************************************************************************************
  * COPYRIGHT NOTICE
- * Copyright (c) 2021,é€é£ç§‘æŠ€
+ * Copyright (c) 2021,Öğ·É¿Æ¼¼
  * All rights reserved.
- * æŠ€æœ¯è®¨è®ºQQç¾¤ï¼šä¸€ç¾¤ï¼š179029047(å·²æ»¡)  äºŒç¾¤ï¼š244861897
+ * ¼¼ÊõÌÖÂÛQQÈº£ºÒ»Èº£º179029047(ÒÑÂú)  ¶şÈº£º244861897
  *
- * ä»¥ä¸‹æ‰€æœ‰å†…å®¹ç‰ˆæƒå‡å±é€é£ç§‘æŠ€æ‰€æœ‰ï¼Œæœªç»å…è®¸ä¸å¾—ç”¨äºå•†ä¸šç”¨é€”ï¼Œ
- * æ¬¢è¿å„ä½ä½¿ç”¨å¹¶ä¼ æ’­æœ¬ç¨‹åºï¼Œä¿®æ”¹å†…å®¹æ—¶å¿…é¡»ä¿ç•™é€é£ç§‘æŠ€çš„ç‰ˆæƒå£°æ˜ã€‚
+ * ÒÔÏÂËùÓĞÄÚÈİ°æÈ¨¾ùÊôÖğ·É¿Æ¼¼ËùÓĞ£¬Î´¾­ÔÊĞí²»µÃÓÃÓÚÉÌÒµÓÃÍ¾£¬
+ * »¶Ó­¸÷Î»Ê¹ÓÃ²¢´«²¥±¾³ÌĞò£¬ĞŞ¸ÄÄÚÈİÊ±±ØĞë±£ÁôÖğ·É¿Æ¼¼µÄ°æÈ¨ÉùÃ÷¡£
  *
  * @file       		DL1A
- * @company	   		æˆéƒ½é€é£ç§‘æŠ€æœ‰é™å…¬å¸
- * @author     		é€é£ç§‘æŠ€(QQ3184284598)
- * @version    		æŸ¥çœ‹docå†…versionæ–‡ä»¶ ç‰ˆæœ¬è¯´æ˜
+ * @company	   		³É¶¼Öğ·É¿Æ¼¼ÓĞÏŞ¹«Ë¾
+ * @author     		Öğ·É¿Æ¼¼(QQ3184284598)
+ * @version    		²é¿´docÄÚversionÎÄ¼ş °æ±¾ËµÃ÷
  * @Software 		MDK FOR C251 V5.60
  * @Target core		STC32G12K128
  * @Taobao   		https://seekfree.taobao.com/
  * @date       		2021-08-27
  * @note
- * æ¥çº¿å®šä¹‰ï¼š
+ * ½ÓÏß¶¨Òå£º
  *                   ------------------------------------
- *                   æ¨¡å—ç®¡è„š            å•ç‰‡æœºç®¡è„š
- *                   SCL                 æŸ¥çœ‹ SEEKFREE_DL1A.h ä¸­ DL1A_SCL_PIN   å®å®šä¹‰
- *                   SDA                 æŸ¥çœ‹ SEEKFREE_DL1A.h ä¸­ DL1A_SDA_PIN   å®å®šä¹‰
- *					 XS					 æŸ¥çœ‹ SEEKFREE_DL1A.h ä¸­ DL1A_XSHUT_PIN å®å®šä¹‰
- *                   VCC                 5V ç”µæº
- *                   GND                 ç”µæºåœ°
+ *                   Ä£¿é¹Ü½Å            µ¥Æ¬»ú¹Ü½Å
+ *                   SCL                 ²é¿´ SEEKFREE_DL1A.h ÖĞ DL1A_SCL_PIN   ºê¶¨Òå
+ *                   SDA                 ²é¿´ SEEKFREE_DL1A.h ÖĞ DL1A_SDA_PIN   ºê¶¨Òå
+ *					 XS					 ²é¿´ SEEKFREE_DL1A.h ÖĞ DL1A_XSHUT_PIN ºê¶¨Òå
+ *                   VCC                 5V µçÔ´
+ *                   GND                 µçÔ´µØ
  *                   ------------------------------------
 ********************************************************************************************************************/
 
@@ -41,20 +41,20 @@ uint16 dl1a_distance_mm;
 
 
 #define GET_DL1A_SDA   		 		DL1A_SDA_PIN
-#define DL1A_SDA_LOW()         		DL1A_SDA_PIN = 0		//IOå£è¾“å‡ºä½ç”µå¹³
-#define DL1A_SDA_HIGH()        		DL1A_SDA_PIN = 1		//IOå£è¾“å‡ºé«˜ç”µå¹³
+#define DL1A_SDA_LOW()         		DL1A_SDA_PIN = 0		//IO¿ÚÊä³öµÍµçÆ½
+#define DL1A_SDA_HIGH()        		DL1A_SDA_PIN = 1		//IO¿ÚÊä³ö¸ßµçÆ½
 
-#define DL1A_SCL_LOW()          	DL1A_SCL_PIN = 0		//IOå£è¾“å‡ºä½ç”µå¹³
-#define DL1A_SCL_HIGH()         	DL1A_SCL_PIN = 1		//IOå£è¾“å‡ºé«˜ç”µå¹³
+#define DL1A_SCL_LOW()          	DL1A_SCL_PIN = 0		//IO¿ÚÊä³öµÍµçÆ½
+#define DL1A_SCL_HIGH()         	DL1A_SCL_PIN = 1		//IO¿ÚÊä³ö¸ßµçÆ½
 
-#define ack 1      //ä¸»åº”ç­”
-#define no_ack 0   //ä»åº”ç­”	
+#define ack 1      //Ö÷Ó¦´ğ
+#define no_ack 0   //´ÓÓ¦´ğ	
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      æ¨¡æ‹ŸIICå»¶æ—¶
+//  @brief      Ä£ÄâIICÑÓÊ±
 //  @return     void
 //  @since      v1.0
-//  Sample usage:				å¦‚æœIICé€šè®¯å¤±è´¥å¯ä»¥å°è¯•å¢åŠ jçš„å€¼
+//  Sample usage:				Èç¹ûIICÍ¨Ñ¶Ê§°Ü¿ÉÒÔ³¢ÊÔÔö¼ÓjµÄÖµ
 //-------------------------------------------------------------------------------------------------------------------
 static void dl1a_simiic_delay(void)
 {
@@ -62,7 +62,7 @@ static void dl1a_simiic_delay(void)
     while(j--);
 }
 
-//å†…éƒ¨ä½¿ç”¨ï¼Œç”¨æˆ·æ— éœ€è°ƒç”¨
+//ÄÚ²¿Ê¹ÓÃ£¬ÓÃ»§ÎŞĞèµ÷ÓÃ
 static void dl1a_simiic_start(void)
 {
     DL1A_SDA_HIGH();
@@ -73,7 +73,7 @@ static void dl1a_simiic_start(void)
     DL1A_SCL_LOW();
 }
 
-//å†…éƒ¨ä½¿ç”¨ï¼Œç”¨æˆ·æ— éœ€è°ƒç”¨
+//ÄÚ²¿Ê¹ÓÃ£¬ÓÃ»§ÎŞĞèµ÷ÓÃ
 static void dl1a_simiic_stop(void)
 {
     DL1A_SDA_LOW();
@@ -85,8 +85,8 @@ static void dl1a_simiic_stop(void)
     dl1a_simiic_delay();
 }
 
-//ä¸»åº”ç­”(åŒ…å«ack:SDA=0å’Œno_ack:SDA=0)
-//å†…éƒ¨ä½¿ç”¨ï¼Œç”¨æˆ·æ— éœ€è°ƒç”¨
+//Ö÷Ó¦´ğ(°üº¬ack:SDA=0ºÍno_ack:SDA=0)
+//ÄÚ²¿Ê¹ÓÃ£¬ÓÃ»§ÎŞĞèµ÷ÓÃ
 static void dl1a_simiic_sendack(unsigned char ack_dat)
 {
     DL1A_SCL_LOW();
@@ -106,7 +106,7 @@ static int dl1a_sccb_waitack(void)
     dl1a_simiic_delay();
     DL1A_SCL_HIGH();
     dl1a_simiic_delay();
-    if(GET_DL1A_SDA)           //åº”ç­”ä¸ºé«˜ç”µå¹³ï¼Œå¼‚å¸¸ï¼Œé€šä¿¡å¤±è´¥
+    if(GET_DL1A_SDA)           //Ó¦´ğÎª¸ßµçÆ½£¬Òì³££¬Í¨ĞÅÊ§°Ü
     {
         DL1A_SCL_LOW();
         return 0;
@@ -116,30 +116,30 @@ static int dl1a_sccb_waitack(void)
     return 1;
 }
 
-//å­—èŠ‚å‘é€ç¨‹åº
-//å‘é€c(å¯ä»¥æ˜¯æ•°æ®ä¹Ÿå¯æ˜¯åœ°å€)ï¼Œé€å®Œåæ¥æ”¶ä»åº”ç­”
-//ä¸è€ƒè™‘ä»åº”ç­”ä½
-//å†…éƒ¨ä½¿ç”¨ï¼Œç”¨æˆ·æ— éœ€è°ƒç”¨
+//×Ö½Ú·¢ËÍ³ÌĞò
+//·¢ËÍc(¿ÉÒÔÊÇÊı¾İÒ²¿ÉÊÇµØÖ·)£¬ËÍÍêºó½ÓÊÕ´ÓÓ¦´ğ
+//²»¿¼ÂÇ´ÓÓ¦´ğÎ»
+//ÄÚ²¿Ê¹ÓÃ£¬ÓÃ»§ÎŞĞèµ÷ÓÃ
 static void dl1a_send_ch(uint8 c)
 {
     uint8 xdata i = 8;
     while(i--)
     {
-        if(c & 0x80)	DL1A_SDA_HIGH();//SDA è¾“å‡ºæ•°æ®
+        if(c & 0x80)	DL1A_SDA_HIGH();//SDA Êä³öÊı¾İ
         else			DL1A_SDA_LOW();
         c <<= 1;
         dl1a_simiic_delay();
-        DL1A_SCL_HIGH();                //SCL æ‹‰é«˜ï¼Œé‡‡é›†ä¿¡å·
+        DL1A_SCL_HIGH();                //SCL À­¸ß£¬²É¼¯ĞÅºÅ
         dl1a_simiic_delay();
-        DL1A_SCL_LOW();                //SCL æ—¶é’Ÿçº¿æ‹‰ä½
+        DL1A_SCL_LOW();                //SCL Ê±ÖÓÏßÀ­µÍ
     }
     dl1a_sccb_waitack();
 }
 
 
-//å­—èŠ‚æ¥æ”¶ç¨‹åº
-//æ¥æ”¶å™¨ä»¶ä¼ æ¥çš„æ•°æ®ï¼Œæ­¤ç¨‹åºåº”é…åˆ|ä¸»åº”ç­”å‡½æ•°|ä½¿ç”¨
-//å†…éƒ¨ä½¿ç”¨ï¼Œç”¨æˆ·æ— éœ€è°ƒç”¨
+//×Ö½Ú½ÓÊÕ³ÌĞò
+//½ÓÊÕÆ÷¼ş´«À´µÄÊı¾İ£¬´Ë³ÌĞòÓ¦ÅäºÏ|Ö÷Ó¦´ğº¯Êı|Ê¹ÓÃ
+//ÄÚ²¿Ê¹ÓÃ£¬ÓÃ»§ÎŞĞèµ÷ÓÃ
 static uint8 dl1a_read_ch(uint8 ack_x)
 {
     uint8 xdata i;
@@ -151,14 +151,14 @@ static uint8 dl1a_read_ch(uint8 ack_x)
     for(i=0; i<8; i++)
     {
         dl1a_simiic_delay();
-        DL1A_SCL_LOW();         //ç½®æ—¶é’Ÿçº¿ä¸ºä½ï¼Œå‡†å¤‡æ¥æ”¶æ•°æ®ä½
+        DL1A_SCL_LOW();         //ÖÃÊ±ÖÓÏßÎªµÍ£¬×¼±¸½ÓÊÕÊı¾İÎ»
         dl1a_simiic_delay();
-        DL1A_SCL_HIGH();         //ç½®æ—¶é’Ÿçº¿ä¸ºé«˜ï¼Œä½¿æ•°æ®çº¿ä¸Šæ•°æ®æœ‰æ•ˆ
+        DL1A_SCL_HIGH();         //ÖÃÊ±ÖÓÏßÎª¸ß£¬Ê¹Êı¾İÏßÉÏÊı¾İÓĞĞ§
         dl1a_simiic_delay();
         c<<=1;
         if(GET_DL1A_SDA)
         {
-            c+=1;   //è¯»æ•°æ®ä½ï¼Œå°†æ¥æ”¶çš„æ•°æ®å­˜c
+            c+=1;   //¶ÁÊı¾İÎ»£¬½«½ÓÊÕµÄÊı¾İ´æc
         }
     }
     DL1A_SCL_LOW();
@@ -169,10 +169,10 @@ static uint8 dl1a_read_ch(uint8 ack_x)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      æ¨¡æ‹ŸIICå†™æ•°æ®åˆ°è®¾å¤‡å¯„å­˜å™¨å‡½æ•°
-//  @param      dev_add			è®¾å¤‡åœ°å€(ä½ä¸ƒä½åœ°å€)
-//  @param      reg				å¯„å­˜å™¨åœ°å€
-//  @param      dat				å†™å…¥çš„æ•°æ®
+//  @brief      Ä£ÄâIICĞ´Êı¾İµ½Éè±¸¼Ä´æÆ÷º¯Êı
+//  @param      dev_add			Éè±¸µØÖ·(µÍÆßÎ»µØÖ·)
+//  @param      reg				¼Ä´æÆ÷µØÖ·
+//  @param      dat				Ğ´ÈëµÄÊı¾İ
 //  @return     void
 //  @since      v1.0
 //  Sample usage:
@@ -180,20 +180,20 @@ static uint8 dl1a_read_ch(uint8 ack_x)
 static void dl1a_simiic_write_dats(uint8 dev_add, uint8 *dat, uint32 len)
 {
     dl1a_simiic_start();
-    dl1a_send_ch( (dev_add<<1) | 0x00);   //å‘é€å™¨ä»¶åœ°å€åŠ å†™ä½
+    dl1a_send_ch( (dev_add<<1) | 0x00);   //·¢ËÍÆ÷¼şµØÖ·¼ÓĞ´Î»
     while(len--)
     {
-        dl1a_send_ch( *dat++ );   				 //å‘é€éœ€è¦å†™å…¥çš„æ•°æ®
+        dl1a_send_ch( *dat++ );   				 //·¢ËÍĞèÒªĞ´ÈëµÄÊı¾İ
     }
     dl1a_simiic_stop();
 }
 
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      æ¨¡æ‹ŸIICå†™æ•°æ®åˆ°è®¾å¤‡å¯„å­˜å™¨å‡½æ•°
-//  @param      dev_add			è®¾å¤‡åœ°å€(ä½ä¸ƒä½åœ°å€)
-//  @param      reg				å¯„å­˜å™¨åœ°å€
-//  @param      dat				å†™å…¥çš„æ•°æ®
+//  @brief      Ä£ÄâIICĞ´Êı¾İµ½Éè±¸¼Ä´æÆ÷º¯Êı
+//  @param      dev_add			Éè±¸µØÖ·(µÍÆßÎ»µØÖ·)
+//  @param      reg				¼Ä´æÆ÷µØÖ·
+//  @param      dat				Ğ´ÈëµÄÊı¾İ
 //  @return     void
 //  @since      v1.0
 //  Sample usage:
@@ -201,18 +201,18 @@ static void dl1a_simiic_write_dats(uint8 dev_add, uint8 *dat, uint32 len)
 static void dl1a_simiic_write_reg(uint8 dev_add, uint8 reg, uint8 dat)
 {
     dl1a_simiic_start();
-    dl1a_send_ch( (dev_add<<1) | 0x00);   //å‘é€å™¨ä»¶åœ°å€åŠ å†™ä½
-    dl1a_send_ch( reg );   				 //å‘é€ä»æœºå¯„å­˜å™¨åœ°å€
-    dl1a_send_ch( dat );   				 //å‘é€éœ€è¦å†™å…¥çš„æ•°æ®
+    dl1a_send_ch( (dev_add<<1) | 0x00);   //·¢ËÍÆ÷¼şµØÖ·¼ÓĞ´Î»
+    dl1a_send_ch( reg );   				 //·¢ËÍ´Ó»ú¼Ä´æÆ÷µØÖ·
+    dl1a_send_ch( dat );   				 //·¢ËÍĞèÒªĞ´ÈëµÄÊı¾İ
     dl1a_simiic_stop();
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      æ¨¡æ‹ŸIICä»è®¾å¤‡å¯„å­˜å™¨è¯»å–æ•°æ®
-//  @param      dev_add			è®¾å¤‡åœ°å€(ä½ä¸ƒä½åœ°å€)
-//  @param      reg				å¯„å­˜å™¨åœ°å€
-//  @param      type			é€‰æ‹©é€šä¿¡æ–¹å¼æ˜¯IIC  è¿˜æ˜¯ SCCB
-//  @return     uint8 xdata			è¿”å›å¯„å­˜å™¨çš„æ•°æ®
+//  @brief      Ä£ÄâIIC´ÓÉè±¸¼Ä´æÆ÷¶ÁÈ¡Êı¾İ
+//  @param      dev_add			Éè±¸µØÖ·(µÍÆßÎ»µØÖ·)
+//  @param      reg				¼Ä´æÆ÷µØÖ·
+//  @param      type			Ñ¡ÔñÍ¨ĞÅ·½Ê½ÊÇIIC  »¹ÊÇ SCCB
+//  @return     uint8 xdata			·µ»Ø¼Ä´æÆ÷µÄÊı¾İ
 //  @since      v1.0
 //  Sample usage:
 //-------------------------------------------------------------------------------------------------------------------
@@ -220,66 +220,66 @@ static uint8 dl1a_simiic_read_reg(uint8 dev_add, uint8 reg)
 {
     uint8 xdata dat;
     dl1a_simiic_start();
-    dl1a_send_ch( (dev_add<<1) | 0x00);  //å‘é€å™¨ä»¶åœ°å€åŠ å†™ä½
-    dl1a_send_ch( reg );   				//å‘é€ä»æœºå¯„å­˜å™¨åœ°å€
+    dl1a_send_ch( (dev_add<<1) | 0x00);  //·¢ËÍÆ÷¼şµØÖ·¼ÓĞ´Î»
+    dl1a_send_ch( reg );   				//·¢ËÍ´Ó»ú¼Ä´æÆ÷µØÖ·
     dl1a_simiic_start();
-    dl1a_send_ch( (dev_add<<1) | 0x01);  //å‘é€å™¨ä»¶åœ°å€åŠ è¯»ä½
-    dat = dl1a_read_ch(no_ack);   				//è¯»å–æ•°æ®
+    dl1a_send_ch( (dev_add<<1) | 0x01);  //·¢ËÍÆ÷¼şµØÖ·¼Ó¶ÁÎ»
+    dat = dl1a_read_ch(no_ack);   				//¶ÁÈ¡Êı¾İ
     dl1a_simiic_stop();
     return dat;
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      æ¨¡æ‹ŸIICè¯»å–å¤šå­—èŠ‚æ•°æ®
-//  @param      dev_add			è®¾å¤‡åœ°å€(ä½ä¸ƒä½åœ°å€)
-//  @param      reg				å¯„å­˜å™¨åœ°å€
-//  @param      dat_add			æ•°æ®ä¿å­˜çš„åœ°å€æŒ‡é’ˆ
-//  @param      num				è¯»å–å­—èŠ‚æ•°é‡
-//  @param      type			é€‰æ‹©é€šä¿¡æ–¹å¼æ˜¯IIC  è¿˜æ˜¯ SCCB
-//  @return     uint8 xdata			è¿”å›å¯„å­˜å™¨çš„æ•°æ®
+//  @brief      Ä£ÄâIIC¶ÁÈ¡¶à×Ö½ÚÊı¾İ
+//  @param      dev_add			Éè±¸µØÖ·(µÍÆßÎ»µØÖ·)
+//  @param      reg				¼Ä´æÆ÷µØÖ·
+//  @param      dat_add			Êı¾İ±£´æµÄµØÖ·Ö¸Õë
+//  @param      num				¶ÁÈ¡×Ö½ÚÊıÁ¿
+//  @param      type			Ñ¡ÔñÍ¨ĞÅ·½Ê½ÊÇIIC  »¹ÊÇ SCCB
+//  @return     uint8 xdata			·µ»Ø¼Ä´æÆ÷µÄÊı¾İ
 //  @since      v1.0
 //  Sample usage:
 //-------------------------------------------------------------------------------------------------------------------
 static void dl1a_simiic_read_regs(uint8 dev_add, uint8 reg, uint8 *dat_add, uint32 num)
 {
     dl1a_simiic_start();
-    dl1a_send_ch( (dev_add<<1) | 0x00);  //å‘é€å™¨ä»¶åœ°å€åŠ å†™ä½
-    dl1a_send_ch( reg );   				//å‘é€ä»æœºå¯„å­˜å™¨åœ°å€
+    dl1a_send_ch( (dev_add<<1) | 0x00);  //·¢ËÍÆ÷¼şµØÖ·¼ÓĞ´Î»
+    dl1a_send_ch( reg );   				//·¢ËÍ´Ó»ú¼Ä´æÆ÷µØÖ·
     dl1a_simiic_start();
-    dl1a_send_ch( (dev_add<<1) | 0x01);  //å‘é€å™¨ä»¶åœ°å€åŠ è¯»ä½
+    dl1a_send_ch( (dev_add<<1) | 0x01);  //·¢ËÍÆ÷¼şµØÖ·¼Ó¶ÁÎ»
     while(--num)
     {
-        *dat_add = dl1a_read_ch(ack); //è¯»å–æ•°æ®
+        *dat_add = dl1a_read_ch(ack); //¶ÁÈ¡Êı¾İ
         dat_add++;
     }
-    *dat_add = dl1a_read_ch(no_ack); //è¯»å–æ•°æ®
+    *dat_add = dl1a_read_ch(no_ack); //¶ÁÈ¡Êı¾İ
     dl1a_simiic_stop();
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      æ¨¡æ‹ŸIICè¯»å–å¤šå­—èŠ‚æ•°æ®
-//  @param      dev_add			è®¾å¤‡åœ°å€(ä½ä¸ƒä½åœ°å€)
-//  @param      reg				å¯„å­˜å™¨åœ°å€
-//  @param      dat_add			æ•°æ®ä¿å­˜çš„åœ°å€æŒ‡é’ˆ
-//  @param      num				è¯»å–å­—èŠ‚æ•°é‡
-//  @param      type			é€‰æ‹©é€šä¿¡æ–¹å¼æ˜¯IIC  è¿˜æ˜¯ SCCB
-//  @return     uint8 xdata			è¿”å›å¯„å­˜å™¨çš„æ•°æ®
+//  @brief      Ä£ÄâIIC¶ÁÈ¡¶à×Ö½ÚÊı¾İ
+//  @param      dev_add			Éè±¸µØÖ·(µÍÆßÎ»µØÖ·)
+//  @param      reg				¼Ä´æÆ÷µØÖ·
+//  @param      dat_add			Êı¾İ±£´æµÄµØÖ·Ö¸Õë
+//  @param      num				¶ÁÈ¡×Ö½ÚÊıÁ¿
+//  @param      type			Ñ¡ÔñÍ¨ĞÅ·½Ê½ÊÇIIC  »¹ÊÇ SCCB
+//  @return     uint8 xdata			·µ»Ø¼Ä´æÆ÷µÄÊı¾İ
 //  @since      v1.0
 //  Sample usage:
 //-------------------------------------------------------------------------------------------------------------------
 static void dl1a_simiic_read_regs_1(uint8 dev_add, uint8 reg, uint8 *dat_add, uint32 num)
 {
     dl1a_simiic_start();
-    dl1a_send_ch( (dev_add<<1) | 0x00);  //å‘é€å™¨ä»¶åœ°å€åŠ å†™ä½
-    dl1a_send_ch( reg );   				//å‘é€ä»æœºå¯„å­˜å™¨åœ°å€
+    dl1a_send_ch( (dev_add<<1) | 0x00);  //·¢ËÍÆ÷¼şµØÖ·¼ÓĞ´Î»
+    dl1a_send_ch( reg );   				//·¢ËÍ´Ó»ú¼Ä´æÆ÷µØÖ·
     dl1a_simiic_start();
-    dl1a_send_ch( (dev_add<<1) | 0x01);  //å‘é€å™¨ä»¶åœ°å€åŠ è¯»ä½
+    dl1a_send_ch( (dev_add<<1) | 0x01);  //·¢ËÍÆ÷¼şµØÖ·¼Ó¶ÁÎ»
     while(--num)
     {
-        *dat_add = dl1a_read_ch(ack); //è¯»å–æ•°æ®
+        *dat_add = dl1a_read_ch(ack); //¶ÁÈ¡Êı¾İ
         dat_add++;
     }
-    *dat_add = dl1a_read_ch(no_ack); //è¯»å–æ•°æ®
+    *dat_add = dl1a_read_ch(no_ack); //¶ÁÈ¡Êı¾İ
     dl1a_simiic_stop();
 }
 
@@ -290,28 +290,28 @@ static void dl1a_simiic_read_regs_1(uint8 dev_add, uint8 reg, uint8 *dat_add, ui
 #define dl1a_read_registers(reg, dat, len)  (dl1a_simiic_read_regs(DL1A_DEV_ADDR, (reg), (dat), (len)))
 #define dl1a_read_registers_1(reg, dat, len)  (dl1a_simiic_read_regs_1(DL1A_DEV_ADDR, (reg), (dat), (len)))
 
-// è¿™ä¸ªé€Ÿç‡è¡¨ç¤ºä»ç›®æ ‡åå°„å¹¶è¢«è®¾å¤‡æ£€æµ‹åˆ°çš„ä¿¡å·çš„æŒ¯å¹…
-// è®¾ç½®æ­¤é™åˆ¶å¯ä»¥ç¡®å®šä¼ æ„Ÿå™¨æŠ¥å‘Šæœ‰æ•ˆè¯»æ•°æ‰€éœ€çš„æœ€å°æµ‹é‡å€¼
-// è®¾ç½®ä¸€ä¸ªè¾ƒä½çš„é™åˆ¶å¯ä»¥å¢åŠ ä¼ æ„Ÿå™¨çš„æµ‹é‡èŒƒå›´
-// ä½†ä¼¼ä¹ä¹Ÿå¢åŠ äº† <ç”±äºæ¥è‡ªç›®æ ‡ä»¥å¤–çš„ç‰©ä½“çš„ä¸éœ€è¦çš„åå°„å¯¼è‡´> å¾—åˆ°ä¸å‡†ç¡®è¯»æ•°çš„å¯èƒ½æ€§
-// é»˜è®¤ä¸º 0.25 MCPS å¯é¢„è®¾èŒƒå›´ä¸º 0 - 511.99
+// Õâ¸öËÙÂÊ±íÊ¾´ÓÄ¿±ê·´Éä²¢±»Éè±¸¼ì²âµ½µÄĞÅºÅµÄÕñ·ù
+// ÉèÖÃ´ËÏŞÖÆ¿ÉÒÔÈ·¶¨´«¸ĞÆ÷±¨¸æÓĞĞ§¶ÁÊıËùĞèµÄ×îĞ¡²âÁ¿Öµ
+// ÉèÖÃÒ»¸ö½ÏµÍµÄÏŞÖÆ¿ÉÒÔÔö¼Ó´«¸ĞÆ÷µÄ²âÁ¿·¶Î§
+// µ«ËÆºõÒ²Ôö¼ÓÁË <ÓÉÓÚÀ´×ÔÄ¿±êÒÔÍâµÄÎïÌåµÄ²»ĞèÒªµÄ·´Éäµ¼ÖÂ> µÃµ½²»×¼È·¶ÁÊıµÄ¿ÉÄÜĞÔ
+// Ä¬ÈÏÎª 0.25 MCPS ¿ÉÔ¤Éè·¶Î§Îª 0 - 511.99
 #define DL1A_DEFAULT_RATE_LIMIT  (0.25)
 
-// ä»å¯„å­˜å™¨æ•°æ®è§£ç  PCLKs ä¸­ VCSEL (vertical cavity surface emitting laser) çš„è„‰å®½å‘¨æœŸ
+// ´Ó¼Ä´æÆ÷Êı¾İ½âÂë PCLKs ÖĞ VCSEL (vertical cavity surface emitting laser) µÄÂö¿íÖÜÆÚ
 #define decode_vcsel_period(reg_val)            (((reg_val) + 1) << 1)
 
-// ä» PCLK ä¸­çš„ VCSEL å‘¨æœŸè®¡ç®—å®å‘¨æœŸ (ä»¥ *çº³ç§’ä¸ºå•ä½)
+// ´Ó PCLK ÖĞµÄ VCSEL ÖÜÆÚ¼ÆËãºêÖÜÆÚ (ÒÔ *ÄÉÃëÎªµ¥Î»)
 // PLL_period_ps = 1655
 // macro_period_vclks = 2304
 #define calc_macro_period(vcsel_period_pclks)   ((((uint32)2304 * (vcsel_period_pclks) * 1655) + 500) / 1000)
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     è·å–è®¾å¤‡ SPAD ä¿¡æ¯
-// å‚æ•°è¯´æ˜     index           ç´¢å¼•
-// å‚æ•°è¯´æ˜     type            ç±»å‹å€¼
-// è¿”å›å‚æ•°     uint8 xdata           æ˜¯å¦æˆåŠŸ 0-æˆåŠŸ 1-å¤±è´¥
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_get_spad_info(index, type_is_aperture);
-// å¤‡æ³¨ä¿¡æ¯
+// º¯Êı¼ò½é     »ñÈ¡Éè±¸ SPAD ĞÅÏ¢
+// ²ÎÊıËµÃ÷     index           Ë÷Òı
+// ²ÎÊıËµÃ÷     type            ÀàĞÍÖµ
+// ·µ»Ø²ÎÊı     uint8 xdata           ÊÇ·ñ³É¹¦ 0-³É¹¦ 1-Ê§°Ü
+// Ê¹ÓÃÊ¾Àı     dl1a_get_spad_info(index, type_is_aperture);
+// ±¸×¢ĞÅÏ¢
 //-------------------------------------------------------------------------------------------------------------------
 static uint8 dl1a_get_spad_info (uint8 *index, uint8 *type_is_aperture)
 {
@@ -364,12 +364,12 @@ static uint8 dl1a_get_spad_info (uint8 *index, uint8 *type_is_aperture)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     å°†è¶…æ—¶æ•°å€¼ä» MCLKs è½¬æ¢åˆ°å¯¹åº”çš„ ms
-// å‚æ•°è¯´æ˜     timeout_period_mclks    è¶…æ—¶å‘¨æœŸ MCLKs
-// å‚æ•°è¯´æ˜     vcsel_period_pclks      PCLK å€¼
-// è¿”å›å‚æ•°     uint32 xdata                  è¿”å›è¶…æ—¶æ•°å€¼
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_timeout_mclks_to_microseconds(timeout_period_mclks, vcsel_period_pclks);
-// å¤‡æ³¨ä¿¡æ¯     å°†åºåˆ—æ­¥éª¤è¶…æ—¶ä»å…·æœ‰ç»™å®š VCSEL å‘¨æœŸçš„ MCLK (ä»¥ PCLK ä¸ºå•ä½)è½¬æ¢ä¸ºå¾®ç§’
+// º¯Êı¼ò½é     ½«³¬Ê±ÊıÖµ´Ó MCLKs ×ª»»µ½¶ÔÓ¦µÄ ms
+// ²ÎÊıËµÃ÷     timeout_period_mclks    ³¬Ê±ÖÜÆÚ MCLKs
+// ²ÎÊıËµÃ÷     vcsel_period_pclks      PCLK Öµ
+// ·µ»Ø²ÎÊı     uint32 xdata                  ·µ»Ø³¬Ê±ÊıÖµ
+// Ê¹ÓÃÊ¾Àı     dl1a_timeout_mclks_to_microseconds(timeout_period_mclks, vcsel_period_pclks);
+// ±¸×¢ĞÅÏ¢     ½«ĞòÁĞ²½Öè³¬Ê±´Ó¾ßÓĞ¸ø¶¨ VCSEL ÖÜÆÚµÄ MCLK (ÒÔ PCLK Îªµ¥Î»)×ª»»ÎªÎ¢Ãë
 //-------------------------------------------------------------------------------------------------------------------
 static uint32 dl1a_timeout_mclks_to_microseconds (uint16 timeout_period_mclks, uint8 vcsel_period_pclks)
 {
@@ -378,12 +378,12 @@ static uint32 dl1a_timeout_mclks_to_microseconds (uint16 timeout_period_mclks, u
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     å°†è¶…æ—¶æ•°å€¼ä» ms è½¬æ¢åˆ°å¯¹åº”çš„ MCLKs
-// å‚æ•°è¯´æ˜     timeout_period_us   è¶…æ—¶å‘¨æœŸ å¾®ç§’å•ä½
-// å‚æ•°è¯´æ˜     vcsel_period_pclks  PCLK å€¼
-// è¿”å›å‚æ•°     uint32 xdata              è¿”å›è¶…æ—¶æ•°å€¼
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_timeout_microseconds_to_mclks(timeout_period_us, vcsel_period_pclks);
-// å¤‡æ³¨ä¿¡æ¯     å°†åºåˆ—æ­¥éª¤è¶…æ—¶ä»å¾®ç§’è½¬æ¢ä¸ºå…·æœ‰ç»™å®š VCSEL å‘¨æœŸçš„ MCLK (ä»¥ PCLK ä¸ºå•ä½)
+// º¯Êı¼ò½é     ½«³¬Ê±ÊıÖµ´Ó ms ×ª»»µ½¶ÔÓ¦µÄ MCLKs
+// ²ÎÊıËµÃ÷     timeout_period_us   ³¬Ê±ÖÜÆÚ Î¢Ãëµ¥Î»
+// ²ÎÊıËµÃ÷     vcsel_period_pclks  PCLK Öµ
+// ·µ»Ø²ÎÊı     uint32 xdata              ·µ»Ø³¬Ê±ÊıÖµ
+// Ê¹ÓÃÊ¾Àı     dl1a_timeout_microseconds_to_mclks(timeout_period_us, vcsel_period_pclks);
+// ±¸×¢ĞÅÏ¢     ½«ĞòÁĞ²½Öè³¬Ê±´ÓÎ¢Ãë×ª»»Îª¾ßÓĞ¸ø¶¨ VCSEL ÖÜÆÚµÄ MCLK (ÒÔ PCLK Îªµ¥Î»)
 //-------------------------------------------------------------------------------------------------------------------
 static uint32 dl1a_timeout_microseconds_to_mclks (uint32 timeout_period_us, uint8 vcsel_period_pclks)
 {
@@ -392,25 +392,25 @@ static uint32 dl1a_timeout_microseconds_to_mclks (uint32 timeout_period_us, uint
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     å¯¹è¶…æ—¶æ•°å€¼è¿›è¡Œè§£ç 
-// å‚æ•°è¯´æ˜     reg_val         è¶…æ—¶æ—¶é•¿ å¯„å­˜å™¨å€¼
-// è¿”å›å‚æ•°     uint16 xdata          è¿”å›è¶…æ—¶æ•°å€¼
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_decode_timeout(reg_val);
-// å¤‡æ³¨ä¿¡æ¯     ä»å¯„å­˜å™¨å€¼è§£ç  MCLK ä¸­çš„åºåˆ—æ­¥éª¤è¶…æ—¶
+// º¯Êı¼ò½é     ¶Ô³¬Ê±ÊıÖµ½øĞĞ½âÂë
+// ²ÎÊıËµÃ÷     reg_val         ³¬Ê±Ê±³¤ ¼Ä´æÆ÷Öµ
+// ·µ»Ø²ÎÊı     uint16 xdata          ·µ»Ø³¬Ê±ÊıÖµ
+// Ê¹ÓÃÊ¾Àı     dl1a_decode_timeout(reg_val);
+// ±¸×¢ĞÅÏ¢     ´Ó¼Ä´æÆ÷Öµ½âÂë MCLK ÖĞµÄĞòÁĞ²½Öè³¬Ê±
 //-------------------------------------------------------------------------------------------------------------------
 static uint16 dl1a_decode_timeout (uint16 reg_val)
 {
-    // æ ¼å¼: (LSByte * 2 ^ MSByte) + 1
+    // ¸ñÊ½: (LSByte * 2 ^ MSByte) + 1
     return  (uint16)((reg_val & 0x00FF) <<
                      (uint16)((reg_val & 0xFF00) >> 8)) + 1;
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     å¯¹è¶…æ—¶æ•°å€¼è¿›è¡Œç¼–ç 
-// å‚æ•°è¯´æ˜     timeout_mclks   è¶…æ—¶æ—¶é•¿ -MCLKs å€¼
-// è¿”å›å‚æ•°     uint16 xdata          è¿”å›ç¼–ç å€¼
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_encode_timeout(timeout_mclks);
-// å¤‡æ³¨ä¿¡æ¯     åœ¨ MCLK ä¸­å¯¹è¶…æ—¶çš„åºåˆ—æ­¥éª¤è¶…æ—¶å¯„å­˜å™¨å€¼è¿›è¡Œç¼–ç 
+// º¯Êı¼ò½é     ¶Ô³¬Ê±ÊıÖµ½øĞĞ±àÂë
+// ²ÎÊıËµÃ÷     timeout_mclks   ³¬Ê±Ê±³¤ -MCLKs Öµ
+// ·µ»Ø²ÎÊı     uint16 xdata          ·µ»Ø±àÂëÖµ
+// Ê¹ÓÃÊ¾Àı     dl1a_encode_timeout(timeout_mclks);
+// ±¸×¢ĞÅÏ¢     ÔÚ MCLK ÖĞ¶Ô³¬Ê±µÄĞòÁĞ²½Öè³¬Ê±¼Ä´æÆ÷Öµ½øĞĞ±àÂë
 //-------------------------------------------------------------------------------------------------------------------
 static uint16 dl1a_encode_timeout (uint16 timeout_mclks)
 {
@@ -419,7 +419,7 @@ static uint16 dl1a_encode_timeout (uint16 timeout_mclks)
     uint16 xdata return_data = 0;
     if (timeout_mclks > 0)
     {
-        // æ ¼å¼: (LSByte * 2 ^ MSByte) + 1
+        // ¸ñÊ½: (LSByte * 2 ^ MSByte) + 1
         ls_byte = timeout_mclks - 1;
         while ((ls_byte & 0xFFFFFF00) > 0)
         {
@@ -432,11 +432,11 @@ static uint16 dl1a_encode_timeout (uint16 timeout_mclks)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     è·å–åºåˆ—æ­¥éª¤ä½¿èƒ½è®¾ç½®
-// å‚æ•°è¯´æ˜     enables         åºåˆ—ä½¿èƒ½æ­¥éª¤ç»“æ„ä½“
-// è¿”å›å‚æ•°     void
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_get_sequence_step_enables(enables);
-// å¤‡æ³¨ä¿¡æ¯
+// º¯Êı¼ò½é     »ñÈ¡ĞòÁĞ²½ÖèÊ¹ÄÜÉèÖÃ
+// ²ÎÊıËµÃ÷     enables         ĞòÁĞÊ¹ÄÜ²½Öè½á¹¹Ìå
+// ·µ»Ø²ÎÊı     void
+// Ê¹ÓÃÊ¾Àı     dl1a_get_sequence_step_enables(enables);
+// ±¸×¢ĞÅÏ¢
 //-------------------------------------------------------------------------------------------------------------------
 static void dl1a_get_sequence_step_enables(dl1a_sequence_enables_step_struct *enables)
 {
@@ -450,11 +450,11 @@ static void dl1a_get_sequence_step_enables(dl1a_sequence_enables_step_struct *en
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     è·å–è„‰å†²å‘¨æœŸ
-// å‚æ•°è¯´æ˜     type            é¢„é‡ç¨‹ç±»å‹
-// è¿”å›å‚æ•°     uint8 xdata           è¿”å›çš„å‘¨æœŸå€¼
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_get_vcsel_pulse_period(DL1A_VCSEL_PERIOD_PER_RANGE);
-// å¤‡æ³¨ä¿¡æ¯     åœ¨ PCLKs ä¸­è·å–ç»™å®šå‘¨æœŸç±»å‹çš„ VCSEL è„‰å†²å‘¨æœŸ
+// º¯Êı¼ò½é     »ñÈ¡Âö³åÖÜÆÚ
+// ²ÎÊıËµÃ÷     type            Ô¤Á¿³ÌÀàĞÍ
+// ·µ»Ø²ÎÊı     uint8 xdata           ·µ»ØµÄÖÜÆÚÖµ
+// Ê¹ÓÃÊ¾Àı     dl1a_get_vcsel_pulse_period(DL1A_VCSEL_PERIOD_PER_RANGE);
+// ±¸×¢ĞÅÏ¢     ÔÚ PCLKs ÖĞ»ñÈ¡¸ø¶¨ÖÜÆÚÀàĞÍµÄ VCSEL Âö³åÖÜÆÚ
 //-------------------------------------------------------------------------------------------------------------------
 static uint8 dl1a_get_vcsel_pulse_period (dl1a_vcsel_period_type_enum type)
 {
@@ -477,12 +477,12 @@ static uint8 dl1a_get_vcsel_pulse_period (dl1a_vcsel_period_type_enum type)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     è·å–åºåˆ—æ­¥éª¤è¶…æ—¶è®¾ç½®
-// å‚æ•°è¯´æ˜     enables         åºåˆ—ä½¿èƒ½æ­¥éª¤ç»“æ„ä½“
-// å‚æ•°è¯´æ˜     timeouts        åºåˆ—è¶…æ—¶æ­¥éª¤ç»“æ„ä½“
-// è¿”å›å‚æ•°     void
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_get_sequence_step_timeouts(enables, timeouts);
-// å¤‡æ³¨ä¿¡æ¯     è·å–æ‰€æœ‰è¶…æ—¶è€Œä¸ä»…ä»…æ˜¯è¯·æ±‚çš„è¶…æ—¶ å¹¶ä¸”è¿˜å­˜å‚¨ä¸­é—´å€¼
+// º¯Êı¼ò½é     »ñÈ¡ĞòÁĞ²½Öè³¬Ê±ÉèÖÃ
+// ²ÎÊıËµÃ÷     enables         ĞòÁĞÊ¹ÄÜ²½Öè½á¹¹Ìå
+// ²ÎÊıËµÃ÷     timeouts        ĞòÁĞ³¬Ê±²½Öè½á¹¹Ìå
+// ·µ»Ø²ÎÊı     void
+// Ê¹ÓÃÊ¾Àı     dl1a_get_sequence_step_timeouts(enables, timeouts);
+// ±¸×¢ĞÅÏ¢     »ñÈ¡ËùÓĞ³¬Ê±¶ø²»½ö½öÊÇÇëÇóµÄ³¬Ê± ²¢ÇÒ»¹´æ´¢ÖĞ¼äÖµ
 //-------------------------------------------------------------------------------------------------------------------
 static void dl1a_get_sequence_step_timeouts (dl1a_sequence_enables_step_struct const *enables, dl1a_sequence_timeout_step_struct *timeouts)
 {
@@ -508,11 +508,11 @@ static void dl1a_get_sequence_step_timeouts (dl1a_sequence_enables_step_struct c
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     æ‰§è¡Œå•æ¬¡å‚è€ƒæ ¡å‡†
-// å‚æ•°è¯´æ˜     vhv_init_byte   é¢„è®¾æ ¡å‡†å€¼
-// è¿”å›å‚æ•°     uint8 xdata           æ“ä½œæ˜¯å¦æˆåŠŸ 0-æˆåŠŸ 1-å¤±è´¥
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_get_vcsel_pulse_period(DL1A_VCSEL_PERIOD_PER_RANGE);
-// å¤‡æ³¨ä¿¡æ¯     åœ¨ PCLKs ä¸­è·å–ç»™å®šå‘¨æœŸç±»å‹çš„ VCSEL è„‰å†²å‘¨æœŸ
+// º¯Êı¼ò½é     Ö´ĞĞµ¥´Î²Î¿¼Ğ£×¼
+// ²ÎÊıËµÃ÷     vhv_init_byte   Ô¤ÉèĞ£×¼Öµ
+// ·µ»Ø²ÎÊı     uint8 xdata           ²Ù×÷ÊÇ·ñ³É¹¦ 0-³É¹¦ 1-Ê§°Ü
+// Ê¹ÓÃÊ¾Àı     dl1a_get_vcsel_pulse_period(DL1A_VCSEL_PERIOD_PER_RANGE);
+// ±¸×¢ĞÅÏ¢     ÔÚ PCLKs ÖĞ»ñÈ¡¸ø¶¨ÖÜÆÚÀàĞÍµÄ VCSEL Âö³åÖÜÆÚ
 //-------------------------------------------------------------------------------------------------------------------
 static uint8 dl1a_perform_single_ref_calibration (uint8 vhv_init_byte)
 {
@@ -547,15 +547,15 @@ static uint8 dl1a_perform_single_ref_calibration (uint8 vhv_init_byte)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     è®¾ç½®æµ‹é‡å®šæ—¶é¢„ç®— (ä»¥å¾®ç§’ä¸ºå•ä½)
-// å‚æ•°è¯´æ˜     budget_us       è®¾å®šçš„æµ‹é‡å…è®¸çš„æ—¶é—´
-// è¿”å›å‚æ•°     uint8 xdata           æ“ä½œç»“æœ 0-æˆåŠŸ 1-å¤±è´¥
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_set_measurement_timing_budget(measurement_timing_budget_us);
-// å¤‡æ³¨ä¿¡æ¯     è¿™æ˜¯ä¸€æ¬¡æµ‹é‡å…è®¸çš„æ—¶é—´
-//              å³åœ¨æµ‹è·åºåˆ—çš„å­æ­¥éª¤ä¹‹é—´åˆ†é…æ—¶é—´é¢„ç®—
-//              æ›´é•¿çš„æ—¶é—´é¢„ç®—å…è®¸æ›´ç²¾ç¡®çš„æµ‹é‡
-//              å¢åŠ ä¸€ä¸ªNå€çš„é¢„ç®—å¯ä»¥å‡å°‘ä¸€ä¸ªsqrt(N)å€çš„èŒƒå›´æµ‹é‡æ ‡å‡†åå·®
-//              é»˜è®¤ä¸º33æ¯«ç§’ æœ€å°å€¼ä¸º20 ms
+// º¯Êı¼ò½é     ÉèÖÃ²âÁ¿¶¨Ê±Ô¤Ëã (ÒÔÎ¢ÃëÎªµ¥Î»)
+// ²ÎÊıËµÃ÷     budget_us       Éè¶¨µÄ²âÁ¿ÔÊĞíµÄÊ±¼ä
+// ·µ»Ø²ÎÊı     uint8 xdata           ²Ù×÷½á¹û 0-³É¹¦ 1-Ê§°Ü
+// Ê¹ÓÃÊ¾Àı     dl1a_set_measurement_timing_budget(measurement_timing_budget_us);
+// ±¸×¢ĞÅÏ¢     ÕâÊÇÒ»´Î²âÁ¿ÔÊĞíµÄÊ±¼ä
+//              ¼´ÔÚ²â¾àĞòÁĞµÄ×Ó²½ÖèÖ®¼ä·ÖÅäÊ±¼äÔ¤Ëã
+//              ¸ü³¤µÄÊ±¼äÔ¤ËãÔÊĞí¸ü¾«È·µÄ²âÁ¿
+//              Ôö¼ÓÒ»¸öN±¶µÄÔ¤Ëã¿ÉÒÔ¼õÉÙÒ»¸ösqrt(N)±¶µÄ·¶Î§²âÁ¿±ê×¼Æ«²î
+//              Ä¬ÈÏÎª33ºÁÃë ×îĞ¡ÖµÎª20 ms
 //-------------------------------------------------------------------------------------------------------------------
 static uint8 dl1a_set_measurement_timing_budget (uint32 budget_us)
 {
@@ -595,19 +595,19 @@ static uint8 dl1a_set_measurement_timing_budget (uint32 budget_us)
         }
         if (enables.final_range)
         {
-            // è¯·æ³¨æ„ æœ€ç»ˆèŒƒå›´è¶…æ—¶ç”±è®¡æ—¶é¢„ç®—å’Œåºåˆ—ä¸­æ‰€æœ‰å…¶ä»–è¶…æ—¶çš„æ€»å’Œå†³å®š
-            // å¦‚æœæ²¡æœ‰ç©ºé—´ç”¨äºæœ€ç»ˆèŒƒå›´è¶…æ—¶ åˆ™å°†è®¾ç½®é”™è¯¯
-            // å¦åˆ™ å‰©ä½™æ—¶é—´å°†åº”ç”¨äºæœ€ç»ˆèŒƒå›´
+            // Çë×¢Òâ ×îÖÕ·¶Î§³¬Ê±ÓÉ¼ÆÊ±Ô¤ËãºÍĞòÁĞÖĞËùÓĞÆäËû³¬Ê±µÄ×ÜºÍ¾ö¶¨
+            // Èç¹ûÃ»ÓĞ¿Õ¼äÓÃÓÚ×îÖÕ·¶Î§³¬Ê± Ôò½«ÉèÖÃ´íÎó
+            // ·ñÔò Ê£ÓàÊ±¼ä½«Ó¦ÓÃÓÚ×îÖÕ·¶Î§
             used_budget_us += DL1A_FINALlRANGE_OVERHEAD;
             if (used_budget_us > budget_us)
             {
-                // è¯·æ±‚çš„è¶…æ—¶å¤ªå¤§
+                // ÇëÇóµÄ³¬Ê±Ì«´ó
                 return_state = 1;
                 break;
             }
-            // å¯¹äºæœ€ç»ˆè¶…æ—¶èŒƒå›´ å¿…é¡»æ·»åŠ é¢„é‡ç¨‹èŒƒå›´è¶…æ—¶
-            // ä¸ºæ­¤ æœ€ç»ˆè¶…æ—¶å’Œé¢„é‡ç¨‹è¶…æ—¶å¿…é¡»ä»¥å®å‘¨æœŸ MClks è¡¨ç¤º
-            // å› ä¸ºå®ƒä»¬å…·æœ‰ä¸åŒçš„ VCSEL å‘¨æœŸ
+            // ¶ÔÓÚ×îÖÕ³¬Ê±·¶Î§ ±ØĞëÌí¼ÓÔ¤Á¿³Ì·¶Î§³¬Ê±
+            // Îª´Ë ×îÖÕ³¬Ê±ºÍÔ¤Á¿³Ì³¬Ê±±ØĞëÒÔºêÖÜÆÚ MClks ±íÊ¾
+            // ÒòÎªËüÃÇ¾ßÓĞ²»Í¬µÄ VCSEL ÖÜÆÚ
             final_range_timeout_us = budget_us - used_budget_us;
             final_range_timeout_mclks =
                 dl1a_timeout_microseconds_to_mclks(final_range_timeout_us,
@@ -628,17 +628,17 @@ static uint8 dl1a_set_measurement_timing_budget (uint32 budget_us)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     è·å–æµ‹é‡å®šæ—¶é¢„ç®— (ä»¥å¾®ç§’ä¸ºå•ä½)
-// å‚æ•°è¯´æ˜     void
-// è¿”å›å‚æ•°     uint32 xdata          å·²è®¾å®šçš„æµ‹é‡å…è®¸çš„æ—¶é—´
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_get_measurement_timing_budget();
-// å¤‡æ³¨ä¿¡æ¯
+// º¯Êı¼ò½é     »ñÈ¡²âÁ¿¶¨Ê±Ô¤Ëã (ÒÔÎ¢ÃëÎªµ¥Î»)
+// ²ÎÊıËµÃ÷     void
+// ·µ»Ø²ÎÊı     uint32 xdata          ÒÑÉè¶¨µÄ²âÁ¿ÔÊĞíµÄÊ±¼ä
+// Ê¹ÓÃÊ¾Àı     dl1a_get_measurement_timing_budget();
+// ±¸×¢ĞÅÏ¢
 //-------------------------------------------------------------------------------------------------------------------
 static uint32 dl1a_get_measurement_timing_budget (void)
 {
     dl1a_sequence_enables_step_struct enables;
     dl1a_sequence_timeout_step_struct timeouts;
-    // å¼€å§‹å’Œç»“æŸå¼€é”€æ—¶é—´å§‹ç»ˆå­˜åœ¨
+    // ¿ªÊ¼ºÍ½áÊø¿ªÏúÊ±¼äÊ¼ÖÕ´æÔÚ
     uint32 xdata budget_us = DL1A_GET_START_OVERHEAD + DL1A_END_OVERHEAD;
     dl1a_get_sequence_step_enables(&enables);
     dl1a_get_sequence_step_timeouts(&enables, &timeouts);
@@ -666,15 +666,15 @@ static uint32 dl1a_get_measurement_timing_budget (void)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     è®¾ç½®è¿”å›ä¿¡å·é€Ÿç‡é™åˆ¶ è¯¥å€¼å•ä½ä¸º MCPS (ç™¾ä¸‡æ¬¡æ¯ç§’)
-// å‚æ•°è¯´æ˜     limit_mcps      è®¾ç½®çš„æœ€å°é€Ÿç‡
-// è¿”å›å‚æ•°     void
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_set_signal_rate_limit(0.25);
-// å¤‡æ³¨ä¿¡æ¯     è¿™ä¸ªé€Ÿç‡è¡¨ç¤ºä»ç›®æ ‡åå°„å¹¶è¢«è®¾å¤‡æ£€æµ‹åˆ°çš„ä¿¡å·çš„æŒ¯å¹…
-//              è®¾ç½®æ­¤é™åˆ¶å¯ä»¥ç¡®å®šä¼ æ„Ÿå™¨æŠ¥å‘Šæœ‰æ•ˆè¯»æ•°æ‰€éœ€çš„æœ€å°æµ‹é‡å€¼
-//              è®¾ç½®ä¸€ä¸ªè¾ƒä½çš„é™åˆ¶å¯ä»¥å¢åŠ ä¼ æ„Ÿå™¨çš„æµ‹é‡èŒƒå›´
-//              ä½†ä¼¼ä¹ä¹Ÿå¢åŠ äº† <ç”±äºæ¥è‡ªç›®æ ‡ä»¥å¤–çš„ç‰©ä½“çš„ä¸éœ€è¦çš„åå°„å¯¼è‡´> å¾—åˆ°ä¸å‡†ç¡®è¯»æ•°çš„å¯èƒ½æ€§
-//              é»˜è®¤ä¸º 0.25 MCPS å¯é¢„è®¾èŒƒå›´ä¸º 0 - 511.99
+// º¯Êı¼ò½é     ÉèÖÃ·µ»ØĞÅºÅËÙÂÊÏŞÖÆ ¸ÃÖµµ¥Î»Îª MCPS (°ÙÍò´ÎÃ¿Ãë)
+// ²ÎÊıËµÃ÷     limit_mcps      ÉèÖÃµÄ×îĞ¡ËÙÂÊ
+// ·µ»Ø²ÎÊı     void
+// Ê¹ÓÃÊ¾Àı     dl1a_set_signal_rate_limit(0.25);
+// ±¸×¢ĞÅÏ¢     Õâ¸öËÙÂÊ±íÊ¾´ÓÄ¿±ê·´Éä²¢±»Éè±¸¼ì²âµ½µÄĞÅºÅµÄÕñ·ù
+//              ÉèÖÃ´ËÏŞÖÆ¿ÉÒÔÈ·¶¨´«¸ĞÆ÷±¨¸æÓĞĞ§¶ÁÊıËùĞèµÄ×îĞ¡²âÁ¿Öµ
+//              ÉèÖÃÒ»¸ö½ÏµÍµÄÏŞÖÆ¿ÉÒÔÔö¼Ó´«¸ĞÆ÷µÄ²âÁ¿·¶Î§
+//              µ«ËÆºõÒ²Ôö¼ÓÁË <ÓÉÓÚÀ´×ÔÄ¿±êÒÔÍâµÄÎïÌåµÄ²»ĞèÒªµÄ·´Éäµ¼ÖÂ> µÃµ½²»×¼È·¶ÁÊıµÄ¿ÉÄÜĞÔ
+//              Ä¬ÈÏÎª 0.25 MCPS ¿ÉÔ¤Éè·¶Î§Îª 0 - 511.99
 //-------------------------------------------------------------------------------------------------------------------
 static void dl1a_set_signal_rate_limit (float limit_mcps)
 {
@@ -688,11 +688,11 @@ static void dl1a_set_signal_rate_limit (float limit_mcps)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     è¿”å›ä»¥æ¯«ç±³ä¸ºå•ä½çš„èŒƒå›´è¯»æ•°
-// å‚æ•°è¯´æ˜     void
-// è¿”å›å‚æ•°     uint8 xdata           0-æ•°æ®æ— æ•ˆ 1-æ•°æ®æœ‰æ•ˆ
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_get_distance();
-// å¤‡æ³¨ä¿¡æ¯     åœ¨å¼€å§‹å•æ¬¡å°„ç¨‹æµ‹é‡åä¹Ÿè°ƒç”¨æ­¤å‡½æ•°
+// º¯Êı¼ò½é     ·µ»ØÒÔºÁÃ×Îªµ¥Î»µÄ·¶Î§¶ÁÊı
+// ²ÎÊıËµÃ÷     void
+// ·µ»Ø²ÎÊı     uint8 xdata           0-Êı¾İÎŞĞ§ 1-Êı¾İÓĞĞ§
+// Ê¹ÓÃÊ¾Àı     dl1a_get_distance();
+// ±¸×¢ĞÅÏ¢     ÔÚ¿ªÊ¼µ¥´ÎÉä³Ì²âÁ¿ºóÒ²µ÷ÓÃ´Ëº¯Êı
 //-------------------------------------------------------------------------------------------------------------------
 void dl1a_get_distance (void)
 {
@@ -704,7 +704,7 @@ void dl1a_get_distance (void)
     }
     else
     {
-        // å‡è®¾çº¿æ€§åº¦æ ¡æ­£å¢ç›Šä¸ºé»˜è®¤å€¼ 1000 ä¸”æœªå¯ç”¨åˆ†æ•°èŒƒå›´
+        // ¼ÙÉèÏßĞÔ¶ÈĞ£ÕıÔöÒæÎªÄ¬ÈÏÖµ 1000 ÇÒÎ´ÆôÓÃ·ÖÊı·¶Î§
         dl1a_read_registers_1(DL1A_RESULT_RANGE_STATUS + 10, reg_databuffer, 2);
         dl1a_distance_mm = ((uint16)reg_databuffer[0] << 8);
         dl1a_distance_mm |= reg_databuffer[1];
@@ -714,11 +714,11 @@ void dl1a_get_distance (void)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// å‡½æ•°ç®€ä»‹     åˆå§‹åŒ– DL1A
-// å‚æ•°è¯´æ˜     void
-// è¿”å›å‚æ•°     uint8 xdata           1-åˆå§‹åŒ–å¤±è´¥ 0-åˆå§‹åŒ–æˆåŠŸ
-// ä½¿ç”¨ç¤ºä¾‹     dl1a_init();
-// å¤‡æ³¨ä¿¡æ¯
+// º¯Êı¼ò½é     ³õÊ¼»¯ DL1A
+// ²ÎÊıËµÃ÷     void
+// ·µ»Ø²ÎÊı     uint8 xdata           1-³õÊ¼»¯Ê§°Ü 0-³õÊ¼»¯³É¹¦
+// Ê¹ÓÃÊ¾Àı     dl1a_init();
+// ±¸×¢ĞÅÏ¢
 //-------------------------------------------------------------------------------------------------------------------
 uint8 dl1a_init (void)
 {
@@ -738,10 +738,10 @@ uint8 dl1a_init (void)
         delay_ms(50);
         DL1A_XSHUT_PIN = 1;
         delay_ms(100);
-        // -------------------------------- DL1A å¯åŠ¨åˆå§‹åŒ– --------------------------------
-        reg_data_buffer = dl1a_read_register(DL1A_IO_VOLTAGE_CONFIG);         // ä¼ æ„Ÿå™¨é»˜è®¤ IO ä¸º 1.8V æ¨¡å¼
-        dl1a_write_register(DL1A_IO_VOLTAGE_CONFIG, reg_data_buffer | 0x01);  // é…ç½® IO ä¸º 2.8V æ¨¡å¼
-        dl1a_write_register(0x88, 0x00);                                         // è®¾ç½®ä¸ºæ ‡å‡† IIC æ¨¡å¼
+        // -------------------------------- DL1A Æô¶¯³õÊ¼»¯ --------------------------------
+        reg_data_buffer = dl1a_read_register(DL1A_IO_VOLTAGE_CONFIG);         // ´«¸ĞÆ÷Ä¬ÈÏ IO Îª 1.8V Ä£Ê½
+        dl1a_write_register(DL1A_IO_VOLTAGE_CONFIG, reg_data_buffer | 0x01);  // ÅäÖÃ IO Îª 2.8V Ä£Ê½
+        dl1a_write_register(0x88, 0x00);                                         // ÉèÖÃÎª±ê×¼ IIC Ä£Ê½
         dl1a_write_register(0x80, 0x01);
         dl1a_write_register(0xFF, 0x01);
         dl1a_write_register(0x00, 0x00);
@@ -749,23 +749,23 @@ uint8 dl1a_init (void)
         dl1a_write_register(0x00, 0x01);
         dl1a_write_register(0xFF, 0x00);
         dl1a_write_register(0x80, 0x00);
-        // ç¦ç”¨ SIGNAL_RATE_MSRC(bit1) å’Œ SIGNAL_RATE_PRE_RANGE(bit4) é™åˆ¶æ£€æŸ¥
+        // ½ûÓÃ SIGNAL_RATE_MSRC(bit1) ºÍ SIGNAL_RATE_PRE_RANGE(bit4) ÏŞÖÆ¼ì²é
         reg_data_buffer = dl1a_read_register(DL1A_MSRC_CONFIG);
         dl1a_write_register(DL1A_MSRC_CONFIG, reg_data_buffer | 0x12);
-        dl1a_set_signal_rate_limit(DL1A_DEFAULT_RATE_LIMIT);                  // è®¾ç½®ä¿¡å·é€Ÿç‡é™åˆ¶
+        dl1a_set_signal_rate_limit(DL1A_DEFAULT_RATE_LIMIT);                  // ÉèÖÃĞÅºÅËÙÂÊÏŞÖÆ
         dl1a_write_register(DL1A_SYSTEM_SEQUENCE_CONFIG, 0xFF);
-        // -------------------------------- DL1A å¯åŠ¨åˆå§‹åŒ– --------------------------------
-        // -------------------------------- DL1A é…ç½®åˆå§‹åŒ– --------------------------------
+        // -------------------------------- DL1A Æô¶¯³õÊ¼»¯ --------------------------------
+        // -------------------------------- DL1A ÅäÖÃ³õÊ¼»¯ --------------------------------
         if (dl1a_get_spad_info(&data_buffer[0], &data_buffer[1]))
         {
             return_state = 1;
-            // å¦‚æœç¨‹åºåœ¨è¾“å‡ºäº†æ–­è¨€ä¿¡æ¯ å¹¶ä¸”æç¤ºå‡ºé”™ä½ç½®åœ¨è¿™é‡Œ
-            // é‚£ä¹ˆå°±æ˜¯ dl1a è‡ªæ£€å‡ºé”™å¹¶è¶…æ—¶é€€å‡ºäº†
-            // æ£€æŸ¥ä¸€ä¸‹æ¥çº¿æœ‰æ²¡æœ‰é—®é¢˜ å¦‚æœæ²¡é—®é¢˜å¯èƒ½å°±æ˜¯åäº†
+            // Èç¹û³ÌĞòÔÚÊä³öÁË¶ÏÑÔĞÅÏ¢ ²¢ÇÒÌáÊ¾³ö´íÎ»ÖÃÔÚÕâÀï
+            // ÄÇÃ´¾ÍÊÇ dl1a ×Ô¼ì³ö´í²¢³¬Ê±ÍË³öÁË
+            // ¼ì²éÒ»ÏÂ½ÓÏßÓĞÃ»ÓĞÎÊÌâ Èç¹ûÃ»ÎÊÌâ¿ÉÄÜ¾ÍÊÇ»µÁË
             printf("dl1a init error.\r\n");
             break;
         }
-        // ä» GLOBAL_CONFIG_SPAD_ENABLES_REF_[0-6] è·å– SPAD map (RefGoodSpadMap) æ•°æ®
+        // ´Ó GLOBAL_CONFIG_SPAD_ENABLES_REF_[0-6] »ñÈ¡ SPAD map (RefGoodSpadMap) Êı¾İ
         dl1a_read_registers(DL1A_GLOBAL_CONFIG_SPAD_ENABLES_REF_0, ref_spad_map, 6);
         dl1a_write_register(0xFF, 0x01);
         dl1a_write_register(DL1A_DYNAMIC_SPAD_REF_EN_START_OFFSET, 0x00);
@@ -777,9 +777,9 @@ uint8 dl1a_init (void)
         {
             if (i < data_buffer[2] || data_buffer[3] == data_buffer[0])
             {
-                // æ­¤ä½ä½äºåº”å¯ç”¨çš„ç¬¬ä¸€ä¸ªä½
-                // æˆ–è€… (eference_spad_count) ä½å·²å¯ç”¨
-                // å› æ­¤æ­¤ä½ä¸ºé›¶
+                // ´ËÎ»µÍÓÚÓ¦ÆôÓÃµÄµÚÒ»¸öÎ»
+                // »òÕß (eference_spad_count) Î»ÒÑÆôÓÃ
+                // Òò´Ë´ËÎ»ÎªÁã
                 ref_spad_map[i / 8] &= ~(1 << (i % 8));
             }
             else if ((ref_spad_map[i / 8] >> (i % 8)) & 0x1)
@@ -793,7 +793,7 @@ uint8 dl1a_init (void)
             data_buffer[1] = ref_spad_map[i-1];
         }
         dl1a_write_array(data_buffer, 7);
-        // é»˜è®¤è½¬æ¢è®¾ç½® version 02/11/2015_v36
+        // Ä¬ÈÏ×ª»»ÉèÖÃ version 02/11/2015_v36
         dl1a_write_register(0xFF, 0x01);
         dl1a_write_register(0x00, 0x00);
         dl1a_write_register(0xFF, 0x00);
@@ -874,18 +874,18 @@ uint8 dl1a_init (void)
         dl1a_write_register(0x00, 0x01);
         dl1a_write_register(0xFF, 0x00);
         dl1a_write_register(0x80, 0x00);
-        // å°†ä¸­æ–­é…ç½®è®¾ç½®ä¸ºæ–°æ ·å“å°±ç»ª
+        // ½«ÖĞ¶ÏÅäÖÃÉèÖÃÎªĞÂÑùÆ·¾ÍĞ÷
         dl1a_write_register(DL1A_SYSTEM_INTERRUPT_GPIO_CONFIG, 0x04);
         reg_data_buffer = dl1a_read_register(DL1A_GPIO_HV_MUX_ACTIVE_HIGH);
         dl1a_write_register(DL1A_GPIO_HV_MUX_ACTIVE_HIGH, reg_data_buffer & ~0x10);
         dl1a_write_register(DL1A_SYSTEM_INTERRUPT_CLEAR, 0x01);
         measurement_timing_budget_us  = dl1a_get_measurement_timing_budget();
-        // é»˜è®¤æƒ…å†µä¸‹ç¦ç”¨ MSRC å’Œ TCC
+        // Ä¬ÈÏÇé¿öÏÂ½ûÓÃ MSRC ºÍ TCC
         // MSRC = Minimum Signal Rate Check
         // TCC = Target CentreCheck
         dl1a_write_register(DL1A_SYSTEM_SEQUENCE_CONFIG, 0xE8);
-        dl1a_set_measurement_timing_budget(measurement_timing_budget_us);    // é‡æ–°è®¡ç®—æ—¶åºé¢„ç®—
-        // -------------------------------- DL1A é…ç½®åˆå§‹åŒ– --------------------------------
+        dl1a_set_measurement_timing_budget(measurement_timing_budget_us);    // ÖØĞÂ¼ÆËãÊ±ĞòÔ¤Ëã
+        // -------------------------------- DL1A ÅäÖÃ³õÊ¼»¯ --------------------------------
         dl1a_write_register(DL1A_SYSTEM_SEQUENCE_CONFIG, 0x01);
         if (dl1a_perform_single_ref_calibration(0x40))
         {
@@ -898,7 +898,7 @@ uint8 dl1a_init (void)
             return_state = 1;
             break;
         }
-        dl1a_write_register(DL1A_SYSTEM_SEQUENCE_CONFIG, 0xE8);           // æ¢å¤ä»¥å‰çš„åºåˆ—é…ç½®
+        dl1a_write_register(DL1A_SYSTEM_SEQUENCE_CONFIG, 0xE8);           // »Ö¸´ÒÔÇ°µÄĞòÁĞÅäÖÃ
         delay_ms(100);
         dl1a_write_register(0x80, 0x01);
         dl1a_write_register(0xFF, 0x01);

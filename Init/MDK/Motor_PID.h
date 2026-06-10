@@ -1,21 +1,22 @@
 #ifndef __MOTOR_PID_H_
 #define __MOTOR_PID_H_
 
-#define MOTOR_R_PWM_PIN  PWMA_CH2N_P13
-#define MOTOR_L_PWM_PIN  PWMA_CH4P_P26
+#define MOTOR_R_PWM_PIN  PWMA_CH4P_P26
+#define MOTOR_L_PWM_PIN  PWMA_CH2N_P13
 
-#define MOTOR_R_DIR_PIN P24
-#define MOTOR_L_DIR_PIN P10
+#define MOTOR_R_DIR_PIN P10
+#define MOTOR_L_DIR_PIN P24
 
 
-#define Max1 66
-#define Max2 120
-#define Max3 226
-#define Max4 79
-#define Max5 137
+#define Max1 255
+#define Max2 255
+#define Max3 255
+#define Max4 255
+#define Max5 255
 #define Times 7
 #define Left 1
 #define Right 0
+
 
 
 extern volatile int xdata Motor_Speed_Left[7];
@@ -23,6 +24,8 @@ extern volatile int xdata Motor_Speed_Right[7];
 extern volatile float xdata Yaw_Angle;
 extern float xdata Second_distance;
 extern float xdata Second_encoder_ave;
+
+
 
 uint16 PID_Conservation(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Middle_M_R, uint16 Result_R);
 uint16 Uart_Stop(void);
@@ -37,13 +40,13 @@ float constrain_float(float amt, float low, float high);
 void Angle_PID_Control(float Angle_error,float Angle_P,float Angle_I,float Angle_D,int16 Config);
 
 void Differential_Speed_Control(float turn_cmd);
-void Motor_PID(float SpeedTarget,int16 motor_speed,float Motor_P,float Motor_I,float Motor_D,int16 Config);
+void Motor_PID(float SpeedTarget,int16 motor_speed,float Motor_P,float Motor_I,float Motor_D,int16 Config,float turn_cmd);
 
 void Motor_PWM_set_L(void);
 void Motor_PWM_set_R(void);
 
 
-void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *delta_Kd);
+void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *delta_Kd, float *delta_Kp2);
 static uint8 quantize_frac(float val, float vmax, float *frac);
 
 
