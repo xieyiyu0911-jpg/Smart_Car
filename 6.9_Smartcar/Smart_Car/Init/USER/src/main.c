@@ -122,7 +122,6 @@ extern uint8 xdata Fuzzy_Config;
 
 extern uint8 xdata Tiaocan_Config;
 
-extern float expect_gyro;
 
 
 
@@ -141,7 +140,7 @@ static void send_inductor_to_assistant(void)
 //	if(Tiaocan_Config == 2)
 //	{
 	  seekfree_assistant_oscilloscope_data.dat[0] = Yaw_Angular_Speed;
-    seekfree_assistant_oscilloscope_data.dat[1] = expect_gyro;
+    seekfree_assistant_oscilloscope_data.dat[1] = turn_cmd;
     seekfree_assistant_oscilloscope_data.dat[2] = Result_Middle_M;
     seekfree_assistant_oscilloscope_data.dat[3] = SpeedTarget_L;
 		seekfree_assistant_oscilloscope_data.dat[4] = SpeedMeasure_L;

@@ -7,8 +7,6 @@
 #define ANGLE_SPEED_OUTPUT_MAX (90)
 #define ANGLE_SPEED_OUTPUT_MIN (-90)
 #define ANGLE_I_COUNT_MAX      (800)
-#define EXPECT_GYRO_MAX        (350)    // 期望角速度上限 deg/s（外环输出限幅）
-#define EXPECT_GYRO_MIN        (-350)
 #define MOTOR_PWM_MAX          (5000)
 #define SPEED_TARGET_MAX       (1000)
 
@@ -100,11 +98,6 @@ extern float xdata Turn_Output;
 float xdata error_change = 0;
 float xdata error = 0;
 
-float expect_gyro;
-
-// 角速度内环 PID 参数（串级PID内环）
-float xdata Gyro_Kp = 0.15f;   // 角速度误差比例系数
-float xdata Gyro_Kd = 1.5f;    // 角速度误差微分系数
 
 // ========== ������������ ==========
   Round_State_TypeDef Round_State = ROUND_NONE;  // ����״̬��
@@ -309,8 +302,6 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
     float Vertical_Weight = 0;//��ֱ����
     float Denominator_Weight = 0;
 	
-	static float xdata gyro_error_last = 0;
-	float gyro_error;
 
 //	   Servo_P1 = seekfree_assistant_parameter[3];
 //     Servo_D = seekfree_assistant_parameter[4];
@@ -488,30 +479,9 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 				if(fuzzy_P2 < 0.0f) fuzzy_P2 = 0.0f;
 				if(fuzzy_P2 > 0.01f) fuzzy_P2 = 0.01f;
 		}
-    // ===== 串级PID 外环：位置误差 → 期望角速度 =====
-
-
-
-        // 外环：模糊PID 计算期望角速度
-        expect_gyro = error * fuzzy_P1 + fuzzy_P2 * fabs(error) * error + error_change * fuzzy_D;
-        error_last = error;
-		
-		expect_gyro = seekfree_assistant_parameter[5];
-
-        // 外环输出限幅（期望角速度 deg/s）
-        if(expect_gyro > EXPECT_GYRO_MAX) expect_gyro = EXPECT_GYRO_MAX;
-        else if(expect_gyro < EXPECT_GYRO_MIN) expect_gyro = EXPECT_GYRO_MIN;
-
-        // ===== 串级PID 内环：角速度误差 → 转向输出 =====
-        // Yaw_Angular_Speed 为陀螺仪实测 Z 轴角速度 (deg/s)
-        gyro_error = expect_gyro - Yaw_Angular_Speed;
-		
-		Gyro_Kp = seekfree_assistant_parameter[0];
-		Gyro_Kd = seekfree_assistant_parameter[1];
-
-        turn_cmd = Gyro_Kp * gyro_error
-                 + Gyro_Kd * (gyro_error - gyro_error_last);
-        gyro_error_last = gyro_error;
+    // 模糊PID 计算转向指令
+    turn_cmd = error * fuzzy_P1 + fuzzy_P2 * fabs(error) * error + error_change * fuzzy_D;
+    error_last = error;
 
 
     if(turn_cmd >= TURN_CMD_MAX) turn_cmd = TURN_CMD_MAX;

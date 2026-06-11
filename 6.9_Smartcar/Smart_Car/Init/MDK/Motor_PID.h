@@ -34,8 +34,6 @@ void Second_distance_calculate(void);
 
 float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Middle_M_R,uint16 Result_R,uint16 Result_Middle_M);
 float constrain_float(float amt, float low, float high);
-extern float xdata Gyro_Kp;    // 角速度内环 Kp
-extern float xdata Gyro_Kd;    // 角速度内环 Kd
 
 void Angle_PID_Control(float Angle_error,float Angle_P,float Angle_I,float Angle_D,int16 Config);
 
