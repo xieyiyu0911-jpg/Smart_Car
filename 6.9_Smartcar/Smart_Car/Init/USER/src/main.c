@@ -122,35 +122,77 @@ extern uint8 xdata Fuzzy_Config;
 
 extern uint8 xdata Tiaocan_Config;
 
+extern float xdata FUZZY_KP_SCALE;
+extern float xdata FUZZY_KD_SCALE;
+extern float xdata FUZZY_KP2_SCALE;
+extern float xdata Servo_P1;
+extern float xdata Servo_D;
+extern float xdata Servo_P2;
+extern float xdata Speed_L_P;
+extern float xdata Speed_L_I;
+extern float xdata Speed_L_D;
+extern float xdata Speed_R_P;
+extern float xdata Speed_R_I;
+extern float xdata Speed_R_D;
+
+
 
 
 
 static void send_inductor_to_assistant(void)
 {
-//	if(Tiaocan_Config == 1 || Tiaocan_Config == 0)
-//	{
-//    seekfree_assistant_oscilloscope_data.dat[0] = SpeedTarget_L;
-//    seekfree_assistant_oscilloscope_data.dat[1] = SpeedMeasure_L;
-//    seekfree_assistant_oscilloscope_data.dat[2] = Target_Right1;
-//    seekfree_assistant_oscilloscope_data.dat[3] = SpeedMeasure_R;
-//    seekfree_assistant_oscilloscope_data.channel_num = 4;
-//    seekfree_assistant_oscilloscope_send(&seekfree_assistant_oscilloscope_data);
-//	}
-	
-//	if(Tiaocan_Config == 2)
-//	{
-	  seekfree_assistant_oscilloscope_data.dat[0] = Yaw_Angular_Speed;
-    seekfree_assistant_oscilloscope_data.dat[1] = turn_cmd;
-    seekfree_assistant_oscilloscope_data.dat[2] = Result_Middle_M;
-    seekfree_assistant_oscilloscope_data.dat[3] = SpeedTarget_L;
-		seekfree_assistant_oscilloscope_data.dat[4] = SpeedMeasure_L;
-		seekfree_assistant_oscilloscope_data.dat[5] = Target_Right1;
-    seekfree_assistant_oscilloscope_data.dat[6] = SpeedMeasure_R;
-    seekfree_assistant_oscilloscope_data.dat[7] = 0;
-    seekfree_assistant_oscilloscope_data.channel_num = 8;
+    Tiaocan_Config = (uint8)seekfree_assistant_parameter[6];
+
+    switch (Tiaocan_Config)
+    {
+        case 0:
+            seekfree_assistant_oscilloscope_data.dat[0] = Result_L;
+            seekfree_assistant_oscilloscope_data.dat[1] = Result_Middle_M_L;
+            seekfree_assistant_oscilloscope_data.dat[2] = Result_Middle_M;
+            seekfree_assistant_oscilloscope_data.dat[3] = Result_Middle_M_R;
+            seekfree_assistant_oscilloscope_data.dat[4] = Result_R;
+            seekfree_assistant_oscilloscope_data.channel_num = 5;
+            break;
+
+        case 1:
+            Speed_L_P = seekfree_assistant_parameter[0];
+            Speed_L_I = seekfree_assistant_parameter[1];
+            Speed_L_D = seekfree_assistant_parameter[2];
+            Speed_R_P = seekfree_assistant_parameter[3];
+            Speed_R_I = seekfree_assistant_parameter[4];
+            Speed_R_D = seekfree_assistant_parameter[5];
+            seekfree_assistant_oscilloscope_data.dat[0] = SpeedMeasure_L;
+            seekfree_assistant_oscilloscope_data.dat[1] = SpeedMeasure_R;
+            seekfree_assistant_oscilloscope_data.dat[2] = SpeedTarget_L;
+            seekfree_assistant_oscilloscope_data.dat[3] = Target_Right1;
+            seekfree_assistant_oscilloscope_data.channel_num = 4;
+            break;
+
+        case 2:
+            FUZZY_KP_SCALE  = seekfree_assistant_parameter[0];
+            FUZZY_KD_SCALE  = seekfree_assistant_parameter[1];
+            FUZZY_KP2_SCALE = seekfree_assistant_parameter[2];
+            Servo_P1 = seekfree_assistant_parameter[3];
+            Servo_D  = seekfree_assistant_parameter[4];
+            Servo_P2 = seekfree_assistant_parameter[5];
+            seekfree_assistant_oscilloscope_data.dat[0] = SpeedMeasure_L;
+            seekfree_assistant_oscilloscope_data.dat[1] = SpeedMeasure_R;
+            seekfree_assistant_oscilloscope_data.dat[2] = SpeedTarget_L;
+            seekfree_assistant_oscilloscope_data.dat[3] = Target_Right1;
+            seekfree_assistant_oscilloscope_data.channel_num = 4;
+            break;
+
+        default:
+            seekfree_assistant_oscilloscope_data.dat[0] = Result_L;
+            seekfree_assistant_oscilloscope_data.dat[1] = Result_Middle_M_L;
+            seekfree_assistant_oscilloscope_data.dat[2] = Result_Middle_M;
+            seekfree_assistant_oscilloscope_data.dat[3] = Result_Middle_M_R;
+            seekfree_assistant_oscilloscope_data.dat[4] = Result_R;
+            seekfree_assistant_oscilloscope_data.channel_num = 5;
+            break;
+    }
+
     seekfree_assistant_oscilloscope_send(&seekfree_assistant_oscilloscope_data);
-//	}
-	
 }
 
 
@@ -198,7 +240,7 @@ void main()
 	
 	Time_Pulse_Init();// ��������������ʼ��
 	
-//	pwm_init(PWMB_CH1_P20, 50, 600);
+	pwm_init(PWMB_CH1_P20, 50, 600);
 	
    
 	    // ��ѭ����������λ������ʾ�Ϳ���״̬

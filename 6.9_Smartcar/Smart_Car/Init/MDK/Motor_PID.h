@@ -47,6 +47,13 @@ void Motor_PWM_set_R(void);
 void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *delta_Kd, float *delta_Kp2);
 static uint8 quantize_frac(float val, float vmax, float *frac);
 
+extern float xdata FUZZY_KP_SCALE;
+extern float xdata FUZZY_KD_SCALE;
+extern float xdata FUZZY_KP2_SCALE;
+extern float xdata Servo_P1;
+extern float xdata Servo_D;
+extern float xdata Servo_P2;
+
 
 
 //=========================================================================================================

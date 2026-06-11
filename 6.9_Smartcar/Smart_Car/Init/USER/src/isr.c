@@ -79,7 +79,12 @@ volatile int16 xdata Source_Start = 0;
 
 uint8 xdata Tiaocan_Config = 0;
 
-
+float xdata Speed_L_P = 0;
+float xdata Speed_L_I = 0;
+float xdata Speed_L_D = 0;
+float xdata Speed_R_P = 0;
+float xdata Speed_R_I = 0;
+float xdata Speed_R_D = 0;
 
 // ========== ���������������� ==========
   extern Round_State_TypeDef Round_State;
@@ -238,7 +243,7 @@ void car_control_timer_handler(void)
 			motor_speed_L = (int16) Servo_Measure(Motor_Speed_Left,Times);// ����������ȥ��ֵƽ�����������ɷ�����ж�
 			motor_speed_R = (int16) Servo_Measure(Motor_Speed_Right,Times);
 			
-				SpeedTarget_L = 400 + seekfree_assistant_parameter[6];//650
+				SpeedTarget_L = 400 ;//+ seekfree_assistant_parameter[6];//650
 				
 //				if(SpeedTarget_L >= 350)//1000
 //					SpeedTarget_L = 350;
@@ -377,12 +382,18 @@ void car_control_timer_handler(void)
 						
 			Differential_Speed_Control(Turn_Output);// ���ٷ���
 				
+//			Speed_L_P = seekfree_assistant_parameter[0];
+//			Speed_L_I = seekfree_assistant_parameter[1];
+//			Speed_L_D = seekfree_assistant_parameter[2];
+//			Speed_R_P = seekfree_assistant_parameter[3];
+//			Speed_R_I = seekfree_assistant_parameter[4];
+//			Speed_R_D = seekfree_assistant_parameter[5];
 
 			Motor_PID(SpeedTarget_L,motor_speed_L,1.6,3.65,1.5,Left,Turn_Output);// �����ٶȻ�PID 
 			Motor_PID(Target_Right1,motor_speed_R,2.3,3.8,0.7,Right,Turn_Output);// �����ٶȻ�PID 
 				//L:1.6,3.65,1.5
 				//R:2.3,3.8,0.7			
-//				conservation = PID_Conservation(Result_L,Result_Middle_M_L,Result_Middle_M_R,Result_R);// �����ж�
+				conservation = PID_Conservation(Result_L,Result_Middle_M_L,Result_Middle_M_R,Result_R);// �����ж�
 
 
 //				Motor_PID(SpeedTarget_L,motor_speed_L,seekfree_assistant_parameter[0],seekfree_assistant_parameter[1],seekfree_assistant_parameter[2],Left,Turn_Output);// �����ٶȻ�PID //5,2.5,1.25/1.4,0.8,0/3,1.5,0.3/1.4/0.8
@@ -391,11 +402,11 @@ void car_control_timer_handler(void)
 
 			
 			
-//			if(conservation == 0 && LCD_Config == 0)
-//			{
+			if(conservation == 0 && LCD_Config == 0)
+			{
 				Motor_PWM_set_L();// �������PWM
 				Motor_PWM_set_R();// �������PWM
-//			}//PID	
+			}//PID	
 
 			
 

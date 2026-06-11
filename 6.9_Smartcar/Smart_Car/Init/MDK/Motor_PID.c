@@ -98,6 +98,12 @@ extern float xdata Turn_Output;
 float xdata error_change = 0;
 float xdata error = 0;
 
+float xdata FUZZY_KP_SCALE = 0.2f;
+float xdata FUZZY_KD_SCALE = 2.33f;
+float xdata FUZZY_KP2_SCALE = 0.001f;
+float xdata Servo_P1 = 0.9f;
+float xdata Servo_D = 17.0f;
+float xdata Servo_P2 = 0.009f;
 
 // ========== ������������ ==========
   Round_State_TypeDef Round_State = ROUND_NONE;  // ����״̬��
@@ -232,14 +238,8 @@ void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *d
     static uint8 xdata e_idx, xdata ec_idx, xdata e_next, xdata ec_next;
     static float xdata v00, xdata v01, xdata v10, xdata v11, xdata v0, xdata v1;
     float result;
-	float xdata FUZZY_KP_SCALE = 0.2;
-	float xdata FUZZY_KD_SCALE = 2.33;
-	float xdata FUZZY_KP2_SCALE = 0.001;
 	
 
-//		FUZZY_KP_SCALE = seekfree_assistant_parameter[0];
-//		FUZZY_KD_SCALE = seekfree_assistant_parameter[1];
-//		FUZZY_KP2_SCALE = seekfree_assistant_parameter[2];
 
     e_idx  = quantize_frac(error,        FUZZY_E_MAX, &frac_e);
     ec_idx = quantize_frac(error_change, FUZZY_EC_MAX, &frac_ec);
@@ -289,9 +289,6 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
     static float xdata fuzzy_P1 = 0, xdata fuzzy_D = 0, xdata fuzzy_P2 = 0;
     static float xdata error_last = 0;
 
-	float Servo_P1 = 0.9f;//1.3f
-    float Servo_D =17.0f; //10.0f;
-    float Servo_P2 = 0.009f;
 	
     float Result_Left = (float)Result_L;
     float Result_Right = (float)Result_R;
@@ -303,9 +300,6 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
     float Denominator_Weight = 0;
 	
 
-//	   Servo_P1 = seekfree_assistant_parameter[3];
-//     Servo_D = seekfree_assistant_parameter[4];
-//     Servo_P2 = seekfree_assistant_parameter[5];
 
     Cross_Config = 0;//��ʮ�ֱ�־λ
 	
@@ -333,8 +327,7 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 //		Buzzer_On();
 //    }
 	
-	//Result_Middle_M_Left >= 35 && Result_Middle_M_Right >= 20 && Result_Left >= 7 && Result_Right >= 7 && Result_Middle_M <= 85
-//    else if(Result_Middle_M_Left >= 40 && Result_Middle_M_Right >= 40 && Result_Left >= 10 && Result_Right >= 10 && Result_Middle_M <= 85)//ʮ��
+
      if(Result_Middle_M_Left >= 40 && Result_Middle_M_Right >=40 && Result_Left >= 10 && Result_Right >= 10 && Result_Middle_M <= 85 && Round_State == ROUND_NONE)//ʮ��
     {
         Vertical_Weight = 0.2f;
@@ -487,10 +480,10 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
     if(turn_cmd >= TURN_CMD_MAX) turn_cmd = TURN_CMD_MAX;
     else if(turn_cmd <= TURN_CMD_MIN) turn_cmd = TURN_CMD_MIN;
 
-    error1 = error;
-    Turn_Cmd1 = turn_cmd;
-    Servo_PID_D = Servo_D;
-    Servo_PID_P2 = Servo_P2;
+//    error1 = error;
+//    Turn_Cmd1 = turn_cmd;
+//    Servo_PID_D = Servo_D;
+//    Servo_PID_P2 = Servo_P2;
 
     return turn_cmd;
 }
