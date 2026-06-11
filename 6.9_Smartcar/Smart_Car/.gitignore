@@ -1,0 +1,22 @@
+# 编译中间文件
+Out_File/
+*.crf
+*.lst
+*.obj
+*.__i
+*.hex
+*.bin
+
+# MDK 临时文件
+*.uvgui.*
+*.ini
+JLinkLog.txt
+*.dep
+
+# 烧录日志
+stcisp_log/
+
+# 临时文件
+*.bak
+*.tmp
+*~

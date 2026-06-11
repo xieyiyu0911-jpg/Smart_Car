@@ -1,0 +1,28 @@
+# Claude config
+.claude/
+
+# Keil MDK build output
+*.crf
+*.lst
+*.obj
+*.__i
+*.lnp
+*.map
+*.hex
+*.build_log.htm
+*.uvgui.*
+*.uvopt
+*.dep
+**/Out_File/
+**/OBJ/
+
+# Temporary files
+*.bat
+nul.crf
+*.iex
+
+# EXE files
+*.exe
+
+# Log files
+stcisp_log/
