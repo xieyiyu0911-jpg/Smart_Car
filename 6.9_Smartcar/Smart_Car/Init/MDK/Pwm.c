@@ -14,6 +14,9 @@ void Pwms_Init()
     gpio_mode(P2_4,GPO_PP);
     MOTOR_R_DIR_PIN = 1;
     pwm_init(MOTOR_R_PWM_PIN, 15000, 1500);
+	
+	//∑Á…»PWM≥ı ºªØ
+	pwm_init(PWMB_CH1_P20, 50, 500);
 }
 
 void PWM_Motor_Change_L()

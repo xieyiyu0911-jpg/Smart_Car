@@ -4,7 +4,7 @@
  extern float xdata SpeedMeasure_L, xdata SpeedMeasure_R;
  extern float xdata SpeedTarget_L, xdata Target_Right1;
  extern float xdata Yaw_Angular_Speed;
- extern uint16 Result_L, Result_Middle_M_L,Result_Middle_M_R,Result_R;// ï¿½ï¿½ï¿½Öµ
+ extern uint16 Result_L, Result_Middle_M_L,Result_Middle_M_R,Result_R;// µç´ÅÖµ
  extern float xdata Motor_L_output, xdata Motor_output_R;
  extern float xdata Angle_Speed_Output1;
  extern float xdata Turn_Output;
@@ -22,7 +22,7 @@ void Uarts_Send()
     //uart_putstr(UART_4, "UART2 Hello,world");
 }
 
-void SCI_Send_Datas(UARTN_enum uart_num)// ï¿½ï¿½Î»ï¿½ï¿½ï¿½é¿´ï¿½ï¿½ï¿½ÎºÍ±ï¿½ï¿½ï¿½ï¿½Äºï¿½ï¿½ï¿½
+void SCI_Send_Datas(UARTN_enum uart_num)// ÉÏÎ»»ú²é¿´²¨ÐÎºÍ±äÁ¿µÄº¯Êý
 {
 	  int i, j;
     static unsigned short int send_data[3][4] = { { 0 }, { 0 }, { 0 } };

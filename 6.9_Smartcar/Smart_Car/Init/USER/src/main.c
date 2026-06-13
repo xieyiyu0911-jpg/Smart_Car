@@ -1,16 +1,16 @@
 /*********************************************************************************************************************
  * COPYRIGHT NOTICE
- * Copyright (c) 2020, ï¿½ï¿½É¿Æ¼ï¿½
+ * Copyright (c) 2020, Öð·É¿Æ¼¼
  * All rights reserved.
- * ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ï¿½ QQ Èºï¿½ï¿½Ò»Èº 179029047(ï¿½ï¿½ï¿½ï¿½)  ï¿½ï¿½Èº 244861897(ï¿½ï¿½ï¿½ï¿½)  ï¿½ï¿½Èº 824575535
+ * ¼¼ÊõÖ§³Ö QQ Èº£ºÒ»Èº 179029047(ÒÑÂú)  ¶þÈº 244861897(ÒÑÂú)  ÈýÈº 824575535
  *
- * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½ï¿½ï¿½É¿Æ¼ï¿½ï¿½ï¿½ï¿½Ð£ï¿½Î´ï¿½ï¿½ï¿½ï¿½ï¿½É²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½Í¾ï¿½ï¿½
- * ï¿½ï¿½Ó­ï¿½ï¿½Ñ§Ï°ï¿½Í¾ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½Ã£ï¿½ï¿½Þ¸Ä´ï¿½ï¿½ï¿½Ê±ï¿½ë±£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * ±¾´úÂë°æÈ¨¹éÖð·É¿Æ¼¼ËùÓÐ£¬Î´¾­Ðí¿É²»µÃÓÃÓÚÉÌÒµÓÃÍ¾¡£
+ * »¶Ó­ÔÚÑ§Ï°ºÍ¾ºÈüÖÐÊ¹ÓÃ£¬ÐÞ¸Ä´úÂëÊ±Çë±£Áô±¾°æÈ¨ÉùÃ÷¡£
  *
  * @file           main
- * @company        ï¿½É¶ï¿½ï¿½ï¿½É¿Æ¼ï¿½ï¿½ï¿½ï¿½Þ¹ï¿½Ë¾
- * @author         ï¿½ï¿½É¿Æ¼ï¿½(QQ790875685)
- * @version        ï¿½é¿´ doc Ä¿Â¼ï¿½ï¿½ version ï¿½Ä¼ï¿½ï¿½ÐµÄ°æ±¾Ëµï¿½ï¿½
+ * @company        ³É¶¼Öð·É¿Æ¼¼ÓÐÏÞ¹«Ë¾
+ * @author         Öð·É¿Æ¼¼(QQ790875685)
+ * @version        ²é¿´ doc Ä¿Â¼ÏÂ version ÎÄ¼þÖÐµÄ°æ±¾ËµÃ÷
  * @Software       MDK FOR C251 V5.60
  * @Target core    STC32G12K128
  * @Taobao         https://seekfree.taobao.com/
@@ -21,14 +21,14 @@
 
 #define TEMP_BUFFER_SIZE  	64
 static  fifo_struct     	temp_uart_fifo;
-static  uint8            temp_uart_buffer[TEMP_BUFFER_SIZE];  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Õ»ï¿½ï¿½ï¿½ï¿½ï¿½
+static  uint8            temp_uart_buffer[TEMP_BUFFER_SIZE];  // ´®¿ÚÁÙÊ±½ÓÊÕ»º³åÇø
 
 #pragma float64
 /*
- * ÏµÍ³Æµï¿½Ê¿ï¿½ï¿½ï¿½ board.h ï¿½ï¿½Í¨ï¿½ï¿½ FOSC ï¿½ê¶¨ï¿½ï¿½ï¿½Þ¸Ä¡ï¿½
- * ï¿½ï¿½ board.h ï¿½Ðµï¿½ FOSC ï¿½ï¿½ï¿½ï¿½Îª 0 Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ÏµÍ³Æµï¿½ï¿½Îª 33.1776MHzï¿½ï¿½
- * ï¿½ï¿½ board_init() ï¿½Ð£ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½ P54 Ä¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Î»ï¿½Å¡ï¿½
- * ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ P54 ï¿½ï¿½Îªï¿½ï¿½Í¨ IO Ê¹ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ board.c ï¿½ï¿½ board_init() ï¿½ï¿½É¾ï¿½ï¿½ SET_P54_RESET ï¿½ï¿½ï¿½Ã¡ï¿½
+ * ÏµÍ³ÆµÂÊ¿ÉÔÚ board.h ÖÐÍ¨¹ý FOSC ºê¶¨ÒåÐÞ¸Ä¡£
+ * µ± board.h ÖÐµÄ FOSC ÉèÖÃÎª 0 Ê±£¬³ÌÐò»á×Ô¶¯ÅäÖÃÏµÍ³ÆµÂÊÎª 33.1776MHz¡£
+ * ÔÚ board_init() ÖÐ£¬ÒÑ¾­½« P54 Ä¬ÈÏÅäÖÃÎª¸´Î»½Å¡£
+ * Èç¹ûÐèÒª½« P54 ×÷ÎªÆÕÍ¨ IO Ê¹ÓÃ£¬ÇëÔÚ board.c µÄ board_init() ÖÐÉ¾³ý SET_P54_RESET ÅäÖÃ¡£
  */
  
  extern float xdata error1;
@@ -37,7 +37,7 @@ static  uint8            temp_uart_buffer[TEMP_BUFFER_SIZE];  // ï¿½ï¿½ï¿½ï¿½ï¿½
  extern float xdata Motor_L_output;
  extern float xdata Motor_output_R;
  extern float xdata SpeedMeasure_L;
- extern float xdata SpeedMeasure_R;// ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½Ù¶ï¿½
+ extern float xdata SpeedMeasure_R;// ÓÒÂÖÊµ¼ÊËÙ¶È
  extern float xdata SpeedTarget_L;
  extern float xdata Target_Right1;
  extern uint16 Result_Middle_M;
@@ -50,30 +50,30 @@ static  uint8            temp_uart_buffer[TEMP_BUFFER_SIZE];  // ï¿½ï¿½ï¿½ï¿½ï¿½
  extern float xdata error_change;
  extern float xdata error;
  
- extern volatile int xdata Motor_Speed_Left[7];    // ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½ï¿½
- extern volatile int xdata Motor_Speed_Right[7];   // ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½ï¿½
- extern volatile float xdata Yaw_Angle;            // ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½Ç»ï¿½ï¿½ï¿½
- extern volatile float xdata Turn_Output;          // ×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ã£ï¿½
- extern volatile uint16 xdata conservation;        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾
- extern Round_State_TypeDef Round_State;           // ï¿½ï¿½ï¿½ï¿½×´Ì¬
- extern uint8 Round_Direction;                     // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
- extern float xdata Round_Pre_Distance;                  // Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
- extern float xdata Round_Exit_Distance;                 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ extern volatile int xdata Motor_Speed_Left[7];    // ×óÂÖ±àÂëÆ÷Ô­Ê¼Êý×é
+ extern volatile int xdata Motor_Speed_Right[7];   // ÓÒÂÖ±àÂëÆ÷Ô­Ê¼Êý×é
+ extern volatile float xdata Yaw_Angle;            // »·µºÆ«º½½Ç»ý·Ö
+ extern volatile float xdata Turn_Output;          // ×ªÏòÊä³ö£¨ÏÔÊ¾ÓÃ£©
+ extern volatile uint16 xdata conservation;        // ±£»¤±êÖ¾
+ extern Round_State_TypeDef Round_State;           // »·µº×´Ì¬
+ extern uint8 Round_Direction;                     // »·µº·½Ïò
+ extern float xdata Round_Pre_Distance;                  // Ô¤´¦ÀíÀï³Ì
+ extern float xdata Round_Exit_Distance;                 // ³ö»·ºóÀï³Ì
  
  extern volatile float xdata Pitch_Angle;
 
 
-// ï¿½Ãºï¿½ï¿½ï¿½ï¿½ï¿½ isr.c ï¿½ï¿½ UART1_Isr() ï¿½Ð¶Ï·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½Øµï¿½
+// ¸Ãº¯ÊýÔÚ isr.c µÄ UART1_Isr() ÖÐ¶Ï·þÎñº¯ÊýÖÐ±»»Øµ÷
 void uart_isr_call_back(uint8 dat)
 {
 	fifo_write_buffer(&temp_uart_fifo, &dat, 1);
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½     ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½Õ»Øµï¿½ï¿½ï¿½ï¿½ï¿½
-// ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½     *buff           ï¿½ï¿½ï¿½Ú½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÝµÄ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·
-// ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½     length          ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½Ý³ï¿½ï¿½ï¿½
-// ï¿½ï¿½ï¿½Ø²ï¿½ï¿½ï¿½     uint32          Êµï¿½Ê½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý³ï¿½ï¿½ï¿½
+// º¯Êý¼ò½é     ÉÏÎ»»ú½ÓÊÕ»Øµ÷º¯Êý
+// ²ÎÊýËµÃ÷     *buff           ÓÃÓÚ½ÓÊÕÊý¾ÝµÄ»º³åÇøµØÖ·
+// ²ÎÊýËµÃ÷     length          ÆÚÍû½ÓÊÕµÄÊý¾Ý³¤¶È
+// ·µ»Ø²ÎÊý     uint32          Êµ¼Ê½ÓÊÕµ½µÄÊý¾Ý³¤¶È
 //-------------------------------------------------------------------------------------------------------------------
 uint32 seekfree_assistant_receive_callback   (uint8 *buff, uint32 length)
 {
@@ -81,10 +81,10 @@ uint32 seekfree_assistant_receive_callback   (uint8 *buff, uint32 length)
 	return length;
 }
 //-------------------------------------------------------------------------------------------------------------------
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½     ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½Í»Øµï¿½ï¿½ï¿½ï¿½ï¿½
-// ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½     *buff           ï¿½ï¿½Òªï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½ï¿½Ý»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·
-// ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½     length          ï¿½ï¿½Òªï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½ï¿½Ý³ï¿½ï¿½ï¿½
-// ï¿½ï¿½ï¿½Ø²ï¿½ï¿½ï¿½     uint32          Ê£ï¿½ï¿½Î´ï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½ï¿½Ý³ï¿½ï¿½ï¿½
+// º¯Êý¼ò½é     ÉÏÎ»»ú·¢ËÍ»Øµ÷º¯Êý
+// ²ÎÊýËµÃ÷     *buff           ÐèÒª·¢ËÍµÄÊý¾Ý»º³åÇøµØÖ·
+// ²ÎÊýËµÃ÷     length          ÐèÒª·¢ËÍµÄÊý¾Ý³¤¶È
+// ·µ»Ø²ÎÊý     uint32          Ê£ÓàÎ´·¢ËÍµÄÊý¾Ý³¤¶È
 //-------------------------------------------------------------------------------------------------------------------
 uint32 seekfree_assistant_transfer_callback   (const uint8 *buff, uint32 length)
 {
@@ -100,10 +100,10 @@ uint8 xdata LCD_Config = 0;
 float xdata diff_ratio;
 
 uint8 xdata read_buff1[8] = {0,0,0,0,0,0,0,0};
-uint8 xdata read_buff2[4] = {0,0,0,0};// ï¿½ï¿½ï¿½Ü²ï¿½ï¿½ï¿½
+uint8 xdata read_buff2[4] = {0,0,0,0};// ÆðÅÜ²ÎÊý
 
-uint8 xdata	write_buff1[8] = {0,0,0,0,0,0,0,0};// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
-uint8 xdata	write_buff2[4] = {0,0,0,0};// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
+uint8 xdata	write_buff1[8] = {0,0,0,0,0,0,0,0};// ²ÎÊý±¸·ÝÖµ
+uint8 xdata	write_buff2[4] = {0,0,0,0};// ²ÎÊý±¸·ÝÖµ
 
 uint8 xdata Change_Config_Add[6] = {0,0,0,0,0,0};
 uint8 xdata Change_Config_Reduce[6] = {0,0,0,0,0,0};
@@ -122,86 +122,76 @@ extern uint8 xdata Fuzzy_Config;
 
 extern uint8 xdata Tiaocan_Config;
 
+extern float xdata duty;
 
 
 
 static void send_inductor_to_assistant(void)
 {
-//	if(Tiaocan_Config == 1 || Tiaocan_Config == 0)
-//	{
-//    seekfree_assistant_oscilloscope_data.dat[0] = SpeedTarget_L;
-//    seekfree_assistant_oscilloscope_data.dat[1] = SpeedMeasure_L;
-//    seekfree_assistant_oscilloscope_data.dat[2] = Target_Right1;
-//    seekfree_assistant_oscilloscope_data.dat[3] = SpeedMeasure_R;
-//    seekfree_assistant_oscilloscope_data.channel_num = 4;
-//    seekfree_assistant_oscilloscope_send(&seekfree_assistant_oscilloscope_data);
-//	}
-	
-//	if(Tiaocan_Config == 2)
-//	{
-	  seekfree_assistant_oscilloscope_data.dat[0] = Yaw_Angular_Speed;
-    seekfree_assistant_oscilloscope_data.dat[1] = turn_cmd;
+
+	seekfree_assistant_oscilloscope_data.dat[0] = Result_L;
+    seekfree_assistant_oscilloscope_data.dat[1] = Result_Middle_M_L;
     seekfree_assistant_oscilloscope_data.dat[2] = Result_Middle_M;
-    seekfree_assistant_oscilloscope_data.dat[3] = SpeedTarget_L;
-		seekfree_assistant_oscilloscope_data.dat[4] = SpeedMeasure_L;
-		seekfree_assistant_oscilloscope_data.dat[5] = Target_Right1;
-    seekfree_assistant_oscilloscope_data.dat[6] = SpeedMeasure_R;
+    seekfree_assistant_oscilloscope_data.dat[3] = Result_Middle_M_R;
+	seekfree_assistant_oscilloscope_data.dat[4] = Result_R;
+	seekfree_assistant_oscilloscope_data.dat[5] = SpeedTarget_L;
+    seekfree_assistant_oscilloscope_data.dat[6] = Target_Right1;
     seekfree_assistant_oscilloscope_data.dat[7] = 0;
     seekfree_assistant_oscilloscope_data.channel_num = 8;
     seekfree_assistant_oscilloscope_send(&seekfree_assistant_oscilloscope_data);
-//	}
+
 	
 }
 
 
 void main()
 {
-	board_init();			// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½×²ï¿½Ó²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½
+	board_init();			// ³õÊ¼»¯µ×²ãÓ²¼þ£¬Ïà¹ØÅäÖÃÇëÎðËæÒâÉ¾³ý
 	
-//	IP3 |= 0x02;
-//	IP3H |= 0x02;
+	PS4 = 1;
+	PS4H = 1;
 //	Uarts_Init();
 	wireless_uart_init();
 
-//	iap_init();				// ï¿½ï¿½Ê¼ï¿½ï¿½ EEPROM
+//	iap_init();				// ³õÊ¼»¯ EEPROM
 	Buzzer_Init();
 //	Button_Init();
 //	OLED_LCD_Init();
 //	Sw_Init();
-	ADCs_Init();// ADC ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
-	Pwms_Init();// ï¿½ï¿½ï¿½ PWM ï¿½ï¿½Ê¼ï¿½ï¿½
-	imu660ra_init();// IMU ï¿½ï¿½Ê¼ï¿½ï¿½
-	quaternion_init();// ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
+	ADCs_Init();// ADC ²ÉÑù³õÊ¼»¯
+	Pwms_Init();// µç»ú PWM ³õÊ¼»¯
+	imu660ra_init();// IMU ³õÊ¼»¯
+	quaternion_init();// ËÄÔªÊý³õÊ¼»¯
 	gyro_calibrate(200);
 //	OLED_LCD_Show();
-	// ï¿½ï¿½ï¿½ï¿½
+	// ·çÉÈ
 	//fan_init();
 	
-//		// ×¢ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½Í»Øµï¿½
-//	seekfree_assistant_transfer = seekfree_assistant_transfer_callback;// ï¿½Øµï¿½ï¿½ï¿½ï¿½ï¿½
+//		// ×¢²áÉÏÎ»»ú·¢ËÍ»Øµ÷
+//	seekfree_assistant_transfer = seekfree_assistant_transfer_callback;// »Øµ÷º¯Êý
 //	
-//		// ×¢ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½Õ»Øµï¿½
-//	seekfree_assistant_receive = seekfree_assistant_receive_callback;// ï¿½Øµï¿½ï¿½ï¿½ï¿½ï¿½
+//		// ×¢²áÉÏÎ»»ú½ÓÊÕ»Øµ÷
+//	seekfree_assistant_receive = seekfree_assistant_receive_callback;// »Øµ÷º¯Êý
 
-		//ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½
-		// ×¢ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½Í»Øµï¿½
-	seekfree_assistant_transfer = wireless_uart_send_buff;// ï¿½Øµï¿½ï¿½ï¿½ï¿½ï¿½
+		//ÎÞÏß×ª´®¿Ú
+		// ×¢²áÉÏÎ»»ú·¢ËÍ»Øµ÷
+	seekfree_assistant_transfer = wireless_uart_send_buff;// »Øµ÷º¯Êý
 	
-		// ×¢ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½Õ»Øµï¿½
-	seekfree_assistant_receive = wireless_uart_read_buff;// ï¿½Øµï¿½ï¿½ï¿½ï¿½ï¿½
+		// ×¢²áÉÏÎ»»ú½ÓÊÕ»Øµ÷
+	seekfree_assistant_receive = wireless_uart_read_buff;// »Øµ÷º¯Êý
 	
 	seekfree_assistant_init();
 	
-//	// ï¿½ï¿½Ê¼ï¿½ï¿½ FIFO
+//	// ³õÊ¼»¯ FIFO
 //	fifo_init(&temp_uart_fifo, FIFO_DATA_8BIT, temp_uart_buffer, TEMP_BUFFER_SIZE);
 
 	
-	Time_Pulse_Init();// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
+	Time_Pulse_Init();// ±àÂëÆ÷¼ÆÊýÆ÷³õÊ¼»¯
 	
-//	pwm_init(PWMB_CH1_P20, 50, 600);
+	
 	
    
-	    // ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Í¿ï¿½ï¿½ï¿½×´Ì¬
+	    // Ö÷Ñ­»·¸ºÔð´¦ÀíÉÏÎ»»ú¡¢ÏÔÊ¾ºÍ¿ØÖÆ×´Ì¬
     while(1)
     {
            
@@ -212,32 +202,26 @@ void main()
 			{
 				Timer_Config = 0;
 				LCD_Config = 0;
-				
-
-
-				
-				
-				
-				
+							
 
 				if(LCD_Config == 0)
-			{											 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			{											 // ½âÎöÉÏÎ»»úÊÕµ½µÄÊý¾Ý
 				seekfree_assistant_data_analysis();
 			
 				for(j = 0; j < SEEKFREE_ASSISTANT_SET_PARAMETR_COUNT; j++)
 				{
-                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â±ï¿½Ö¾
+                // ²ÎÊý¸üÐÂ±êÖ¾
                 if(seekfree_assistant_parameter_update_flag[j])
 				{
                 seekfree_assistant_parameter_update_flag[j] = 0;
 
-                // ï¿½ï¿½Ó¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
+                // ´òÓ¡µ÷ÊÔÐÅÏ¢
 //                printf("receive data channel : %d ", j);
 //                printf("data : %f ", seekfree_assistant_parameter[j]);
 //                printf("");
-                }//ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½ï¿½
+                }//ÏÂÎ»»ú½ÓÊÕÉÏÎ»»úµÄ²ÎÊýº¯Êý£¬¼´´«²Îº¯Êý
 		        }
-				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Âºï¿½Í¨ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½Ó¡ï¿½ï¿½Ç°Öµ
+				// ²ÎÊý¸üÐÂºóÍ¨¹ý´®¿Ú´òÓ¡µ±Ç°Öµ
 				send_inductor_to_assistant();
 				
 				

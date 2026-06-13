@@ -1,6 +1,7 @@
 #include "isr.h"
 #include "Motor_PID.h"
 #pragma float64
+#include <math.h>
 
 #define TURN_CMD_MAX           (90)
 #define TURN_CMD_MIN           (-90)
@@ -10,17 +11,17 @@
 #define MOTOR_PWM_MAX          (5000)
 #define SPEED_TARGET_MAX       (1000)
 
-// Ä£ï¿½ï¿½ PID ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½error ï¿½ï¿½ error_change ï¿½ï¿½ï¿½ï¿½ï¿½Î§
-// error_change ï¿½ï¿½Î» ï¿½ï¿½/tick(10ms), 800ï¿½ï¿½/s Êµï¿½Ê½ï¿½ï¿½Ù¶ï¿½ ï¿½ï¿½ 8ï¿½ï¿½/tick
+// Ä£ºý PID ²ÎÊý£ºerror ºÍ error_change µÄ×î´ó·¶Î§
+// error_change µ¥Î» ¡ã/tick(10ms), 800¡ã/s Êµ¼Ê½ÇËÙ¶È ¡ú 8¡ã/tick
 #define FUZZY_E_MAX   90.0f
 #define FUZZY_EC_MAX  8.0f
 
-// Ä£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ (-3=NB, -2=NM, -1=NS, 0=ZO, 1=PS, 2=PM, 3=PB)
-// ï¿½ï¿½ = E(NBï¿½ï¿½PB)ï¿½ï¿½ï¿½ï¿½ = EC(NBï¿½ï¿½PB)ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó½ï¿½ï¿½ï¿½ï¿½ï¿½ÖµÓ³ï¿½ï¿½ÎªÊµï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½
-//#define FUZZY_KP_SCALE 0.2f    // ï¿½ï¿½ï¿½ï¿½Öµ ï¿½ï¿½0.2 = Êµï¿½ï¿½ ï¿½ï¿½Kp,  ï¿½ï¿½Î§ [-0.6, +0.6]
-//#define FUZZY_KD_SCALE 2.333f  // ï¿½ï¿½ï¿½ï¿½Öµ ï¿½ï¿½2.333 = Êµï¿½ï¿½ ï¿½ï¿½Kd, ï¿½ï¿½Î§ [-7, +7]
+// Ä£ºý¹æÔò±í£ºÊ¹ÓÃÓïÑÔÖµ (-3=NB, -2=NM, -1=NS, 0=ZO, 1=PS, 2=PM, 3=PB)
+// ÐÐ = E(NB¡úPB)£¬ÁÐ = EC(NB¡úPB)£¬±ÈÀýÒò×Ó½«ÓïÑÔÖµÓ³ÉäÎªÊµ¼Êµ÷ÕûÁ¿
+//#define FUZZY_KP_SCALE 0.2f    // ÓïÑÔÖµ ¡Á0.2 = Êµ¼Ê ¦¤Kp,  ·¶Î§ [-0.6, +0.6]
+//#define FUZZY_KD_SCALE 2.333f  // ÓïÑÔÖµ ¡Á2.333 = Êµ¼Ê ¦¤Kd, ·¶Î§ [-7, +7]
 
-// Kp ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï½ï¿½(ï¿½ï¿½Æ«ï¿½ï¿½+ï¿½ï¿½)ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â½ï¿½(ï¿½ï¿½Æ«ï¿½ï¿½+ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// Kp ¹æÔò±í£º×óÉÏ½Ç(´óÆ«²î+¶ñ»¯)´óÁ¦¾ÀÕý£¬ÓÒÏÂ½Ç(´óÆ«²î+»ØÕý)¼õÁ¦·À³¬µ÷
 int8 code rule_Kp[7][7] = {
     //  EC: NB  NM  NS  ZO  PS  PM  PB
     { 3,  3,  2,  2,  1,  0,  0}, // E: NB
@@ -32,8 +33,8 @@ int8 code rule_Kp[7][7] = {
     { 0,  0, -1, -2, -2, -3, -3}, // E: PB
 };
 
-// Kp2 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ |E| ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½EC ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Kp ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ P1 ï¿½ï¿½ï¿½ï¿½Ç¿Ö¸ï¿½ï¿½ï¿½ï¿½
-// ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½á¹©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ boost Ó¦ï¿½Ô¼ï¿½ï¿½ä£¬Ð¡ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ã£¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½Ë¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// Kp2 ¶þ´ÎÏîÔöÒæ¹æÔò¡£Ö÷ÒªÓÉ |E| ·ùÖµÇý¶¯£¬EC ÒÀÀµ½Ï Kp Èõ£¬±ÜÃâÓë P1 ²úÉúÇ¿Ö¸¿¹¡£
+// ´óÎó²îÊ±Ìá¹©·ÇÏßÐÔ boost Ó¦¶Ô¼±Íä£¬Ð¡Îó²îÊ±¹éÁã£¨¶þ´ÎÏî×ÔÉíÒÑËæÎó²îËõÐ¡¶øË¥¼õ£©¡£
 int8 code rule_Kp2[7][7] = {
     //  EC: NB  NM  NS  ZO  PS  PM  PB
     {  2,  2,  1,  1,  0,  0,  0}, // E: NB
@@ -45,7 +46,7 @@ int8 code rule_Kp2[7][7] = {
     {  0,  0,  0,  1,  1,  2,  2}, // E: PB
 };
 
-// Kd ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½(ï¿½ï¿½)ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½á¡£ï¿½ï¿½ï¿½Ô³ï¿½
+// Kd ¹æÔò±í£ºÍ¬ºÅ(¶ñ»¯)¡ú¸ºÖµ¼õ×èÄá, ÒìºÅ(»ØÕý)¡úÕýÖµ¼Ó×èÄá¡£·´¶Ô³Æ
 int8 code rule_Kd[7][7] = {
     //  EC: NB   NM   NS   ZO   PS   PM   PB
     {-3, -1,  0,  0,  1,  2,  3}, // E: NB
@@ -99,15 +100,16 @@ float xdata error_change = 0;
 float xdata error = 0;
 
 
-// ========== ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ==========
-  Round_State_TypeDef Round_State = ROUND_NONE;  // ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½
-  uint8 Round_Direction = 0;                      // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0=ï¿½ó»·£ï¿½1=ï¿½Ò»ï¿½
 
-  // ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½
-  float xdata Round_Pre_Distance = 0;                  // Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½×¶ï¿½ï¿½ï¿½ï¿½
-  float xdata Round_Exit_Distance = 0;                 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// ========== »·µº´¦Àí±äÁ¿ ==========
+  Round_State_TypeDef Round_State = ROUND_NONE;  // »·µº×´Ì¬»ú
+  uint8 Round_Direction = 0;                      // »·µº·½Ïò£º0=×ó»·£¬1=ÓÒ»·
 
-  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+  // Àï³Ì¼ÆÊý
+  float xdata Round_Pre_Distance = 0;                  // Ô¤´¦Àí½×¶ÎÀï³Ì
+  float xdata Round_Exit_Distance = 0;                 // ³ö»·ºóÀï³Ì
+
+  // »·µº²ÎÊýÅäÖÃ
   const Round_Config_TypeDef Round_Params = {
       0,     // pre_adc_thres_L
       100,     // pre_adc_thres_M
@@ -121,7 +123,7 @@ float xdata error = 0;
       1.5     // entry_amplify
   };
 
-// ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½ß»ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½Í£Ê±ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½Ù¶È²ï¿½ï¿½Ø±ï¿½ PWM
+// µç´ÅÈ«¶ªÏß»òÉÏÎ»»ú¼±Í£Ê±£¬Ö±½ÓÇåÁãÄ¿±êËÙ¶È²¢¹Ø±Õ PWM
 uint16 PID_Conservation(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Middle_M_R,uint16 Result_R)
 {
     if ((Result_L <= 5 && Result_Middle_M_L <= 5 && Result_Middle_M_R <= 5 && Result_R <= 5) || (seekfree_assistant_parameter[7] == 1))
@@ -162,7 +164,7 @@ void Second_distance_calculate(void)
     Second_distance += Second_encoder_ave;
 }
 
-// ï¿½ï¿½Î»ÖµÆ½ï¿½ï¿½ï¿½Ë²ï¿½
+// ÖÐÎ»ÖµÆ½¾ùÂË²¨
 uint16 Servo_Measure(int* inductance_array,int times)
 {
     int i = 0, min = 0, max = 0, sum = 0;
@@ -179,67 +181,70 @@ uint16 Servo_Measure(int* inductance_array,int times)
     return ((sum - min - max) / (times - 2));
 }
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú²ï¿½Öµï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// ½«Á¬ÐøÖµÁ¿»¯£¬·µ»ØÕûÊýË÷ÒýºÍÓÃÓÚ²åÖµµÄÐ¡Êý²¿·Ö
 static uint8 quantize_frac(float val, float vmax, float *frac)
 {
-    static float xdata ratio, xdata idx_f;// ratio=ï¿½ï¿½Ò»ï¿½ï¿½Öµ, idx_f=ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-    static uint8 xdata idx;// idx=ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(0-6)
+    static float xdata ratio, xdata idx_f;// ratio=¹éÒ»»¯Öµ, idx_f=Á¬ÐøË÷Òý
+    static uint8 xdata idx;// idx=ÕûÊýË÷Òý(0-6)
 
-    ratio = val / vmax;//ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ó³ï¿½äµ½[-1,1]
+    ratio = val / vmax;//¹éÒ»»¯£¬Ó³Éäµ½[-1,1]
 	
-	//ï¿½Þ·ï¿½
+	//ÏÞ·ù
     if(ratio >  1.0f) ratio =  1.0f;
     if(ratio < -1.0f) ratio = -1.0f;
 	
-	//ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ÖµÓ³ï¿½äµ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	//½«¹éÒ»»¯ÖµÓ³Éäµ½Á¬ÐøË÷Òý
     idx_f = ratio * 3.0f + 3.0f;
     idx = (uint8)idx_f;
     if(idx > 5) idx = 5;
-    *frac = idx_f - (float)idx;//Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½Ö¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    *frac = idx_f - (float)idx;//Ð¡Êý²¿·Ö¼´Á¥Êô¶È
     return idx;
 }
 
 
 //  fuzzy_P1 = Servo_P1 + delta_Kp
-//           = [2] + result_Kp ï¿½ï¿½ [0]
-//  - result_Kpï¿½ï¿½Ë«ï¿½ï¿½ï¿½Ô²ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[-3, 3]
-//  - FUZZY_KP_SCALE = [0]ï¿½ï¿½Ä¬ï¿½ï¿½ 0.2 ï¿½ï¿½ delta_Kp ï¿½ï¿½ [-0.6, +0.6]
-//  - ï¿½ï¿½ï¿½ï¿½ Servo_P1 = 1.3ï¿½ï¿½ï¿½ï¿½ fuzzy ï¿½ï¿½ï¿½Úºï¿½[0.7, 1.9]
-//  - ï¿½ï¿½ï¿½ï¿½Ó²ï¿½Þ·ï¿½ï¿½ï¿½[0.8, 4.0]
+//           = [2] + result_Kp ¡Á [0]
+//  - result_Kp£¨Ë«ÏßÐÔ²åÖµÊä³ö£©£º[-3, 3]
+//  - FUZZY_KP_SCALE = [0]£¬Ä¬ÈÏ 0.2 ¡ú delta_Kp ¡Ê [-0.6, +0.6]
+//  - ¼ÙÉè Servo_P1 = 1.3£¬Ôò fuzzy µ÷½Úºó£º[0.7, 1.9]
+//  - ´úÂëÓ²ÏÞ·ù£º[0.8, 4.0]
 
 //  fuzzy_D
 
 //  fuzzy_D = Servo_D + delta_Kd
-//          = [3] + result_Kd ï¿½ï¿½ [1]
-//  - result_Kdï¿½ï¿½Ë«ï¿½ï¿½ï¿½Ô²ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[-3, 3]
-//  - FUZZY_KD_SCALE = [1]ï¿½ï¿½Ä¬ï¿½ï¿½ 2.33 ï¿½ï¿½ delta_Kd ï¿½ï¿½ [-6.99, +6.99]
-//  - ï¿½ï¿½ï¿½ï¿½ Servo_D = 10.0ï¿½ï¿½ï¿½ï¿½ fuzzy ï¿½ï¿½ï¿½Úºï¿½[3.0, 17.0]
-//  - ï¿½ï¿½ï¿½ï¿½Ó²ï¿½Þ·ï¿½ï¿½ï¿½[5.0, 25.0]
+//          = [3] + result_Kd ¡Á [1]
+//  - result_Kd£¨Ë«ÏßÐÔ²åÖµÊä³ö£©£º[-3, 3]
+//  - FUZZY_KD_SCALE = [1]£¬Ä¬ÈÏ 2.33 ¡ú delta_Kd ¡Ê [-6.99, +6.99]
+//  - ¼ÙÉè Servo_D = 10.0£¬Ôò fuzzy µ÷½Úºó£º[3.0, 17.0]
+//  - ´úÂëÓ²ÏÞ·ù£º[5.0, 25.0]
 
 //  fuzzy_P2
 
 //  fuzzy_P2 = Servo_P2 + delta_Kp2
-//           = [4] + result_Kp2 ï¿½ï¿½ [6]
-//  - result_Kp2ï¿½ï¿½Ë«ï¿½ï¿½ï¿½Ô²ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[0, 2]ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½Ð¸ï¿½Öµï¿½ï¿½
-//  - FUZZY_KP2_SCALE = [6]ï¿½ï¿½Ä¬ï¿½ï¿½ 0.001 ï¿½ï¿½ delta_Kp2 ï¿½ï¿½ [0, +0.002]
-//  - ï¿½ï¿½ï¿½ï¿½ Servo_P2 = 0.004ï¿½ï¿½ï¿½ï¿½ fuzzy ï¿½ï¿½ï¿½Úºï¿½[0.004, 0.006]
-//  - ï¿½ï¿½ï¿½ï¿½Ó²ï¿½Þ·ï¿½ï¿½ï¿½[0.0, 0.012]
+//           = [4] + result_Kp2 ¡Á [6]
+//  - result_Kp2£¨Ë«ÏßÐÔ²åÖµÊä³ö£©£º[0, 2]£¨¹æÔò±íÀïÃ»ÓÐ¸ºÖµ£©
+//  - FUZZY_KP2_SCALE = [6]£¬Ä¬ÈÏ 0.001 ¡ú delta_Kp2 ¡Ê [0, +0.002]
+//  - ¼ÙÉè Servo_P2 = 0.004£¬Ôò fuzzy µ÷½Úºó£º[0.004, 0.006]
+//  - ´úÂëÓ²ÏÞ·ù£º[0.0, 0.012]
 
-// Ä£ï¿½ï¿½ PID ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë«ï¿½ï¿½ï¿½Ô²ï¿½Öµ + ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// Ä£ºý PID µ÷Õû£ºË«ÏßÐÔ²åÖµ + ±ÈÀýÒò×Ó
 void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *delta_Kd, float *delta_Kp2)
 {
     static float xdata frac_e, xdata frac_ec;
     static uint8 xdata e_idx, xdata ec_idx, xdata e_next, xdata ec_next;
     static float xdata v00, xdata v01, xdata v10, xdata v11, xdata v0, xdata v1;
     float result;
-	float xdata FUZZY_KP_SCALE = 0.2;
-	float xdata FUZZY_KD_SCALE = 2.33;
-	float xdata FUZZY_KP2_SCALE = 0.001;
+//	float xdata FUZZY_KP_SCALE = 0.2;
+//	float xdata FUZZY_KD_SCALE = 2.33;
+//	float xdata FUZZY_KP2_SCALE = 0.001;
+	float xdata FUZZY_KP_SCALE = 0;
+	float xdata FUZZY_KD_SCALE = 0;
+	float xdata FUZZY_KP2_SCALE = 0;
 	
 
-//		FUZZY_KP_SCALE = seekfree_assistant_parameter[0];
-//		FUZZY_KD_SCALE = seekfree_assistant_parameter[1];
-//		FUZZY_KP2_SCALE = seekfree_assistant_parameter[2];
+		FUZZY_KP_SCALE = seekfree_assistant_parameter[0];
+		FUZZY_KD_SCALE = seekfree_assistant_parameter[1];
+		FUZZY_KP2_SCALE = seekfree_assistant_parameter[2];
 
     e_idx  = quantize_frac(error,        FUZZY_E_MAX, &frac_e);
     ec_idx = quantize_frac(error_change, FUZZY_EC_MAX, &frac_ec);
@@ -247,18 +252,18 @@ void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *d
     e_next = (e_idx < 6) ? (uint8)(e_idx + 1) : e_idx;
     ec_next = (ec_idx < 6) ? (uint8)(ec_idx + 1) : ec_idx;
 
-    // Kpï¿½ï¿½Ë«ï¿½ï¿½ï¿½Ô²ï¿½Öµï¿½ï¿½ï¿½ï¿½Öµ ï¿½ï¿½ ï¿½Ë±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    // Kp£ºË«ÏßÐÔ²åÖµÓïÑÔÖµ ¡ú ³Ë±ÈÀýÒò×Ó
     v00 = (float)rule_Kp[e_idx][ec_idx];
     v01 = (float)rule_Kp[e_idx][ec_next];
     v10 = (float)rule_Kp[e_next][ec_idx];
     v11 = (float)rule_Kp[e_next][ec_next];
     
-	v0 = v00 + (v01 - v00) * frac_ec;//ï¿½ï¿½ï¿½
-    v1 = v10 + (v11 - v10) * frac_ec;//ï¿½ï¿½ï¿½ä»¯ï¿½ï¿½
+	v0 = v00 + (v01 - v00) * frac_ec;//Îó²î
+    v1 = v10 + (v11 - v10) * frac_ec;//Îó²î±ä»¯ÂÊ
     result = v0 + (v1 - v0) * frac_e;
     *delta_Kp = result * FUZZY_KP_SCALE;
 
-    // Kdï¿½ï¿½Ë«ï¿½ï¿½ï¿½Ô²ï¿½Öµï¿½ï¿½ï¿½ï¿½Öµ ï¿½ï¿½ ï¿½Ë±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    // Kd£ºË«ÏßÐÔ²åÖµÓïÑÔÖµ ¡ú ³Ë±ÈÀýÒò×Ó
     v00 = (float)rule_Kd[e_idx][ec_idx];
     v01 = (float)rule_Kd[e_idx][ec_next];
     v10 = (float)rule_Kd[e_next][ec_idx];
@@ -269,7 +274,7 @@ void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *d
     result = v0 + (v1 - v0) * frac_e;
     *delta_Kd = result * FUZZY_KD_SCALE;
 
-    // Kp2 Ë«ï¿½ï¿½ï¿½Ô²ï¿½Öµ + ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    // Kp2 Ë«ÏßÐÔ²åÖµ + ±ÈÀýÒò×Ó
     v00 = (float)rule_Kp2[e_idx][ec_idx];
     v01 = (float)rule_Kp2[e_idx][ec_next];
     v10 = (float)rule_Kp2[e_next][ec_idx];
@@ -281,7 +286,7 @@ void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *d
     *delta_Kp2 = result * FUZZY_KP2_SCALE;
 }
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½É²ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½î£¬ï¿½ï¿½ï¿½ turn_cmdï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½
+// ½«µç´ÅÎó²î×ª»»³É²îËÙ×ªÏòÃüÁî£¬Êä³ö turn_cmd£¬ÔöÁ¿Ê½
 float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Middle_M_R,uint16 Result_R,uint16 Result_Middle_M)
 {
     float turn_cmd = 0;
@@ -299,25 +304,25 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
     float Result_Middle_M_Left = (float)Result_Middle_M_L;
     float member1 = 0;
     float denominator1 = 0;
-    float Vertical_Weight = 0;//ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½
+    float Vertical_Weight = 0;//´¹Ö±·ÖÁ¿
     float Denominator_Weight = 0;
 	
 
-//	   Servo_P1 = seekfree_assistant_parameter[3];
-//     Servo_D = seekfree_assistant_parameter[4];
-//     Servo_P2 = seekfree_assistant_parameter[5];
+	   Servo_P1 = seekfree_assistant_parameter[3];
+     Servo_D = seekfree_assistant_parameter[4];
+     Servo_P2 = seekfree_assistant_parameter[5];
 
-    Cross_Config = 0;//ï¿½ï¿½Ê®ï¿½Ö±ï¿½Ö¾Î»
+    Cross_Config = 0;//¹ýÊ®×Ö±êÖ¾Î»
 	
 	circle_config = 0;
 	
-    // Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½Ø¶ï¿½ï¿½Ð¼ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¶¯Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½Ð¼ï¿½È¨ï¿½ï¿½
+    // Ö±µÀºÍÌØÊâÔªËØ¶ÔÖÐ¼äµç¸ÐµÄÒÀÀµ²»Í¬£¬ÕâÀï¶¯Ì¬µ÷Õû×óÓÒ/ÖÐ¼äÈ¨ÖØ
     if(Result_Middle_M <= 75)
     {
         Vertical_Weight = 0.75;//0.75
         Denominator_Weight = Vertical_Weight + 0.01f;
     }
-    else//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    else//¿¿½ü»·µºµÄ²ÎÊý£¬Ëæ×ÅÖÐ¼äµç¸ÐÏßÐÔÔö´ó
     {
         //Vertical_Weight = ((0.85f - 0.66f) / 25.0f) * Result_Middle_M + 4 * 0.66f - 2.55f;
 		Vertical_Weight = 0.75;//0.75
@@ -325,32 +330,31 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
     }
 
 
-//	if(Result_Middle_M >= 99 && Round_Config2 == 0)//ï¿½ï¿½ï¿½ï¿½
+//	if(Result_Middle_M >= 99 && Round_Config2 == 0)//»·µº
 //    {
-//        Round_Config1 = 1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾Î»
+//        Round_Config1 = 1;//½ø»·±êÖ¾Î»
 //        circle_config = 1;    
 //		Second_distance = 0;
 //		Buzzer_On();
 //    }
 	
-	//Result_Middle_M_Left >= 35 && Result_Middle_M_Right >= 20 && Result_Left >= 7 && Result_Right >= 7 && Result_Middle_M <= 85
-//    else if(Result_Middle_M_Left >= 40 && Result_Middle_M_Right >= 40 && Result_Left >= 10 && Result_Right >= 10 && Result_Middle_M <= 85)//Ê®ï¿½ï¿½
-     if(Result_Middle_M_Left >= 40 && Result_Middle_M_Right >=40 && Result_Left >= 10 && Result_Right >= 10 && Result_Middle_M <= 85 && Round_State == ROUND_NONE)//Ê®ï¿½ï¿½
+
+     if(Result_Middle_M_Left >= 40 && Result_Middle_M_Right >=40 && Result_Left >= 10 && Result_Right >= 10 && Result_Middle_M <= 85 && Round_State == ROUND_NONE)//Ê®×Ö
     {
         Vertical_Weight = 0.2f;
-        Servo_D += 5;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        Servo_D += 5;//¼Ó×èÄá
         if(Servo_D >= 42.5f) Servo_D = 42.5f;
         Servo_P1 = 0.1f;
-        Cross_Config = 1;//Ê®ï¿½Ö±ï¿½Ö¾Î»ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê®ï¿½ï¿½Ö®ï¿½ï¿½ï¿½ï¿½Ù£ï¿½ï¿½ï¿½Îªï¿½ï¿½Òªï¿½ï¿½Ò»ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ä£¬ï¿½ï¿½ï¿½×¹ï¿½ï¿½ï¿½
+        Cross_Config = 1;//Ê®×Ö±êÖ¾Î»£¬Ö÷ÒªÓÃÀ´ÈÃËü¹ýÁËÊ®×ÖÖ®ºó¼õËÙ£¬ÒòÎªÐèÒª¹ÕÒ»¸öÖ±½ÇÍä£¬ÈÝÒ×¹ý³å
     }
 	
-//    else if(Round_Config1 == 1)//ï¿½ë»·ï¿½Ú»ï¿½ï¿½ï¿½ï¿½ßµÄ²ï¿½ï¿½ï¿½
+//    else if(Round_Config1 == 1)//Èë»·ÔÚ»·ÄÚ×ßµÄ²ÎÊý
 //    {
 //        Vertical_Weight = 0.85f;
 //        Denominator_Weight = Vertical_Weight + 0.01f;
 //		circle_config = 2;
 //    }
-//    else if(Round_Config2 == 1)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//    else if(Round_Config2 == 1)//³ö»·²ÎÊý
 //    {
 //        Vertical_Weight = 0.6f;
 //        Denominator_Weight = Vertical_Weight + 0.01f;
@@ -360,15 +364,15 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 //		circle_config = 3;
 //    }
 	
-//	// ========== ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¶Î´ï¿½ï¿½ï¿½ ==========
+//	// ========== »·µºÁù½×¶Î´¦Àí ==========
 //	  else
 //	  {
-//		  // ï¿½ï¿½ Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½×¶Î¼ï¿½â£ºï¿½ï¿½Â·ï¿½ï¿½Ð·Ö±ï¿½ïµ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
+//		  // ¢Ù Ô¤´¦Àí½×¶Î¼ì²â£ºÈýÂ·µç¸Ð·Ö±ð´ïµ½¸÷×ÔãÐÖµ
 //		  uint8 all_inductance_high = (Result_L >= Round_Params.pre_adc_thres_L)
 //									&& (Result_Middle_M >= Round_Params.pre_adc_thres_M)
 //									&& (Result_R >= Round_Params.pre_adc_thres_R);
 
-//		  // ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½×´Ì¬ï¿½Â¼ï¿½âµ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//		  // Õý³£Ñ­¼£×´Ì¬ÏÂ¼ì²âµ½»·µºÌØÕ÷
 //		  if(Round_State == ROUND_NONE && all_inductance_high)
 //		  {
 //			  Round_State = ROUND_PRE;
@@ -376,33 +380,33 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 //			  Round_Config1 = 0;
 //		  }
 
-//		  // Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½×¶Î£ï¿½ï¿½Ð¶Ï»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//		  // Ô¤´¦Àí½×¶Î£ºÅÐ¶Ï»·µº·½Ïò
 //		  else if(Round_State == ROUND_PRE)
 //		  {
-//			  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¸ï¿½Ç¿ï¿½ï¿½ï¿½Ð¶ï¿½Îªï¿½ó»·£ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½Ò»ï¿½
+//			  // Èç¹û×ó²àµç¸Ð¸üÇ¿£¬ÅÐ¶ÏÎª×ó»·£»·ñÔòÎªÓÒ»·
 //			  if(Result_L > Result_R)
 //			  {
-//				  Round_Direction = 0;  // ï¿½ï¿½
+//				  Round_Direction = 0;  // ×ó»·
 //			  }
 //			  else
 //			  {
-//				  Round_Direction = 1;  // ï¿½Ò»ï¿½
+//				  Round_Direction = 1;  // ÓÒ»·
 //			  }
 //			  Vertical_Weight = 0.75f;
 //			  Denominator_Weight = Vertical_Weight + 0.01f;
 //		  }
-//		  // ï¿½ï¿½ ï¿½ë»·ï¿½×¶ï¿½ 0ï¿½ï¿½~60ï¿½ã£ºï¿½ï¿½ï¿½Öµï¿½Å´ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½
+//		  // ¢Ú Èë»·½×¶Î 0¡ã~60¡ã£ºµç¸ÐÖµ·Å´óÔ¼Á½±¶
 //		  else if(Round_State == ROUND_ENTRY)
 //		  {
-//			  // ï¿½ï¿½ï¿½Ý»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å´ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½
-//			  if(Round_Direction == 0)  // ï¿½ï¿½
+//			  // ¸ù¾Ý»·µº·½Ïò·Å´ó¶ÔÓ¦²àµç¸Ð
+//			  if(Round_Direction == 0)  // ×ó»·
 //			  {
 //				  Result_L = (uint16)(Result_L * Round_Params.entry_amplify);
 //				  Result_Middle_M_L = (uint16)(Result_Middle_M_L * Round_Params.entry_amplify);
 //				  if(Result_L > 100) Result_L = 100;
 //				  if(Result_Middle_M_L > 100) Result_Middle_M_L = 100;
 //			  }
-//			  else  // ï¿½Ò»ï¿½
+//			  else  // ÓÒ»·
 //			  {
 //				  Result_R = (uint16)(Result_R * Round_Params.entry_amplify);
 //				  Result_Middle_M_R = (uint16)(Result_Middle_M_R * Round_Params.entry_amplify);
@@ -413,14 +417,14 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 //			  Denominator_Weight = Vertical_Weight + 0.01f;
 //			  circle_config = 2;
 //		  }
-//		  // ï¿½ï¿½ ï¿½ï¿½ï¿½Ú½×¶ï¿½ 60ï¿½ï¿½~270ï¿½ã£ºï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½
+//		  // ¢Û »·ÄÚ½×¶Î 60¡ã~270¡ã£º³£¹æÑ­¼£
 //		  else if(Round_State == ROUND_INSIDE)
 //		  {
 //			  Vertical_Weight = 0.83f;
 //			  Denominator_Weight = Vertical_Weight + 0.01f;
 //			  circle_config = 2;
 //		  }
-//		  // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½×¶ï¿½ 270ï¿½ï¿½~330ï¿½ã£ºï¿½ï¿½ï¿½â´¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ß³ï¿½ï¿½ï¿½
+//		  // ¢Ü ³ö»·½×¶Î 270¡ã~330¡ã£ºÌØÊâ´¦Àí£¬±£³ÖÖ±Ïß³ö»·
 //		  else if(Round_State == ROUND_EXIT)
 //		  {
 //			  Vertical_Weight = 0.6f;
@@ -428,7 +432,7 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 //			  Servo_P1 = 0.1f;
 //			  circle_config = 3;
 //		  }
-//		  // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¶ï¿½ 330ï¿½ï¿½ó£º»Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù´Î½ï¿½ï¿½ï¿½
+//		  // ¢Ý ³ö»·ºó½×¶Î 330¡ãºó£º»Ö¸´Õý³£Ñ­¼££¬±ÜÃâÔÙ´Î½ø»·
 //		  else if(Round_State == ROUND_EXIT_AFTER)
 //		  {
 //			  Vertical_Weight = 0.75f;
@@ -437,7 +441,7 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 //		  }
 //	  }
 
-    // member1 ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Æ«ï¿½î£¬denominator1 ï¿½ï¿½ï¿½Ú¹ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â²»Í¬Ç¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¯ï¿½ï¿½
+    // member1 ±íÊ¾·½ÏòÆ«²î£¬denominator1 ÓÃÓÚ¹éÒ»»¯£¬±ÜÃâ²»Í¬Ç¿¶ÈÏÂÎó²îÁ¿¼¶Æ¯ÒÆ
     member1 = ((1 - Vertical_Weight) * (Result_Left - Result_Right) + Vertical_Weight * (Result_Middle_M_Left - Result_Middle_M_Right));
     denominator1 = ((1 - Vertical_Weight) * (Result_Left + Result_Right) + Denominator_Weight * fabs(Result_Middle_M_Left - Result_Middle_M_Right));
 
@@ -446,13 +450,13 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 //    else if(Servo_D >= 50) Servo_D = 50;
 
 
-    // ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½Î¢ï¿½Öºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á¹²Í¬ï¿½ï¿½ï¿½
-    // Ä£ï¿½ï¿½ PIDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ error ï¿½ï¿½ error_change ï¿½ï¿½Ì¬Î¢ï¿½ï¿½ P1 ï¿½ï¿½ D
+    // ×îÖÕ×ªÏòÃüÁîÓÉ±ÈÀý¡¢·ÇÏßÐÔ±ÈÀý¡¢Î¢·ÖºÍÍÓÂÝÒÇ×èÄá¹²Í¬×é³É
+    // Ä£ºý PID£º¸ù¾Ý error ºÍ error_change ¶¯Ì¬Î¢µ÷ P1 ºÍ D
     error = (member1 / (denominator1 + 0.00001f)) * 90;
 
     error_change = error - error_last;
 
-    // ï¿½ï¿½ï¿½ï¿½Ôªï¿½Ø£ï¿½Ê®ï¿½Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½Ó²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    // ÌØÊâÔªËØ£¨Ê®×Ö¡¢»·µº£©Ê¹ÓÃÓ²±àÂë²ÎÊý£¬Ìø¹ýÄ£ºýµ÷Õû
     if(Cross_Config == 0 && Round_State == ROUND_NONE)
     {
         Fuzzy_PID_Adjust(error, error_change, &delta_Kp, &delta_Kd, &delta_Kp2);
@@ -472,25 +476,26 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
 			
 		if(Fuzzy_Config == 0)
 		{
-				if(fuzzy_P1 < 0.6f) fuzzy_P1 = 0.6f;
+				if(fuzzy_P1 <= 0.6f) fuzzy_P1 = 0.6f;
 				if(fuzzy_P1 > 2.5f) fuzzy_P1 = 2.5f;
-				if(fuzzy_D  < 5.0f) fuzzy_D =  5.0f;
+				if(fuzzy_D  <= 5.0f) fuzzy_D =  5.0f;
 				if(fuzzy_D  > 28.0f) fuzzy_D = 28.0f;
-				if(fuzzy_P2 < 0.0f) fuzzy_P2 = 0.0f;
+				if(fuzzy_P2 <= 0.0f) fuzzy_P2 = 0.0f;
 				if(fuzzy_P2 > 0.01f) fuzzy_P2 = 0.01f;
 		}
-    // æ¨¡ç³ŠPID è®¡ç®—è½¬å‘æŒ‡ä»¤
+    // Ä£ºýPID ¼ÆËã×ªÏòÖ¸Áî
     turn_cmd = error * fuzzy_P1 + fuzzy_P2 * fabs(error) * error + error_change * fuzzy_D;
     error_last = error;
+
 
 
     if(turn_cmd >= TURN_CMD_MAX) turn_cmd = TURN_CMD_MAX;
     else if(turn_cmd <= TURN_CMD_MIN) turn_cmd = TURN_CMD_MIN;
 
-    error1 = error;
-    Turn_Cmd1 = turn_cmd;
-    Servo_PID_D = Servo_D;
-    Servo_PID_P2 = Servo_P2;
+//    error1 = error;
+//    Turn_Cmd1 = turn_cmd;
+//    Servo_PID_D = Servo_D;
+//    Servo_PID_P2 = Servo_P2;
 
     return turn_cmd;
 }
@@ -524,7 +529,7 @@ void Angle_PID_Control(float Angle_error,float Angle_P,float Angle_I,float Angle
     }
 }
 
-// ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½Ù¶È²î£¬Êµï¿½Ö²ï¿½ï¿½ï¿½×ªï¿½ï¿½
+// °Ñ×ªÏòÃüÁî·ÖÅäÎª×óÓÒÂÖÄ¿±êËÙ¶È²î£¬ÊµÏÖ²îËÙ×ªÏò
 void Differential_Speed_Control(float turn_cmd)
 {
     float base_speed = 0;
@@ -554,7 +559,7 @@ void Differential_Speed_Control(float turn_cmd)
     if(Target_Right1 > SPEED_TARGET_MAX) Target_Right1 = SPEED_TARGET_MAX;
 }
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È±Õ»ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½Ù¶ï¿½ï¿½ï¿½ï¿½Ô²ï¿½ï¿½Ù·ï¿½ï¿½ï¿½ï¿½ï¿½
+// ×óÓÒÂÖ¸÷×Ô×öËÙ¶È±Õ»·£¬Ä¿±êËÙ¶ÈÀ´×Ô²îËÙ·ÖÅä½á¹û
 void Motor_PID(float SpeedTarget,int16 motor_speed,float Motor_P,float Motor_I,float Motor_D,int16 Config,float turn_cmd)
 {
     static float xdata I_count_L = 0, xdata I_count_R = 0;
@@ -563,7 +568,7 @@ void Motor_PID(float SpeedTarget,int16 motor_speed,float Motor_P,float Motor_I,f
     float P_data = 0, I_data = 0, D_data = 0;
     float I_Count_Max = 500;
 
-//    // ×ªï¿½ï¿½Ô½ï¿½ï¿½ï¿½Ò£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½ï¿½Ö¶Ñ»ï¿½ï¿½ï¿½ï¿½Â³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//    // ×ªÏòÔ½¼¤ÁÒ£¬»ý·ÖÉÏÏÞÔ½Ð¡£¬±ÜÃâÍäµÀÖÐ»ý·Ö¶Ñ»ýµ¼ÖÂ³öÍä¹ý³å
 //    I_Count_Max = -fabs(turn_cmd) * (10.0f / 3.0f) + 100 + 2400;
 
 //    if(Cross_Config == 1) I_Count_Max = 150;
@@ -608,14 +613,14 @@ void Motor_PWM_set_L(void)
 
     if(Motor_L_output >= 0)
     {
-        MOTOR_L_DIR_PIN = 1;//ï¿½ï¿½×ª
+        MOTOR_L_DIR_PIN = 1;//Õý×ª
 	    pwm_duty(MOTOR_L_PWM_PIN,(uint32)Motor_L_output);
     }
 	
     else if(Motor_L_output < 0)
     {
         Motor_L_output = -Motor_L_output;
-        MOTOR_L_DIR_PIN = 0;//ï¿½ï¿½×ª
+        MOTOR_L_DIR_PIN = 0;//·´×ª
         pwm_duty(MOTOR_L_PWM_PIN,(uint32)Motor_L_output);
     }
 }
@@ -629,13 +634,13 @@ void Motor_PWM_set_R(void)
 
        if(Motor_output_R >= 0)
        {
-				MOTOR_R_DIR_PIN = 1;//ï¿½ï¿½×ª
+				MOTOR_R_DIR_PIN = 1;//Õý×ª
 				pwm_duty(MOTOR_R_PWM_PIN,(uint32)Motor_output_R);
        }
        else if(Motor_output_R < 0)
        {
           Motor_output_R =  -Motor_output_R;
-					MOTOR_R_DIR_PIN = 0;//ï¿½ï¿½×ª
+					MOTOR_R_DIR_PIN = 0;//·´×ª
           pwm_duty(MOTOR_R_PWM_PIN,(uint32)Motor_output_R);
        }
 }

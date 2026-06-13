@@ -11,13 +11,13 @@
 
 #define FAN_DUTY_STOP             (500.0f)
 #define FAN_DUTY_STARTUP          (900.0f)
-#define FAN_DUTY_CRUISE_BASE      (780.0f)  //ï¿½ï¿½×¼Õ¼ï¿½Õ±ï¿½
-#define FAN_DUTY_CRUISE_MIN       (650.0f)  //ï¿½ï¿½Ð¡Õ¼ï¿½Õ±ï¿½
-#define FAN_DUTY_CRUISE_MAX       (950.0f)  //ï¿½ï¿½ï¿½Õ¼ï¿½Õ±ï¿½
-#define FAN_DUTY_UPHILL_ADD       (80.0f)  //ï¿½ï¿½ï¿½Â¼ï¿½
-#define FAN_DUTY_DOWNHILL_SUB     (40.0f)  //ï¿½ï¿½ï¿½Â¼ï¿½
-#define FAN_PITCH_UPHILL_TH       (10.0f)  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½>10ï¿½ï¿½ï¿½ï¿½
-#define FAN_PITCH_DOWNHILL_TH     (-10.0f)  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½<-10ï¿½ï¿½ï¿½ï¿½
+#define FAN_DUTY_CRUISE_BASE      (780.0f)  //±ê×¼Õ¼¿Õ±È
+#define FAN_DUTY_CRUISE_MIN       (650.0f)  //×îÐ¡Õ¼¿Õ±È
+#define FAN_DUTY_CRUISE_MAX       (950.0f)  //×î´óÕ¼¿Õ±È
+#define FAN_DUTY_UPHILL_ADD       (80.0f)  //ÉÏÆÂ¼Ó
+#define FAN_DUTY_DOWNHILL_SUB     (40.0f)  //ÏÂÆÂ¼ô
+#define FAN_PITCH_UPHILL_TH       (10.0f)  //¸©Ñö½Ç>10ÉÏÆÂ
+#define FAN_PITCH_DOWNHILL_TH     (-10.0f)  //¸©Ñö½Ç<-10ÏÂÆÂ
 
 typedef enum
 {
@@ -29,7 +29,7 @@ typedef enum
 static Fan_State_t fan_state = FAN_OFF;
 static float xdata fan_duty_cycle = FAN_DUTY_STOP;
 
-//Õ¼ï¿½Õ±ï¿½ï¿½Þ·ï¿½
+//Õ¼¿Õ±ÈÏÞ·ù
 static void fan_set_duty(float duty)
 {
     if (duty < FAN_DUTY_STOP)
@@ -45,7 +45,7 @@ static void fan_set_duty(float duty)
     pwm_duty(FAN_PWM_CH, (uint32)fan_duty_cycle);
 }
 
-//ï¿½ï¿½ï¿½ï¿½Í£×ª
+//·çÉÈÍ£×ª
 static void fan_stop(void)
 {
     fan_state = FAN_OFF;

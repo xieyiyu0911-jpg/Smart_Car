@@ -11,7 +11,7 @@
  extern float xdata Source;
 
  extern float xdata First_distance;
- extern float xdata Yaw_Angular_Speed;//Æ«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ extern float xdata Yaw_Angular_Speed;//Æ«º½½ÇÊý¾Ý
  extern float xdata Servo_PID_P2;
 
  extern uint8 xdata read_buff1[8];

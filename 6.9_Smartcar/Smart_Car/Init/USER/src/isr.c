@@ -1,16 +1,16 @@
 ///*********************************************************************************************************************
 // * COPYRIGHT NOTICE
-// * Copyright (c) 2020, ï¿½ï¿½É¿Æ¼ï¿½
+// * Copyright (c) 2020, Öð·É¿Æ¼¼
 // * All rights reserved.
-// * ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ï¿½ QQ Èºï¿½ï¿½Ò»Èº 179029047(ï¿½ï¿½ï¿½ï¿½)  ï¿½ï¿½Èº 244861897(ï¿½ï¿½ï¿½ï¿½)  ï¿½ï¿½Èº 824575535
+// * ¼¼ÊõÖ§³Ö QQ Èº£ºÒ»Èº 179029047(ÒÑÂú)  ¶þÈº 244861897(ÒÑÂú)  ÈýÈº 824575535
 // *
-// * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½ï¿½ï¿½É¿Æ¼ï¿½ï¿½ï¿½ï¿½Ð£ï¿½Î´ï¿½ï¿½ï¿½ï¿½ï¿½É²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½Í¾ï¿½ï¿½
-// * ï¿½ï¿½Ó­ï¿½ï¿½Ñ§Ï°ï¿½Í¾ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½Ã£ï¿½ï¿½Þ¸Ä´ï¿½ï¿½ï¿½Ê±ï¿½ë±£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// * ±¾´úÂë°æÈ¨¹éÖð·É¿Æ¼¼ËùÓÐ£¬Î´¾­Ðí¿É²»µÃÓÃÓÚÉÌÒµÓÃÍ¾¡£
+// * »¶Ó­ÔÚÑ§Ï°ºÍ¾ºÈüÖÐÊ¹ÓÃ£¬ÐÞ¸Ä´úÂëÊ±Çë±£Áô±¾°æÈ¨ÉùÃ÷¡£
 // *
 // * @file           isr
-// * @company        ï¿½É¶ï¿½ï¿½ï¿½É¿Æ¼ï¿½ï¿½ï¿½ï¿½Þ¹ï¿½Ë¾
-// * @author         ï¿½ï¿½É¿Æ¼ï¿½(QQ790875685)
-// * @version        ï¿½é¿´ doc Ä¿Â¼ï¿½ï¿½ version ï¿½Ä¼ï¿½ï¿½ÐµÄ°æ±¾Ëµï¿½ï¿½
+// * @company        ³É¶¼Öð·É¿Æ¼¼ÓÐÏÞ¹«Ë¾
+// * @author         Öð·É¿Æ¼¼(QQ790875685)
+// * @version        ²é¿´ doc Ä¿Â¼ÏÂ version ÎÄ¼þÖÐµÄ°æ±¾ËµÃ÷
 // * @Software       MDK FOR C251 V5.60
 // * @Target core    STC32G12K128
 // * @Taobao         https://seekfree.taobao.com/
@@ -20,8 +20,8 @@
 
 
 
-#define Servo_angle_max  180// ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½
-#define Servo_angle_min  -180 // ï¿½ï¿½Ð¡×ªï¿½ï¿½ï¿½ï¿½ï¿½
+#define Servo_angle_max  180// ×î´ó×ªÏòÊä³ö
+#define Servo_angle_min  -180 // ×îÐ¡×ªÏòÊä³ö
 
 
 #define ANGLE_PID 0
@@ -34,7 +34,7 @@ volatile float xdata SpeedMeasure_L = 0, xdata SpeedTarget_L = 0;
 volatile float xdata SpeedMeasure_R = 0, xdata Target_Right1 = 0;
 volatile int16 motor_speed_L = 0;
 volatile int16 motor_speed_R = 0;
-volatile uint16 Result_L = 0, Result_Middle_M_L = 0,Result_Middle_M_R = 0,Result_R = 0, Result_Middle_M = 0;// ï¿½ï¿½ï¿½Öµ
+volatile uint16 Result_L = 0, Result_Middle_M_L = 0,Result_Middle_M_R = 0,Result_R = 0, Result_Middle_M = 0;// µç´ÅÖµ
 
 volatile float  xdata Angle_Speed_error1 = 0;
 float  xdata Angle_Speed_Output1 = 0;
@@ -71,6 +71,7 @@ volatile int  xdata array1[7] ,xdata array2[7] , xdata array3[7] ,xdata array4[7
 int xdata i = 0;
 volatile int xdata Motor_Speed_Left[7],Motor_Speed_Right[7];
 
+float xdata duty = 0;
 
 volatile uint8 xdata Source_Config = 0;
 
@@ -79,9 +80,14 @@ volatile int16 xdata Source_Start = 0;
 
 uint8 xdata Tiaocan_Config = 0;
 
+float xdata Speed_L_P = 0;
+float xdata Speed_L_I = 0;
+float xdata Speed_L_D = 0;
+float xdata Speed_R_P = 0;
+float xdata Speed_R_I = 0;
+float xdata Speed_R_D = 0;
 
-
-// ========== ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ==========
+// ========== »·µº´¦Àí±äÁ¿ÉùÃ÷ ==========
   extern Round_State_TypeDef Round_State;
   extern uint8 Round_Direction;
   extern float xdata Round_Pre_Distance;
@@ -89,7 +95,7 @@ uint8 xdata Tiaocan_Config = 0;
   extern const Round_Config_TypeDef Round_Params;
 
 
-// UART1 ï¿½Ð¶ï¿½
+// UART1 ÖÐ¶Ï
 void UART1_Isr() interrupt 4
 {
     uint8 res;
@@ -103,7 +109,7 @@ void UART1_Isr() interrupt 4
     {
         UART1_CLEAR_RX_FLAG;
         res = SBUF;
-        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£Ê½
+        // ½øÈëÏÂÔØÄ£Ê½
         if(res == 0x7F)
         {
             if(dwon_count++ > 20)
@@ -116,7 +122,7 @@ void UART1_Isr() interrupt 4
     }
 }
 
-// UART2 ï¿½Ð¶ï¿½
+// UART2 ÖÐ¶Ï
 void UART2_Isr() interrupt 8
 {
     if(UART2_GET_TX_FLAG)
@@ -132,7 +138,7 @@ void UART2_Isr() interrupt 8
 }
 
 
-// UART3 ï¿½Ð¶ï¿½
+// UART3 ÖÐ¶Ï
 void UART3_Isr() interrupt 17
 {
     if(UART3_GET_TX_FLAG)
@@ -143,13 +149,13 @@ void UART3_Isr() interrupt 17
     if(UART3_GET_RX_FLAG)
 	{
         UART3_CLEAR_RX_FLAG;
-		// Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 3 ï¿½ï¿½ï¿½Õ´ï¿½ï¿½ï¿½
+		// Ô¤Áô´®¿Ú 3 ½ÓÊÕ´¦Àí
 
 	}
 }
 
 
-// UART4 ï¿½Ð¶ï¿½
+// UART4 ÖÐ¶Ï
 void UART4_Isr() interrupt 18
 {
 	uint8 res;
@@ -164,7 +170,7 @@ void UART4_Isr() interrupt 18
 	{
         UART4_CLEAR_RX_FLAG;
 		    res = S4BUF;
-        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£Ê½
+        // ½øÈëÏÂÔØÄ£Ê½
         if(res == 0x7F)
         {
             if(dwon_count4++ > 20)
@@ -175,11 +181,11 @@ void UART4_Isr() interrupt 18
             dwon_count4 = 0;
         }
 				
-		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½é´®ï¿½Ú½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ S4BUF
+		// ´¦ÀíÎÞÏßÄ£¿é´®¿Ú½ÓÊÕÊý¾Ý S4BUF
 		if(wireless_module_uart_handler != NULL)
 		{
-			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ï¿½Õ»Øµï¿½
-			// ï¿½ï¿½ï¿½ï¿½Ç°ï¿½Ö½Ú½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½é´¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			// µ÷ÓÃÉÏÎ»»ú´®¿Ú½ÓÊÕ»Øµ÷
+			// ½«µ±Ç°×Ö½Ú½»¸øÎÞÏßÄ£¿é´¦Àíº¯Êý
 			wireless_module_uart_handler(S4BUF);
 		}
 		
@@ -198,18 +204,18 @@ void INT1_Isr() interrupt 2
 }
 void INT2_Isr() interrupt 10
 {
-	INT2_CLEAR_FLAG;  // ï¿½ï¿½ï¿½ï¿½â²¿ï¿½Ð¶ï¿½ 2 ï¿½ï¿½Ö¾
+	INT2_CLEAR_FLAG;  // Çå³ýÍâ²¿ÖÐ¶Ï 2 ±êÖ¾
 			
 			
 }
 void INT3_Isr() interrupt 11
 {
-	INT3_CLEAR_FLAG;  // ï¿½ï¿½ï¿½ï¿½â²¿ï¿½Ð¶ï¿½ 3 ï¿½ï¿½Ö¾
+	INT3_CLEAR_FLAG;  // Çå³ýÍâ²¿ÖÐ¶Ï 3 ±êÖ¾
 }
 
 void INT4_Isr() interrupt 16
 {
-	INT4_CLEAR_FLAG;  // ï¿½ï¿½ï¿½ï¿½â²¿ï¿½Ð¶ï¿½ 4 ï¿½ï¿½Ö¾
+	INT4_CLEAR_FLAG;  // Çå³ýÍâ²¿ÖÐ¶Ï 4 ±êÖ¾
 }
 
 void TM0_Isr() interrupt 1
@@ -227,18 +233,18 @@ void car_control_timer_handler(void)
 			Motor_Speed_Left[i] = ctimer_count_read(CTIM3_P04);
 			Motor_Speed_Right[i] = ctimer_count_read(CTIM0_P34);
 			
-			array1[i] = adc_once(ADC_P11,ADC_8BIT); // ï¿½ï¿½ï¿½ï¿½ï¿½
-			array2[i] = adc_once(ADC_P00,ADC_8BIT);// ï¿½ï¿½ï¿½Ðµï¿½ï¿½
-			array3[i] = adc_once(ADC_P05,ADC_8BIT);// ï¿½ï¿½ï¿½Ðµï¿½ï¿½
-			array4[i] = adc_once(ADC_P06,ADC_8BIT);// ï¿½Ò²ï¿½ï¿½ï¿½
-			array5[i] = adc_once(ADC_P01,ADC_8BIT);// ï¿½Ð¼ï¿½ï¿½ï¿½
+			array1[i] = adc_once(ADC_P11,ADC_8BIT); // ×ó²àµç¸Ð
+			array2[i] = adc_once(ADC_P00,ADC_8BIT);// ×óÖÐµç¸Ð
+			array3[i] = adc_once(ADC_P05,ADC_8BIT);// ÓÒÖÐµç¸Ð
+			array4[i] = adc_once(ADC_P06,ADC_8BIT);// ÓÒ²àµç¸Ð
+			array5[i] = adc_once(ADC_P01,ADC_8BIT);// ÖÐ¼äµç¸Ð
     }
 			
 		
-			motor_speed_L = (int16) Servo_Measure(Motor_Speed_Left,Times);// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¥ï¿½ï¿½ÖµÆ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É·ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½
+			motor_speed_L = (int16) Servo_Measure(Motor_Speed_Left,Times);// ±àÂëÆ÷¼ÆÊýÈ¥¼«ÖµÆ½¾ù£¬Õý¸ººÅÓÉ·½Ïò½ÅÅÐ¶Ï
 			motor_speed_R = (int16) Servo_Measure(Motor_Speed_Right,Times);
 			
-				SpeedTarget_L = 400 + seekfree_assistant_parameter[6];//650
+				SpeedTarget_L = 400 ;//+ seekfree_assistant_parameter[6];//650
 				
 //				if(SpeedTarget_L >= 350)//1000
 //					SpeedTarget_L = 350;
@@ -248,12 +254,12 @@ void car_control_timer_handler(void)
 				Target_Right1 = SpeedTarget_L;
 			
 			
-//				if(P35 == 1)// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//				if(P35 == 1)// ×ó±àÂëÆ÷·½Ïò½Å
 //			{
 //				motor_speed_L = - motor_speed_L;
 //			}
 //			
-//			if(P53 == 1)// ï¿½Ò±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//			if(P53 == 1)// ÓÒ±àÂëÆ÷·½Ïò½Å
 //			{
 //				motor_speed_R = - motor_speed_R;
 //			}
@@ -261,7 +267,7 @@ void car_control_timer_handler(void)
 			SpeedMeasure_L = motor_speed_L;
 			SpeedMeasure_R = motor_speed_R;
 			
-			Result_L = Servo_Measure(array1, Times);  // ï¿½ï¿½ï¿½Öµï¿½Ë²ï¿½
+			Result_L = Servo_Measure(array1, Times);  // µç´ÅÖµÂË²¨
 			Result_Middle_M_L = Servo_Measure(array2, Times);
 			Result_Middle_M_R = Servo_Measure(array3, Times);
 			Result_R = Servo_Measure(array4, Times);
@@ -271,7 +277,7 @@ void car_control_timer_handler(void)
 //			Result_Middle_M_L = Servo[1];
 //			Result_Middle_M_R = Servo[2];
 //		  	Result_R = Servo[3];
-//			Result_Middle_M = Servo[4];// ï¿½Ð¼ï¿½ï¿½ï¿½Öµ
+//			Result_Middle_M = Servo[4];// ÖÐ¼äµç¸ÐÖµ
 			
 			Result_L = (uint16)((Result_L/ (Max1 * 1.00) ) *100);
 			Result_Middle_M_L = (uint16)((Result_Middle_M_L/ (Max2 * 1.00)) *100);
@@ -283,7 +289,7 @@ void car_control_timer_handler(void)
 
 
 
-		// ========== ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¶Î½Ç¶È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½ ==========
+		// ========== »·µºÁù½×¶Î½Ç¶È»ý·ÖÓëÀï³Ì¼ÆÊý ==========
 		  imu660ra_get_gyro();
 		  Yaw_Angular_Speed = - imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z);
 		  
@@ -292,21 +298,21 @@ void car_control_timer_handler(void)
 			Yaw_Angle = (euler.yaw * 90) / 40.0f;
 //		  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
 
-//		  // Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½×¶Î£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¶È»ï¿½ï¿½Ö£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½
+//		  // Ô¤´¦Àí½×¶Î£º²»×ö½Ç¶È»ý·Ö£¬±£³ÖÕý³£Ñ­¼£
 //		//  if(Round_State == ROUND_NONE)
 //		//  {
-//		//      // ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//		//      // Õý³£Ñ­¼££¬²»´¦Àí
 //		//  }
-//		  // ï¿½ë»·ï¿½×¶ï¿½ 0ï¿½ï¿½~60ï¿½ï¿½
-//			  // ========== ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ==========
-//		  // Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½×¶ï¿½ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½
+//		  // Èë»·½×¶Î 0¡ã~60¡ã
+//			  // ========== »·µºÀï³Ì¼ÆÊý´¦Àí ==========
+//		  // Ô¤´¦Àí½×¶ÎÀï³Ì¼ÆÊý
 //		  if(Round_State == ROUND_PRE)
 //		  {
 //			  Second_distance_calculate();
 //			  Round_Pre_Distance += Second_encoder_ave;
 //			  if(Round_Pre_Distance >= Round_Params.pre_distance_thres)
 //			  {
-//				  // ï¿½ï¿½Ì´ïµ½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½Ç¶È»ï¿½ï¿½Ö£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë»·ï¿½×¶ï¿½
+//				  // Àï³Ì´ïµ½ãÐÖµ£¬¿ªÆôÆ«º½½Ç¶È»ý·Ö£¬½øÈëÈë»·½×¶Î
 //				  Round_State = ROUND_ENTRY;
 //				  Round_Pre_Distance = 0;
 //				  Yaw_Angle = 0;
@@ -319,34 +325,34 @@ void car_control_timer_handler(void)
 //			  if(fabs(Yaw_Angle) >= Round_Params.entry_angle_end)
 //			  {
 //				  Round_State = ROUND_INSIDE;
-//				  if(Round_Direction == 0)//ï¿½ó»·µï¿½
+//				  if(Round_Direction == 0)//×ó»·µº
 //				  {
 //					  Yaw_Angle = -Round_Params.entry_angle_end;
 //				  }
-//				  else//ï¿½Ò»ï¿½ï¿½ï¿½
+//				  else//ÓÒ»·µº
 //				  {
 //					  Yaw_Angle = Round_Params.entry_angle_end;
 //				  }
 //			  }
 //		  }
-//		  // ï¿½ï¿½ï¿½Ú½×¶ï¿½ 60ï¿½ï¿½~270ï¿½ï¿½
+//		  // »·ÄÚ½×¶Î 60¡ã~270¡ã
 //		  else if(Round_State == ROUND_INSIDE)
 //		  {
 //			  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
 //			  if(fabs(Yaw_Angle) >= Round_Params.inside_angle_end)
 //			  {
 //				  Round_State = ROUND_EXIT;
-//				  if(Round_Direction == 0)//ï¿½ó»·µï¿½
+//				  if(Round_Direction == 0)//×ó»·µº
 //				  {
 //					  Yaw_Angle = -Round_Params.inside_angle_end;
 //				  }
-//				  else//ï¿½Ò»ï¿½ï¿½ï¿½
+//				  else//ÓÒ»·µº
 //				  {
 //					  Yaw_Angle = Round_Params.inside_angle_end;
 //				  }
 //			  }
 //		  }
-//		  // ï¿½ï¿½ï¿½ï¿½ï¿½×¶ï¿½ 270ï¿½ï¿½~330ï¿½ï¿½
+//		  // ³ö»·½×¶Î 270¡ã~330¡ã
 //		  else if(Round_State == ROUND_EXIT)
 //		  {
 //			  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
@@ -358,44 +364,56 @@ void car_control_timer_handler(void)
 //			  }
 //		  }
 
-//		  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½
+//		  // ³ö»·ºóÀï³Ì¼ÆÊý
 //		  else if(Round_State == ROUND_EXIT_AFTER)
 //		  {
 //			  Second_distance_calculate();
 //			  Round_Exit_Distance += Second_encoder_ave;
 //			  if(Round_Exit_Distance >= Round_Params.exit_distance_thres)
 //			  {
-//				  // ï¿½ï¿½Ì³ï¿½ï¿½ï¿½10cmï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë³ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
+//				  // Àï³Ì³¬¹ý10cm£¬³¹µ×ÍË³ö»·µº×´Ì¬
 //				  Round_State = ROUND_NONE;
 //				  Round_Exit_Distance = 0;
 //				  Buzzer_Off();
 //			  }
 //		  }
+
+			duty = seekfree_assistant_parameter[6];
+
+			if(seekfree_assistant_parameter[7] == 0)
+			{
+				pwm_duty(PWMB_CH1_P20,duty);
+			}
+
 			
+			else if(seekfree_assistant_parameter[7] == 1)
+			{
+				pwm_duty(PWMB_CH1_P20,500);
+			}
+		
 			turn_cmd = Turn_Control_PID(Result_L,Result_Middle_M_L,Result_Middle_M_R,Result_R,Result_Middle_M);
 			Turn_Output = turn_cmd;		
 						
-			Differential_Speed_Control(Turn_Output);// ï¿½ï¿½ï¿½Ù·ï¿½ï¿½ï¿½
+			Differential_Speed_Control(Turn_Output);// ²îËÙ·ÖÅä
 				
 
-			Motor_PID(SpeedTarget_L,motor_speed_L,1.6,3.65,1.5,Left,Turn_Output);// ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½PID 
-			Motor_PID(Target_Right1,motor_speed_R,2.3,3.8,0.7,Right,Turn_Output);// ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½PID 
+			Motor_PID(SpeedTarget_L,motor_speed_L,1.6,3.65,1.5,Left,Turn_Output);// ×óÂÖËÙ¶È»·PID //5,2.5,1.25/1.4,0.8,0/3,1.5,0.3/1.4/0.8
+			Motor_PID(Target_Right1,motor_speed_R,2.3,3.8,0.7,Right,Turn_Output);// ÓÒÂÖËÙ¶È»·PID //4.8,2.4,1.25/1.7,0.6,0/2.5,0.8,0.2/1.7£¬0.8
 				//L:1.6,3.65,1.5
 				//R:2.3,3.8,0.7			
-//				conservation = PID_Conservation(Result_L,Result_Middle_M_L,Result_Middle_M_R,Result_R);// ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½
+			conservation = PID_Conservation(Result_L,Result_Middle_M_L,Result_Middle_M_R,Result_R);// ±£»¤ÅÐ¶Ï
 
 
-//				Motor_PID(SpeedTarget_L,motor_speed_L,seekfree_assistant_parameter[0],seekfree_assistant_parameter[1],seekfree_assistant_parameter[2],Left,Turn_Output);// ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½PID //5,2.5,1.25/1.4,0.8,0/3,1.5,0.3/1.4/0.8
-//				Motor_PID(Target_Right1,motor_speed_R,seekfree_assistant_parameter[3],seekfree_assistant_parameter[4],seekfree_assistant_parameter[5],Right,Turn_Output);// ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È»ï¿½PID //4.8,2.4,1.25/1.7,0.6,0/2.5,0.8,0.2/1.7ï¿½ï¿½0.8
+//				Motor_PID(SpeedTarget_L,motor_speed_L,seekfree_assistant_parameter[0],seekfree_assistant_parameter[1],seekfree_assistant_parameter[2],Left,Turn_Output);// ×óÂÖËÙ¶È»·PID //5,2.5,1.25/1.4,0.8,0/3,1.5,0.3/1.4/0.8
+//		}
 
 
-			
-			
-//			if(conservation == 0 && LCD_Config == 0)
-//			{
-				Motor_PWM_set_L();// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½PWM
-				Motor_PWM_set_R();// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½PWM
-//			}//PID	
+					
+			if(conservation == 0 && LCD_Config == 0)
+			{
+				Motor_PWM_set_L();// Êä³ö×óÂÖPWM
+				Motor_PWM_set_R();// Êä³öÓÒÂÖPWM
+			}//PID	
 
 			
 
@@ -409,19 +427,19 @@ void car_control_timer_handler(void)
 
 void TM2_Isr() interrupt 12
 {
-	TIM2_CLEAR_FLAG;  // UART2 Ê¹ï¿½ï¿½ TIM2 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¿ï¿½ï¿½ï¿½ TIM2 ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½
+	TIM2_CLEAR_FLAG;  // UART2 Ê¹ÓÃ TIM2 ×÷²¨ÌØÂÊ·¢ÉúÆ÷£¬Õý³£²»ÔÙ¿ªÆô TIM2 ÖÜÆÚÖÐ¶Ï
 }
 
 void TM3_Isr() interrupt 19
 {
-	TIM3_CLEAR_FLAG; // ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ 3 ï¿½Ð¶Ï±ï¿½Ö¾
+	TIM3_CLEAR_FLAG; // Çå³ý¶¨Ê±Æ÷ 3 ÖÐ¶Ï±êÖ¾
 
 }
 
 
 void TM4_Isr() interrupt 20
 {
-	TIM4_CLEAR_FLAG; // ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ 4 ï¿½Ð¶Ï±ï¿½Ö¾
+	TIM4_CLEAR_FLAG; // Çå³ý¶¨Ê±Æ÷ 4 ÖÐ¶Ï±êÖ¾
 	car_control_timer_handler();
 
 }
