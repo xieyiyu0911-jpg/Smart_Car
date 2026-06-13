@@ -770,9 +770,9 @@
               <FilePath>.\IMU.c</FilePath>
             </File>
             <File>
-              <FileName>Fan.c</FileName>
+              <FileName>fan_control.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Fan.c</FilePath>
+              <FilePath>.\fan_control.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -830,9 +830,9 @@
               <FilePath>.\IMU.h</FilePath>
             </File>
             <File>
-              <FileName>Fan.h</FileName>
+              <FileName>fan_control.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\Fan.h</FilePath>
+              <FilePath>.\fan_control.h</FilePath>
             </File>
           </Files>
         </Group>

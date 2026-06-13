@@ -242,9 +242,9 @@ void Fuzzy_PID_Adjust(float error, float error_change, float *delta_Kp, float *d
 	float xdata FUZZY_KP2_SCALE = 0;
 	
 
-		FUZZY_KP_SCALE = seekfree_assistant_parameter[0];
-		FUZZY_KD_SCALE = seekfree_assistant_parameter[1];
-		FUZZY_KP2_SCALE = seekfree_assistant_parameter[2];
+	FUZZY_KP_SCALE = seekfree_assistant_parameter[0];
+	FUZZY_KD_SCALE = seekfree_assistant_parameter[1];
+	FUZZY_KP2_SCALE = seekfree_assistant_parameter[2];
 
     e_idx  = quantize_frac(error,        FUZZY_E_MAX, &frac_e);
     ec_idx = quantize_frac(error_change, FUZZY_EC_MAX, &frac_ec);
@@ -348,40 +348,13 @@ float Turn_Control_PID(uint16 Result_L,uint16 Result_Middle_M_L,uint16 Result_Mi
         Cross_Config = 1;//十字标志位，主要用来让它过了十字之后减速，因为需要拐一个直角弯，容易过冲
     }
 	
-//    else if(Round_Config1 == 1)//入环在环内走的参数
-//    {
-//        Vertical_Weight = 0.85f;
-//        Denominator_Weight = Vertical_Weight + 0.01f;
-//		circle_config = 2;
-//    }
-//    else if(Round_Config2 == 1)//出环参数
-//    {
-//        Vertical_Weight = 0.6f;
-//        Denominator_Weight = Vertical_Weight + 0.01f;
-//        Servo_P2 = 0;
-//        Servo_P1 = 0.1f;
-//        GKD = 0;
-//		circle_config = 3;
-//    }
+
 	
 //	// ========== 环岛六阶段处理 ==========
 //	  else
 //	  {
 //		  // ① 预处理阶段检测：三路电感分别达到各自阈值
-//		  uint8 all_inductance_high = (Result_L >= Round_Params.pre_adc_thres_L)
-//									&& (Result_Middle_M >= Round_Params.pre_adc_thres_M)
-//									&& (Result_R >= Round_Params.pre_adc_thres_R);
-
-//		  // 正常循迹状态下检测到环岛特征
-//		  if(Round_State == ROUND_NONE && all_inductance_high)
-//		  {
-//			  Round_State = ROUND_PRE;
-//			  Round_Pre_Distance = 0;
-//			  Round_Config1 = 0;
-//		  }
-
-//		  // 预处理阶段：判断环岛方向
-//		  else if(Round_State == ROUND_PRE)
+//		  if(Round_State == ROUND_PRE)
 //		  {
 //			  // 如果左侧电感更强，判断为左环；否则为右环
 //			  if(Result_L > Result_R)

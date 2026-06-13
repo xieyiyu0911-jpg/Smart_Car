@@ -1,7 +1,7 @@
 #ifndef __IMU_H__
 #define __IMU_H__
 
-#define SAMPLE_FREQ  0.005f
+#define SAMPLE_FREQ  0.010f
 
 typedef struct
 {

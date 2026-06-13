@@ -122,20 +122,17 @@ extern uint8 xdata Fuzzy_Config;
 
 extern uint8 xdata Tiaocan_Config;
 
-extern float xdata duty;
-
-
 
 static void send_inductor_to_assistant(void)
 {
 
-	seekfree_assistant_oscilloscope_data.dat[0] = Result_L;
+	seekfree_assistant_oscilloscope_data.dat[0] = Pitch_Angle;
     seekfree_assistant_oscilloscope_data.dat[1] = Result_Middle_M_L;
     seekfree_assistant_oscilloscope_data.dat[2] = Result_Middle_M;
-    seekfree_assistant_oscilloscope_data.dat[3] = Result_Middle_M_R;
-	seekfree_assistant_oscilloscope_data.dat[4] = Result_R;
-	seekfree_assistant_oscilloscope_data.dat[5] = SpeedTarget_L;
-    seekfree_assistant_oscilloscope_data.dat[6] = Target_Right1;
+    seekfree_assistant_oscilloscope_data.dat[3] = Flat_distance;
+	seekfree_assistant_oscilloscope_data.dat[4] = Second_distance;
+	seekfree_assistant_oscilloscope_data.dat[5] = Element_Config;
+    seekfree_assistant_oscilloscope_data.dat[6] = Element_State;
     seekfree_assistant_oscilloscope_data.dat[7] = 0;
     seekfree_assistant_oscilloscope_data.channel_num = 8;
     seekfree_assistant_oscilloscope_send(&seekfree_assistant_oscilloscope_data);
@@ -164,8 +161,7 @@ void main()
 	quaternion_init();// 四元数初始化
 	gyro_calibrate(200);
 //	OLED_LCD_Show();
-	// 风扇
-	//fan_init();
+
 	
 //		// 注册上位机发送回调
 //	seekfree_assistant_transfer = seekfree_assistant_transfer_callback;// 回调函数

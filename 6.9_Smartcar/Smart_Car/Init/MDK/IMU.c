@@ -126,44 +126,64 @@ void quat_normalize(Quaternion* q)
 void quaternion_update(void) 
 {
     float gx, gy, gz;
+    float ax, ay, az;
+    float norm;
+    float vx, vy, vz;
+    float ex, ey, ez;
     float qDot1, qDot2, qDot3, qDot4;
+    const float accel_kp = 1.5f;
     
-    /* 读取IMU传感器数据 */
+    /* Read gyro and accelerometer data. */
     imu660ra_get_gyro();
+    imu660ra_get_acc();
 	
-    /* 处理陀螺仪数据，减去偏置并转换为弧度/秒 */
-    gx = imu660ra_gyro_transition((float)imu660ra_gyro_x - imu_data.gyro_x);
-    gy = imu660ra_gyro_transition((float)imu660ra_gyro_y - imu_data.gyro_y);
-    gz = imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z);
+    /* Apply the deadband in deg/s, then convert to rad/s. */
+    gx = IMU_lvbo(imu660ra_gyro_transition((float)imu660ra_gyro_x - imu_data.gyro_x));
+    gy = IMU_lvbo(imu660ra_gyro_transition((float)imu660ra_gyro_y - imu_data.gyro_y));
+    gz = IMU_lvbo(imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z));
 	
-		gx = gx * PI / 180.0f;
+    gx = gx * PI / 180.0f;
     gy = gy * PI / 180.0f;
     gz = gz * PI / 180.0f;
-	
-    /* 应用低通滤波 */
-    gx = IMU_lvbo(gx);
-    gy = IMU_lvbo(gy);
-    gz = IMU_lvbo(gz);
+
+    ax = imu660ra_acc_transition(imu660ra_acc_x);
+    ay = imu660ra_acc_transition(imu660ra_acc_y);
+    az = imu660ra_acc_transition(imu660ra_acc_z);
+
+    norm = sqrt(ax * ax + ay * ay + az * az);
+    if(norm > 0.5f && norm < 1.5f)
+    {
+        ax = ax / norm;
+        ay = ay / norm;
+        az = az / norm;
+
+        vx = 2.0f * (q.x * q.z - q.w * q.y);
+        vy = 2.0f * (q.w * q.x + q.y * q.z);
+        vz = q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z;
+
+        ex = ay * vz - az * vy;
+        ey = az * vx - ax * vz;
+        ez = ax * vy - ay * vx;
+
+        gx = gx + accel_kp * ex;
+        gy = gy + accel_kp * ey;
+        gz = gz + accel_kp * ez;
+    }
     
-    /* 基于四元数微分方程进行积分更新 */
-    /* q_dot = 0.5 * q ? ω，其中ω为角速度四元数[0,gx,gy,gz] */
+    /* Integrate the quaternion derivative. */
     qDot1 = 0.5f * (-q.x * gx - q.y * gy - q.z * gz);
     qDot2 = 0.5f * (q.w * gx + q.y * gz - q.z * gy);
     qDot3 = 0.5f * (q.w * gy - q.x * gz + q.z * gx);
     qDot4 = 0.5f * (q.w * gz + q.x * gy - q.y * gx);
     
-    /* 使用欧拉积分法更新四元数 */
+    /* Euler integration with the real 10 ms control period. */
     q.w = q.w + qDot1 * SAMPLE_FREQ;
     q.x = q.x + qDot2 * SAMPLE_FREQ;
     q.y = q.y + qDot3 * SAMPLE_FREQ;
     q.z = q.z + qDot4 * SAMPLE_FREQ;
     
-    /* 四元数归一化 */
     quat_normalize(&q);
-    
-    /* 计算欧拉角 */
     euler = quaternion_to_euler(q);
-
 }
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -209,9 +229,9 @@ EulerAngle quaternion_to_euler(Quaternion q)
 	euler.roll = custom_atan2(sinr_cosp, cosr_cosp);
     
     /* 转换为角度 */
-    euler.yaw = - euler.yaw * 180.0f / PI;
+    euler.yaw =  euler.yaw * 180.0f / PI;
 	euler.roll = euler.roll * 180.0f / PI;
-	euler.pitch = - euler.pitch * 180.0f / PI;
+	euler.pitch =  euler.pitch * 180.0f / PI;
     
     return euler;
 }

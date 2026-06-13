@@ -71,8 +71,6 @@ volatile int  xdata array1[7] ,xdata array2[7] , xdata array3[7] ,xdata array4[7
 int xdata i = 0;
 volatile int xdata Motor_Speed_Left[7],Motor_Speed_Right[7];
 
-float xdata duty = 0;
-
 volatile uint8 xdata Source_Config = 0;
 
 volatile int16 xdata Source_Start = 0;
@@ -289,15 +287,27 @@ void car_control_timer_handler(void)
 
 
 
-		// ========== 环岛六阶段角度积分与里程计数 ==========
+
 		  imu660ra_get_gyro();
 		  Yaw_Angular_Speed = - imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z);
 		  
 		  quaternion_update();
-		  Pitch_Angle = (euler.pitch * 90) / 40.0f;
-			Yaw_Angle = (euler.yaw * 90) / 40.0f;
-//		  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
+		  Pitch_Angle = euler.pitch;
+		  Yaw_Angle = euler.yaw;
 
+		  if(fabs(Pitch_Angle) <= 15)
+		  {
+			Flat_encoder_ave = (motor_speed_L + motor_speed_R) / 2;
+			Flat_distance += Flat_encoder_ave;
+		  }
+		  else
+		  {
+			Flat_distance = 0;
+		  }
+
+		  Element_Update();
+
+//		// ========== 环岛六阶段角度积分与里程计数 ==========
 //		  // 预处理阶段：不做角度积分，保持正常循迹
 //		//  if(Round_State == ROUND_NONE)
 //		//  {
@@ -321,7 +331,7 @@ void car_control_timer_handler(void)
 //		  }
 //		  else if(Round_State == ROUND_ENTRY)
 //		  {
-//			  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
+////			  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
 //			  if(fabs(Yaw_Angle) >= Round_Params.entry_angle_end)
 //			  {
 //				  Round_State = ROUND_INSIDE;
@@ -338,7 +348,7 @@ void car_control_timer_handler(void)
 //		  // 环内阶段 60°~270°
 //		  else if(Round_State == ROUND_INSIDE)
 //		  {
-//			  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
+////			  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
 //			  if(fabs(Yaw_Angle) >= Round_Params.inside_angle_end)
 //			  {
 //				  Round_State = ROUND_EXIT;
@@ -355,12 +365,12 @@ void car_control_timer_handler(void)
 //		  // 出环阶段 270°~330°
 //		  else if(Round_State == ROUND_EXIT)
 //		  {
-//			  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
+////			  Yaw_Angle += (imu660ra_gyro_transition((float)imu660ra_gyro_z - imu_data.gyro_z)) * 0.01;
 //			  if(fabs(Yaw_Angle) >= Round_Params.exit_angle_end)
 //			  {
 //				  Round_State = ROUND_EXIT_AFTER;
 //				  Yaw_Angle = 0;
-//				  Round_Exit_Distance = 0; 
+//				  Round_Exit_Distance = 0;
 //			  }
 //		  }
 
@@ -377,20 +387,6 @@ void car_control_timer_handler(void)
 //				  Buzzer_Off();
 //			  }
 //		  }
-
-			duty = seekfree_assistant_parameter[6];
-
-			if(seekfree_assistant_parameter[7] == 0)
-			{
-				pwm_duty(PWMB_CH1_P20,duty);
-			}
-
-			
-			else if(seekfree_assistant_parameter[7] == 1)
-			{
-				pwm_duty(PWMB_CH1_P20,500);
-			}
-		
 			turn_cmd = Turn_Control_PID(Result_L,Result_Middle_M_L,Result_Middle_M_R,Result_R,Result_Middle_M);
 			Turn_Output = turn_cmd;		
 						
@@ -401,7 +397,7 @@ void car_control_timer_handler(void)
 			Motor_PID(Target_Right1,motor_speed_R,2.3,3.8,0.7,Right,Turn_Output);// 右轮速度环PID //4.8,2.4,1.25/1.7,0.6,0/2.5,0.8,0.2/1.7，0.8
 				//L:1.6,3.65,1.5
 				//R:2.3,3.8,0.7			
-			conservation = PID_Conservation(Result_L,Result_Middle_M_L,Result_Middle_M_R,Result_R);// 保护判断
+//			conservation = PID_Conservation(Result_L,Result_Middle_M_L,Result_Middle_M_R,Result_R);// 保护判断
 
 
 //				Motor_PID(SpeedTarget_L,motor_speed_L,seekfree_assistant_parameter[0],seekfree_assistant_parameter[1],seekfree_assistant_parameter[2],Left,Turn_Output);// 左轮速度环PID //5,2.5,1.25/1.4,0.8,0/3,1.5,0.3/1.4/0.8
@@ -409,11 +405,11 @@ void car_control_timer_handler(void)
 
 
 					
-			if(conservation == 0 && LCD_Config == 0)
-			{
+//			if(conservation == 0 && LCD_Config == 0)
+//			{
 				Motor_PWM_set_L();// 输出左轮PWM
 				Motor_PWM_set_R();// 输出右轮PWM
-			}//PID	
+//			}//PID	
 
 			
 

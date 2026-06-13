@@ -66,6 +66,6 @@
 #include "Pwm.h"
 #include "IMU.h"
 #include "math.h"
-#include "Fan.h"
+#include "fan_control.h"
 
 #endif
